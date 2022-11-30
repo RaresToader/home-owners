@@ -1,5 +1,6 @@
 ### Gradle ###
 
+.idea/
 .gradle
 build/
 gradle-app.setting
