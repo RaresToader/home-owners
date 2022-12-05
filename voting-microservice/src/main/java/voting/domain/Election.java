@@ -37,6 +37,11 @@ public abstract class Election {
         Election other = (Election) o;
         return other.electionId == this.electionId;
     }
+
+    public int getElectionId() {
+        return electionId;
+    }
+
     public void incrementVoteCount() {
         this.voteCount++;
     }
