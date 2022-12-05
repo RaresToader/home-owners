@@ -16,10 +16,19 @@ public abstract class Election {
     @Id
     @Column(name = "electionId", nullable = false)
     int electionId;
+    int hoaId;
     private String name;
     private String description;
     private int voteCount;
     private Time scheduledFor;
+
+    public Election(String name, String description, int hoaId, Time scheduledFor) {
+        this.name = name;
+        this.description = description;
+        this.hoaId = hoaId;
+        this.scheduledFor = scheduledFor;
+        this.voteCount = 0;
+    }
 
     @Override
     public boolean equals(Object o) {

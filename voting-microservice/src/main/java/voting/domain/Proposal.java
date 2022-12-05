@@ -2,18 +2,27 @@ package voting.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import java.sql.Time;
 import java.util.HashMap;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 public class Proposal extends Election {
     private boolean winningChoice;
     private String status;
     private HashMap<String, Boolean> votes;
 
+    public Proposal(String name, String description, int hoaId, Time scheduledFor) {
+        super(name, description, hoaId, scheduledFor);
+        winningChoice = false;
+        status = "scheduled";
+        votes = new HashMap<>();
+    }
     private boolean canParticipate(String memberId) {
         return true;
     }
