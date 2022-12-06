@@ -1,7 +1,6 @@
 package voting.domain.converter;
 
 import voting.domain.Address;
-
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 

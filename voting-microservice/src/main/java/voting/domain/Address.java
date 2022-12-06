@@ -3,8 +3,6 @@ package voting.domain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Arrays;
-
 /**
  * A DDD value object representing an Address
  */

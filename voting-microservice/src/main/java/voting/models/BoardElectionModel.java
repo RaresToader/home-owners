@@ -3,7 +3,6 @@ package voting.models;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Data
 public class BoardElectionModel extends ElectionModel{

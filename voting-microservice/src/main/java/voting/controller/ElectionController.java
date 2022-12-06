@@ -44,4 +44,14 @@ public class ElectionController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create board election", e);
 		}
 	}
+
+	@PostMapping("/vote")
+	public ResponseEntity.BodyBuilder vote(@RequestBody int electionId, int memberId, int choice) {
+		try {
+			electionService.vote(electionId, memberId, choice);
+			return ResponseEntity.ok();
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot find election", e);
+		}
+	}
 }
