@@ -1,6 +1,7 @@
 package nl.tudelft.sem.template.authmember.domain.db;
 
 import nl.tudelft.sem.template.authmember.domain.Member;
+import nl.tudelft.sem.template.authmember.domain.password.PasswordHashingService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
 import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import org.springframework.stereotype.Service;
@@ -11,12 +12,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class MemberService {
     private final transient MemberRepository memberRepository;
+    private final transient PasswordHashingService passwordHashingService;
 
     /**
      * Instantiates a new MemberService.
      */
-    public MemberService(MemberRepository memberRepository) {
+    public MemberService(MemberRepository memberRepository, PasswordHashingService passwordHashingService) {
         this.memberRepository = memberRepository;
+        this.passwordHashingService = passwordHashingService;
     }
 
     /**
@@ -26,7 +29,7 @@ public class MemberService {
      */
     public Member registerUser(RegistrationModel model) throws MemberAlreadyExistsException {
 
-        Member member = new Member(model.getMemberId(), model.getPassword());
+        Member member = new Member(model.getMemberId(), passwordHashingService.hash(model.getPassword()));
 
         if (!memberRepository.existsByMemberId(member.getMemberId())) {
             memberRepository.save(member);
@@ -44,7 +47,7 @@ public class MemberService {
      */
     public Member updatePassword(RegistrationModel model) {
 
-        Member member = new Member(model.getMemberId(), model.getPassword());
+        Member member = new Member(model.getMemberId(), passwordHashingService.hash(model.getPassword()));
 
         if (memberRepository.existsByMemberId(member.getMemberId())) {
             memberRepository.save(member);
