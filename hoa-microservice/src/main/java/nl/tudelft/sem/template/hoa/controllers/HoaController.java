@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.hoa.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 import nl.tudelft.sem.template.hoa.db.HoaService;
 import nl.tudelft.sem.template.hoa.db.RequirementService;
@@ -46,17 +45,14 @@ public class HoaController {
     @PostMapping("/hoa/create")
     public ResponseEntity<Hoa> register(@RequestBody HoaRequestModel request) {
         try {
-            String country = request.getCountry();
-            String city = request.getCity();
-            String name = request.getName();
-            Hoa newHoa = Hoa.createHoa(country, city, name);
-            hoaService.saveHoa(newHoa);
+            Hoa newHoa = this.hoaService.registerHoa(request);
             return ResponseEntity.ok(newHoa);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
 
     }
+
 
     /**
      * Endpoint for getting all HOAs in the database.
@@ -68,7 +64,7 @@ public class HoaController {
         try {
             return ResponseEntity.ok(hoaService.getAllHoa());
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
