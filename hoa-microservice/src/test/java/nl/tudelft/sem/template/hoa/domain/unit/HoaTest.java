@@ -34,7 +34,7 @@ public class HoaTest {
     }
 
     @Test
-    void hashCodeTest(){
+    void hashCodeTest() {
         Hoa hoa = Hoa.createHoa("germany", "hamburg", "hamburger");
         Assertions.assertNotNull(hoa.hashCode());
     }
