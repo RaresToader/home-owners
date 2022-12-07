@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.hoa.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 import nl.tudelft.sem.template.hoa.db.ActivityService;
 import nl.tudelft.sem.template.hoa.db.HoaService;
@@ -46,9 +45,7 @@ public class ActivityController {
     @PutMapping("/activity/join/{membershipId}/{activityId}")
     public ResponseEntity<Activity> joinActivity(@PathVariable long membershipId, @PathVariable long activityId) {
         try {
-            Activity activity = activityService.getActivityById(activityId);
-            activity.joinActivity(membershipId);
-            activityService.addActivity(activity);
+            Activity activity = this.activityService.joinActivity(membershipId, activityId);
             return ResponseEntity.ok(activity);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -71,9 +68,7 @@ public class ActivityController {
     @DeleteMapping("/activity/leave/{membershipId}/{activityId}")
     public ResponseEntity<Activity> leaveActivity(@PathVariable long membershipId, @PathVariable long activityId) {
         try {
-            Activity activity = activityService.getActivityById(activityId);
-            activity.leaveActivity(membershipId);
-            activityService.addActivity(activity);
+            Activity activity = this.activityService.leaveActivity(membershipId, activityId);
             return ResponseEntity.ok(activity);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -85,6 +80,7 @@ public class ActivityController {
         // check if activityId is in that hoa's public board
     }
 
+
     /**
      * Endpoint for retrieving the public board for a specific hoa.
      *
@@ -94,22 +90,16 @@ public class ActivityController {
      */
     @GetMapping("/activity/publicBoard/{hoaId}/{membershipId}")
     public ResponseEntity<List<Activity>> getPublicBoard(@PathVariable long hoaId,
-                                                                      @PathVariable long membershipId) {
+                                                         @PathVariable long membershipId) {
         try {
-            List<Activity> activities = activityService.getActivitiesByHoaId(hoaId);
             // check if member is actually part of this hoa
-            for (Activity activity : activities) {
-                if (activity.isExpired()) {
-                    activityService.deleteActivity(activity);
-                }
-            }
-            activities = activityService.getActivitiesByHoaId(hoaId);
+            List<Activity> activities = this.activityService.updateAndRetrieveActivities(hoaId);
             return ResponseEntity.ok(activities);
-
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
+
 
     /**
      * Endpoint for creating an activity for a specific HOA.
@@ -117,16 +107,11 @@ public class ActivityController {
      * @return a response entity with all the new activity
      */
     @PostMapping("/activity/create")
-    public ResponseEntity<Activity>
-        createActivity(@RequestBody ActivityRequestModel activityRequestModel) throws HoaDoesntExistException {
-
-        if (hoaService.findHoaById(activityRequestModel.getHoaId())) {
-            Activity activity = new Activity(activityRequestModel.getHoaId(), activityRequestModel.getActivityName(),
-                    activityRequestModel.getActivityDescription(), activityRequestModel.getActivityTime(),
-                    activityRequestModel.getActivityDuration());
-            activityService.addActivity(activity);
-            return ResponseEntity.ok(activity);
+    public ResponseEntity<Activity> createActivity(@RequestBody ActivityRequestModel activityRequestModel) {
+        try {
+            return ResponseEntity.ok(this.activityService.createActivity(activityRequestModel, hoaService));
+        } catch (HoaDoesntExistException e) {
+            return ResponseEntity.badRequest().build();
         }
-        throw new HoaDoesntExistException("Hoa with id " + activityRequestModel.getHoaId() + " doesn't exist");
     }
 }
