@@ -1,20 +1,25 @@
 package nl.tudelft.sem.template.authmember.controllers;
 
 import java.util.List;
+
+import nl.tudelft.sem.template.authmember.authentication.JwtTokenGenerator;
+import nl.tudelft.sem.template.authmember.authentication.JwtUserDetailsService;
 import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
-import nl.tudelft.sem.template.authmember.models.GetHoaModel;
-import nl.tudelft.sem.template.authmember.models.HoaModel;
-import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
-import nl.tudelft.sem.template.authmember.models.RegistrationModel;
+import nl.tudelft.sem.template.authmember.models.*;
 import nl.tudelft.sem.template.authmember.services.HoaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,14 +37,21 @@ public class MemberController {
     private final transient HoaService hoaService;
     private final transient MembershipService membershipService;
 
+    private final transient AuthenticationManager authenticationManager;
+    private final transient JwtTokenGenerator jwtTokenGenerator;
+    private final transient JwtUserDetailsService jwtUserDetailsService;
+
     /**
      * Instantiates a new MemberController.
      */
     @Autowired
-    public MemberController(MemberService memberService, HoaService hoaService, MembershipService membershipService) {
+    public MemberController(MemberService memberService, HoaService hoaService, MembershipService membershipService, AuthenticationManager authenticationManager, JwtTokenGenerator jwtTokenGenerator, JwtUserDetailsService jwtUserDetailsService) {
         this.membershipService = membershipService;
         this.memberService = memberService;
         this.hoaService = hoaService;
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenGenerator = jwtTokenGenerator;
+        this.jwtUserDetailsService = jwtUserDetailsService;
     }
 
     /**
@@ -49,12 +61,13 @@ public class MemberController {
     public ResponseEntity<Member> register(@RequestBody RegistrationModel request) {
         try {
             Member member = memberService.registerUser(request);
-            return ResponseEntity.ok(member);
+            return ResponseEntity.ok().build();
 
         } catch (MemberAlreadyExistsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already exists", e);
         }
     }
+
 
     /**
      * Change member's password.
@@ -183,6 +196,33 @@ public class MemberController {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "HOA or member are not stored", e);
         }
+    }
+
+    /**
+     * Endpoint for authentication.
+     *
+     * @param request The login model
+     * @return JWT token if the login is successful
+     * @throws Exception if the user does not exist or the password is incorrect
+     */
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponseModel> authenticate(@RequestBody AuthenticationRequestModel request)
+            throws Exception {
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getMemberId(),
+                            request.getPassword()));
+        } catch (DisabledException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "USER_DISABLED", e);
+        } catch (BadCredentialsException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", e);
+        }
+
+        final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(request.getMemberId());
+        final String jwtToken = jwtTokenGenerator.generateToken(userDetails);
+        return ResponseEntity.ok(new AuthenticationResponseModel(jwtToken));
     }
 
 }
