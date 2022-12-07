@@ -2,6 +2,7 @@ package nl.tudelft.sem.template.authmember.controllers;
 
 import java.util.List;
 
+import nl.tudelft.sem.template.authmember.authentication.AuthManager;
 import nl.tudelft.sem.template.authmember.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.template.authmember.authentication.JwtUserDetailsService;
 import nl.tudelft.sem.template.authmember.domain.Member;
@@ -19,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,17 +43,20 @@ public class MemberController {
     private final transient JwtTokenGenerator jwtTokenGenerator;
     private final transient JwtUserDetailsService jwtUserDetailsService;
 
+    private final transient AuthManager authManager;
+
     /**
      * Instantiates a new MemberController.
      */
     @Autowired
-    public MemberController(MemberService memberService, HoaService hoaService, MembershipService membershipService, AuthenticationManager authenticationManager, JwtTokenGenerator jwtTokenGenerator, JwtUserDetailsService jwtUserDetailsService) {
+    public MemberController(MemberService memberService, HoaService hoaService, MembershipService membershipService, AuthenticationManager authenticationManager, JwtTokenGenerator jwtTokenGenerator, JwtUserDetailsService jwtUserDetailsService, AuthManager authManager) {
         this.membershipService = membershipService;
         this.memberService = memberService;
         this.hoaService = hoaService;
         this.authenticationManager = authenticationManager;
         this.jwtTokenGenerator = jwtTokenGenerator;
         this.jwtUserDetailsService = jwtUserDetailsService;
+        this.authManager = authManager;
     }
 
     /**
@@ -62,7 +67,6 @@ public class MemberController {
         try {
             Member member = memberService.registerUser(request);
             return ResponseEntity.ok().build();
-
         } catch (MemberAlreadyExistsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already exists", e);
         }
@@ -75,9 +79,11 @@ public class MemberController {
     @PostMapping("/updatePassword")
     public ResponseEntity<Member> updatePassword(@RequestBody RegistrationModel request) {
         try {
+            authManager.validateMember(request.getMemberId());
             Member member = memberService.updatePassword(request);
             return ResponseEntity.ok(member);
-
+        }catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access not allowed", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member doesn't exist", e);
         }
@@ -93,7 +99,10 @@ public class MemberController {
     public ResponseEntity<Member> getMember(@PathVariable String memberId) {
         try {
             Member member = memberService.getMember(memberId);
+            authManager.validateMember(member.getMemberId());
             return ResponseEntity.ok(member);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access not allowed", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member does not exist", e);
         }
@@ -126,7 +135,10 @@ public class MemberController {
         validateExistence(model);
         try {
             Membership membership = hoaService.leaveHoa(model);
+            authManager.validateMember(membership.getMemberId());
             return ResponseEntity.ok(membership);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access not allowed", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hoa or member are not found.", e);
         }
@@ -140,7 +152,10 @@ public class MemberController {
         validateExistence(model);
         try {
             Membership membership = hoaService.getCurrentMembership(model.getMemberId(), model.getHoaId());
+            authManager.validateMember(membership.getMemberId());
             return ResponseEntity.ok(membership);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access not allowed", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "HOA or member are not stored", e);
         }

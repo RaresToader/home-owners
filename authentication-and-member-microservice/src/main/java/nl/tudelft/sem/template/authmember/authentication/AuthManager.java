@@ -16,4 +16,10 @@ public class AuthManager {
     public String getMemberId() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
+
+    public void validateMember(String member) throws IllegalAccessException {
+        if (!member.equals(getMemberId())) {
+            throw new IllegalAccessException();
+        }
+    }
 }

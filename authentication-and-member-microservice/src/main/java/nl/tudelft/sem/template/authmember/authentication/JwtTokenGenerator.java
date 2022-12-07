@@ -40,7 +40,7 @@ public class JwtTokenGenerator {
     /**
      * Generate a JWT token for the provided member.
      *
-     * @param member The member
+     * @param user The member
      * @return the JWT token
      */
     public String generateToken(UserDetails user) {
