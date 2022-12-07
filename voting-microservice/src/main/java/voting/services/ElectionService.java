@@ -1,9 +1,10 @@
-package voting.domain.db.repos;
+package voting.services;
 
 import org.springframework.stereotype.Service;
 import voting.domain.BoardElection;
 import voting.domain.Election;
 import voting.domain.Proposal;
+import voting.domain.db.repos.ElectionRepository;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
 
@@ -38,9 +39,21 @@ public class ElectionService {
 		return null;
 	}
 
-	public void vote(int electionId, int memberId, int choice) {
+	public void vote(int electionId, int memberShipId, int choice) {
 		Election election = this.electionRepository.findByElectionId(electionId).
 			orElseThrow(() -> new IllegalArgumentException("Election not found"));
-		election.vote();
+		election.vote(memberShipId, choice);
+		this.electionRepository.save(election);
+	}
+
+	public Election getElection(int electionId) {
+		return this.electionRepository.findByElectionId(electionId).get();
+	}
+
+	public void conclude(int electionId) {
+		Election election = this.electionRepository.findByElectionId(electionId).
+			orElseThrow(() -> new IllegalArgumentException("Election not found"));
+		election.conclude();
+		this.electionRepository.save(election);
 	}
 }

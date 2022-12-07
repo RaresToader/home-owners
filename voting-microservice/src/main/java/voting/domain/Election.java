@@ -49,10 +49,7 @@ public abstract class Election {
     public void incrementVoteCount() {
         this.voteCount++;
     }
-    private boolean canParticipate() {
-        return false;
-    }
-    public void vote() {
+    public void vote(int membershipId, int choice) {
     }
     public Object conclude() { return null; }
 }

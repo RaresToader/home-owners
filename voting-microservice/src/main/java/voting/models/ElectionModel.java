@@ -6,15 +6,10 @@ import java.sql.Time;
 @Data
 public abstract class ElectionModel {
 
-	private int electionId;
 	private int hoaId;
 	private String name;
 	private String description;
 	private Time scheduledFor;
-
-	public int getElectionId() {
-		return electionId;
-	}
 
 	public int getHoaId() {
 		return hoaId;

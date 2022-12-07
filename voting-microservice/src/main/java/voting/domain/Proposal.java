@@ -4,7 +4,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapKeyColumn;
 import java.sql.Time;
 import java.util.HashMap;
 
@@ -15,7 +20,11 @@ import java.util.HashMap;
 public class Proposal extends Election {
     private boolean winningChoice;
     private String status;
-    private HashMap<String, Boolean> votes;
+    @ElementCollection
+    @MapKeyColumn(name="name")
+    @Column(name="value")
+    @CollectionTable(name="example_attributes", joinColumns=@JoinColumn(name="example_id"))
+    private HashMap<Integer, Boolean> votes;
 
     public Proposal(String name, String description, int hoaId, Time scheduledFor) {
         super(name, description, hoaId, scheduledFor);
@@ -23,12 +32,10 @@ public class Proposal extends Election {
         status = "scheduled";
         votes = new HashMap<>();
     }
-    private boolean canParticipate(String memberId) {
-        return true;
-    }
-    public void vote(String memberId, boolean vote) {
-        if (status.equals("ongoing") && canParticipate(memberId)) {
-            votes.put(memberId, vote);
+
+    public void vote(int membershipId, boolean vote) {
+        if (status.equals("ongoing")) {
+            votes.put(membershipId, vote);
             this.incrementVoteCount();
         }
     }
