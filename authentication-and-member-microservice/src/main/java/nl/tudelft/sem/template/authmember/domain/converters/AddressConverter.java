@@ -1,9 +1,9 @@
 package nl.tudelft.sem.template.authmember.domain.converters;
 
-import nl.tudelft.sem.template.authmember.domain.Address;
-
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+import nl.tudelft.sem.template.authmember.domain.Address;
+
 
 /**
  * JPA Converter for the Address object.
@@ -13,7 +13,7 @@ public class AddressConverter implements AttributeConverter<Address, String> {
 
     @Override
     public String convertToDatabaseColumn(Address address) {
-        return address.toDBString();
+        return address.toDbString();
     }
 
     @Override

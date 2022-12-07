@@ -1,11 +1,11 @@
 package nl.tudelft.sem.template.authmember.domain;
 
-import java.util.List;
 import java.util.Objects;
-import javax.persistence.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.NoArgsConstructor;
-import nl.tudelft.sem.template.authmember.domain.converters.AddressConverter;
 
 /**
  * A DDD entity representing an application user in our domain.
@@ -19,20 +19,20 @@ public class Member {
      */
     @Id
     @Column(name = "memberid", nullable = false)
-    private String memberID;
+    private String memberId;
 
     //TODO: Not store plaintext passwords
     @Column(name = "password_hash", nullable = false)
     private String password;
 
-    public Member(String memberID, String password) {
-        this.memberID = memberID;
+    public Member(String memberId, String password) {
+        this.memberId = memberId;
         this.password = password;
     }
 
 
-    public String getMemberID() {
-        return memberID;
+    public String getMemberId() {
+        return memberId;
     }
 
     public String getPassword() {
@@ -51,11 +51,11 @@ public class Member {
             return false;
         }
         Member member = (Member) o;
-        return memberID.equals(member.memberID);
+        return memberId.equals(member.memberId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(memberID);
+        return Objects.hash(memberId);
     }
 }

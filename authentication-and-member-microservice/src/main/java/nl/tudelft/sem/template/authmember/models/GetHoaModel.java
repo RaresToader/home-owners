@@ -6,7 +6,7 @@ import lombok.Data;
  * Model representing a HOA get/leave request.
  */
 @Data
-public class GetHOAModel extends HOAModel{
-    private String memberID;
-    private int hoaID;
+public class GetHoaModel extends HoaModel {
+    private String memberId;
+    private int hoaId;
 }

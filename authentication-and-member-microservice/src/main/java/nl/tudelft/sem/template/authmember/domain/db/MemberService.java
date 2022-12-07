@@ -14,7 +14,6 @@ public class MemberService {
 
     /**
      * Instantiates a new MemberService.
-     *
      */
     public MemberService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
@@ -22,13 +21,14 @@ public class MemberService {
 
     /**
      * Register a new member.
-     * @throws Exception if the user already exists
+     *
+     * @throws MemberAlreadyExistsException if the user already exists
      */
-    public Member registerUser(RegistrationModel model) throws MemberAlreadyExistsException{
+    public Member registerUser(RegistrationModel model) throws MemberAlreadyExistsException {
 
-        Member member = new Member(model.getMemberID(), model.getPassword());
+        Member member = new Member(model.getMemberId(), model.getPassword());
 
-        if (!memberRepository.existsByMemberID(member.getMemberID())) {
+        if (!memberRepository.existsByMemberId(member.getMemberId())) {
             memberRepository.save(member);
             return member;
         }
@@ -37,26 +37,37 @@ public class MemberService {
     }
 
     /**
-     * Updates member's password
-     * @param model
+     * Updates member's password.
+     *
+     * @param model the registration model
      * @return Member if password updated successfully
      */
-    public Member updatePassword(RegistrationModel model){
+    public Member updatePassword(RegistrationModel model) {
 
-        Member member = new Member(model.getMemberID(), model.getPassword());
+        Member member = new Member(model.getMemberId(), model.getPassword());
 
-        if (memberRepository.existsByMemberID(member.getMemberID())) {
+        if (memberRepository.existsByMemberId(member.getMemberId())) {
             memberRepository.save(member);
             return member;
         }
 
-        throw new IllegalArgumentException(model.getMemberID());
+        throw new IllegalArgumentException(model.getMemberId());
     }
 
-    public Member getMember(String memberID){
-        if (memberRepository.existsByMemberID(memberID)) {
-            return memberRepository.findByMemberID(memberID).get();
+    /**
+     * Return a member by memberId.
+     *
+     * @param memberId the memberId
+     * @return the member
+     * @throws IllegalArgumentException if the member does not exist
+     */
+
+    public Member getMember(String memberId) {
+        if (memberRepository.existsByMemberId(memberId)) {
+            if (memberRepository.findByMemberId(memberId).isPresent()) {
+                return memberRepository.findByMemberId(memberId).get();
+            }
         }
-        throw new IllegalArgumentException(memberID);
+        throw new IllegalArgumentException(memberId);
     }
 }

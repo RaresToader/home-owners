@@ -7,6 +7,6 @@ import lombok.Data;
  */
 @Data
 public class RegistrationModel {
-    private String memberID;
+    private String memberId;
     private String password;
 }
