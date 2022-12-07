@@ -81,7 +81,7 @@ public class Requirement {
             return false;
         }
         Requirement that = (Requirement) o;
-        return id == that.id && hoaId == that.hoaId && Objects.equals(prompt, that.prompt);
+        return id == that.id;
     }
 
     /**

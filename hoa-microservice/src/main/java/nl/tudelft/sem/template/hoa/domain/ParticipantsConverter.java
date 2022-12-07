@@ -8,14 +8,14 @@ public class ParticipantsConverter implements AttributeConverter<List<Long>, Str
 
     @Override
     public String convertToDatabaseColumn(List<Long> attribute) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for (Long l : attribute) {
-            result += l + ",";
+            result.append(l).append(",");
         }
         if (result.length() != 0) {
-            result = result.substring(0, result.length() - 1);
+            result = new StringBuilder(result.substring(0, result.length() - 1));
         }
-        return result;
+        return result.toString();
     }
 
     @Override
