@@ -7,8 +7,8 @@ import nl.tudelft.sem.template.authmember.domain.Address;
  * Model representing a registration request.
  */
 @Data
-public class JoinHOAModel  extends HOAModel {
-    private String memberID;
-    private int hoaID;
+public class JoinHoaModel  extends HoaModel {
+    private String memberId;
+    private int hoaId;
     private Address address;
 }

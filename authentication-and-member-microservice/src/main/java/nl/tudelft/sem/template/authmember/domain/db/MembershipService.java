@@ -1,15 +1,14 @@
 package nl.tudelft.sem.template.authmember.domain.db;
 
-import nl.tudelft.sem.template.authmember.domain.Membership;
-import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHOAException;
-import nl.tudelft.sem.template.authmember.models.JoinHOAModel;
-import nl.tudelft.sem.template.authmember.models.GetHOAModel;
-import nl.tudelft.sem.template.authmember.services.TimeUtils;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import nl.tudelft.sem.template.authmember.domain.Membership;
+import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
+import nl.tudelft.sem.template.authmember.models.GetHoaModel;
+import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
+import nl.tudelft.sem.template.authmember.services.TimeUtils;
+import org.springframework.stereotype.Service;
 
 /**
  * A DDD service for member-related queries.
@@ -20,7 +19,6 @@ public class MembershipService {
 
     /**
      * Instantiates a new MembershipService.
-     *
      */
     public MembershipService(MembershipRepository membershipRepository) {
         this.membershipRepository = membershipRepository;
@@ -28,59 +26,68 @@ public class MembershipService {
 
     /**
      * Register a new membership.
-     * @Throws MemberAlreadyInHOAException if there is an active membership for that HOA.
+     *
+     * @throws MemberAlreadyInHoaException if there is an active membership for that HOA.
      */
-    public Membership saveMembership(JoinHOAModel model) throws MemberAlreadyInHOAException{
-        Membership membership = new Membership(model.getMemberID(), model.getHoaID(), model.getAddress(), LocalDateTime.now(), null, false);
-        if (membershipRepository.findByMemberIDAndHoaIDAndDurationIsNull(model.getMemberID(), model.getHoaID()).isPresent())  {
-            throw new MemberAlreadyInHOAException(model);
+    public Membership saveMembership(JoinHoaModel model) throws MemberAlreadyInHoaException {
+        if (membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull(model.getMemberId(),
+                model.getHoaId()).isPresent()) {
+            throw new MemberAlreadyInHoaException(model);
+        } else {
+            membershipRepository.save(new Membership(model.getMemberId(),
+                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, false));
+            return new Membership(model.getMemberId(),
+                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, false);
         }
-        membershipRepository.save(membership);
-        return membership;
     }
 
     /**
      * Set membership as inactive. Adds a duration timestamp to membership.
+     *
      * @return Membership - the deactivated membership
      */
-    public Membership stopMembership(GetHOAModel model) {
-        Membership membership = getActiveMembershipByMemberAndHOA(model.getMemberID(), model.getHoaID());
+    public Membership stopMembership(GetHoaModel model) {
+        Membership membership = getActiveMembershipByMemberAndHoa(model.getMemberId(), model.getHoaId());
         membership.setDuration(TimeUtils.absoluteDifference(membership.getStartTime(), LocalDateTime.now()));
         membershipRepository.save(membership);
         return membership;
     }
 
-    public List<Membership> getMembershipsForMember(String memberID) {
-        return membershipRepository.findAllByMemberID(memberID);
+    public List<Membership> getMembershipsForMember(String memberId) {
+        return membershipRepository.findAllByMemberId(memberId);
     }
 
-    public List<Membership> getMembershipsByMemberAndHOA(String memberID, int hoaID) {
-        return membershipRepository.findAllByMemberIDAndHoaID(memberID, hoaID);
+    public List<Membership> getMembershipsByMemberAndHoa(String memberId, int hoaId) {
+        return membershipRepository.findAllByMemberIdAndHoaId(memberId, hoaId);
     }
 
-    public List<Membership> getActiveMemberships(String memberID) {
-        return membershipRepository.findAllByMemberIDAndDurationIsNull(memberID);
+    public List<Membership> getActiveMemberships(String memberId) {
+        return membershipRepository.findAllByMemberIdAndDurationIsNull(memberId);
     }
 
     /**
-     * Returns the current membership in a given HOA, if one exists.
+     * Returns the current membership in a given Hoa, if one exists.
      */
-    public Membership getActiveMembershipByMemberAndHOA(String memberID, int hoaID) {
-        Optional<Membership> membership = membershipRepository.findByMemberIDAndHoaIDAndDurationIsNull(memberID, hoaID);
+    public Membership getActiveMembershipByMemberAndHoa(String memberId, int hoaId) {
+        Optional<Membership> membership = membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull(memberId, hoaId);
         if (membership.isPresent()) {
             return membership.get();
         }
-        throw new IllegalArgumentException(memberID + " " + hoaID);
+        throw new IllegalArgumentException(memberId + " " + hoaId);
     }
 
-    public Membership getMembership(String membershipID) {
-        if (membershipRepository.existsByMembershipID(membershipID)) {
-            return membershipRepository.findByMembershipID(membershipID).get();
+    /**
+     * Method to query a membership by id.
+     *
+     * @param membershipId the id of the membership
+     * @return the membership, if found
+     */
+    public Membership getMembership(String membershipId) {
+        if (membershipRepository.existsByMembershipId(membershipId)) {
+            if (membershipRepository.findByMembershipId(membershipId).isPresent()) {
+                return membershipRepository.findByMembershipId(membershipId).get();
+            }
         }
-        throw new IllegalArgumentException(membershipID);
+        throw new IllegalArgumentException(membershipId);
     }
-
-
-
-
 }

@@ -1,11 +1,17 @@
 package nl.tudelft.sem.template.authmember.domain;
 
 import java.time.LocalDateTime;
-import lombok.EqualsAndHashCode;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
 import lombok.NoArgsConstructor;
 import nl.tudelft.sem.template.authmember.domain.converters.AddressConverter;
 
-import javax.persistence.*;
 
 /**
  * A DDD value object representing a membership, a relation between member and some hoa.
@@ -15,14 +21,14 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class Membership {
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO) //Automatically assign IDs
+    @GeneratedValue(strategy = GenerationType.AUTO) //Automatically assign IDs
     @Column(name = "membershipid", nullable = false)
-    private int membershipID;
+    private int membershipId;
     @Column(name = "memberid")
-    private String memberID;
+    private String memberId;
     @Column(name = "hoaid")
 
-    private int hoaID;
+    private int hoaId;
     @Column(name = "address")
     @Lob
     @Convert(converter = AddressConverter.class)
@@ -35,10 +41,20 @@ public class Membership {
     @Column(name = "isBoard")
     private boolean isBoard;
 
-    public Membership(String memberID, int hoaID, Address address, LocalDateTime startTime, LocalDateTime duration,
+    /**
+     * Constructor for the membership class.
+     *
+     * @param memberId  the id of the member
+     * @param hoaId     the hoa the member joined
+     * @param address   the address of the member
+     * @param startTime the start time
+     * @param duration  the duration
+     * @param isBoard   if the member is in the board
+     */
+    public Membership(String memberId, int hoaId, Address address, LocalDateTime startTime, LocalDateTime duration,
                       boolean isBoard) {
-        this.memberID = memberID;
-        this.hoaID = hoaID;
+        this.memberId = memberId;
+        this.hoaId = hoaId;
         this.address = address;
         this.startTime = startTime;
         this.duration = duration;
@@ -47,27 +63,23 @@ public class Membership {
 
     @Override
     public String toString() {
-        return "Membership{" +
-            "membershipID=" + membershipID +
-            ", memberID='" + memberID + '\'' +
-            ", hoaID=" + hoaID +
-            ", address=" + address +
-            ", startTime=" + startTime +
-            ", duration=" + duration +
-            ", isBoard=" + isBoard +
-            '}';
+        return "Membership{"
+                + "membershipID=" + membershipId + ", memberID='" + memberId
+                + '\'' + ", hoaID=" + hoaId + ", address="
+                + address + ", startTime=" + startTime + ", duration="
+                + duration + ", isBoard=" + isBoard + '}';
     }
 
-    public int getMembershipID() {
-        return membershipID;
+    public int getMembershipId() {
+        return membershipId;
     }
 
-    public String getMemberID() {
-        return memberID;
+    public String getMemberId() {
+        return memberId;
     }
 
-    public int getHoaID() {
-        return hoaID;
+    public int getHoaId() {
+        return hoaId;
     }
 
     public Address getAddress() {
@@ -82,7 +94,7 @@ public class Membership {
         return duration;
     }
 
-    public boolean isBoard() {
+    public boolean isInBoard() {
         return isBoard;
     }
 

@@ -1,14 +1,12 @@
 package nl.tudelft.sem.template.authmember.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import nl.tudelft.sem.template.authmember.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.db.MemberRepository;
+import nl.tudelft.sem.template.authmember.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,16 +36,16 @@ public class MemberTests {
     public void createMemberGoodCase() throws Exception {
         final Member member = new Member("Stefan", "coati69");
         final RegistrationModel model = new RegistrationModel();
-        model.setMemberID("Stefan");
+        model.setMemberId("Stefan");
         model.setPassword("coati69");
         // Act
         ResultActions resultActions = mockMvc.perform(post("/member/register")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(JsonUtil.serialize(model)));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(model)));
 
         // Assert
         resultActions.andExpect(status().isOk());
-        Member member1 = memberRepository.findByMemberID(model.getMemberID()).orElseThrow();
+        Member member1 = memberRepository.findByMemberId(model.getMemberId()).orElseThrow();
         assertThat(member).isEqualTo(member1);
     }
 }
