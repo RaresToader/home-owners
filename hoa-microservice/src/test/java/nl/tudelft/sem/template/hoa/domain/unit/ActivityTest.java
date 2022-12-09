@@ -1,0 +1,88 @@
+package nl.tudelft.sem.template.hoa.domain.unit;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import nl.tudelft.sem.template.hoa.domain.Activity;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ActivityTest {
+
+    Long hoaId;
+    String activityName;
+    String activityDescription;
+    LocalDateTime activityTime;
+    LocalTime activityDuration;
+    Activity activity;
+
+    @BeforeEach
+    void setUp(){
+        hoaId = 1L;
+        activityName = "BBQ";
+        activityDescription = "Annual neighborhood BBQ";
+        activityTime = LocalDateTime.of(2022, 12, 25, 12, 0);
+        activityDuration = LocalTime.of(2, 0);
+        activity = new Activity(hoaId, activityName, activityDescription, activityTime, activityDuration);
+    }
+
+    @Test
+    public void activityConstructorTest() {
+        assertNotNull(activity);
+        assertEquals(hoaId, activity.getHoaId());
+        assertEquals(activityName, activity.getActivityName());
+        assertEquals(activityDescription, activity.getActivityDescription());
+        assertEquals(activityTime, activity.getActivityTime());
+        assertEquals(activityDuration, activity.getActivityDuration());
+        assertTrue(activity.getParticipants().isEmpty());
+    }
+
+    @Test
+    public void joinActivityTest() {
+        long memberId = 12345L;
+        activity.joinActivity(memberId);
+
+        assertEquals(1, activity.getParticipants().size());
+        assertTrue(activity.getParticipants().contains(memberId));
+
+        long memberId1 = 678L;
+        activity.joinActivity(memberId1);
+
+        assertEquals(2, activity.getParticipants().size());
+        assertTrue(activity.getParticipants().contains(memberId1));
+    }
+
+    @Test
+    public void leaveActivityTest() {
+        long memberId = 12345L;
+        activity.joinActivity(memberId);
+        assertEquals(1, activity.getParticipants().size());
+        assertTrue(activity.getParticipants().contains(memberId));
+
+        activity.leaveActivity(memberId);
+        assertEquals(0, activity.getParticipants().size());
+        assertFalse(activity.getParticipants().contains(memberId));
+
+        //Member id which is not participating in the activity
+        long memberId1 = 678L;
+        activity.leaveActivity(memberId1);
+        assertEquals(0, activity.getParticipants().size());
+        assertFalse(activity.getParticipants().contains(memberId1));
+    }
+
+    @Test
+    public void isExpiredTest() {
+        LocalDateTime activityTimeExpired = LocalDateTime.of(2022, 6, 25, 12, 0);
+        Activity activityExpired = new Activity(hoaId, activityName, activityDescription, activityTimeExpired, activityDuration);
+
+        assertFalse(activity.isExpired());
+        assertTrue(activityExpired.isExpired());
+    }
+
+    @Test
+    public void equalsTest() {
+        assertNotEquals(activity,null);
+        assertEquals(activity,activity);
+    }
+}
