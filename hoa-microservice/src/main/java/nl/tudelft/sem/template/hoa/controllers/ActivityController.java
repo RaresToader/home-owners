@@ -94,7 +94,11 @@ public class ActivityController {
         try {
             // check if member is actually part of this hoa
             List<Activity> activities = this.activityService.updateAndRetrieveActivities(hoaId);
-            return ResponseEntity.ok(activities);
+            if (this.activityService.isInThisHoa(membershipId, hoaId)) {
+                return ResponseEntity.ok(activities);
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }

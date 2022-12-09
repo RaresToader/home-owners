@@ -10,6 +10,7 @@ import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaEx
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.HoaModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
+import nl.tudelft.sem.template.authmember.models.MembershipResponseModel;
 import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import nl.tudelft.sem.template.authmember.services.HoaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,6 +157,26 @@ public class MemberController {
             return ResponseEntity.ok(memberships);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member has not been found", e);
+        }
+    }
+
+    /**
+     * Endpoint to retrieve a membership by id.
+     *
+     * @param membershipId the membership id.
+     * @return the membership with the id provided
+     */
+    @GetMapping("/getMembershipById/{membershipId")
+    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable String membershipId) {
+        try {
+            Membership membership = membershipService.getMembership(membershipId);
+            MembershipResponseModel model = new MembershipResponseModel(membership.getMembershipId(),
+                    membership.getMemberId(), membership.getHoaId(), membership.getAddress(),
+                    membership.getStartTime(), membership.getDuration(), membership.isInBoard());
+
+            return ResponseEntity.ok(model);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 

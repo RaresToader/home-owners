@@ -7,6 +7,8 @@ import nl.tudelft.sem.template.hoa.domain.Activity;
 import nl.tudelft.sem.template.hoa.exception.ActivityDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.models.ActivityRequestModel;
+import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
+import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,14 +18,16 @@ import org.springframework.stereotype.Service;
 public class ActivityService {
 
     private final transient ActivityRepo activityRepo;
+    private final transient MembershipUtils membershipUtils;
 
     /**
      * Constructor for the activity service.
      *
      * @param activityRepo the activity repository
      */
-    public ActivityService(ActivityRepo activityRepo) {
+    public ActivityService(ActivityRepo activityRepo, MembershipUtils membershipUtils) {
         this.activityRepo = activityRepo;
+        this.membershipUtils = membershipUtils;
     }
 
     /**
@@ -89,6 +93,22 @@ public class ActivityService {
         activity.leaveActivity(membershipId);
         this.addActivity(activity);
         return activity;
+    }
+
+    /**
+     * Return true if the membershipId exists and its hoaId is the hoaId provided.
+     *
+     * @param membershipId the membership id
+     * @param hoaId        the hoaId
+     * @return true if the membership is for the hoaId provided
+     */
+    public boolean isInThisHoa(long membershipId, long hoaId) {
+        try {
+            MembershipResponseModel membership = this.membershipUtils.getMembershipById(membershipId);
+            return membership.getHoaId() == hoaId;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
