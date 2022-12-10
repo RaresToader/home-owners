@@ -93,9 +93,8 @@ public class ActivityController {
                                                          @PathVariable long membershipId) {
         try {
             // check if member is actually part of this hoa
-            List<Activity> activities = this.activityService.updateAndRetrieveActivities(hoaId);
             if (this.activityService.isInThisHoa(membershipId, hoaId)) {
-                return ResponseEntity.ok(activities);
+                return ResponseEntity.ok(this.activityService.updateAndRetrieveActivities(hoaId));
             } else {
                 return ResponseEntity.badRequest().build();
             }

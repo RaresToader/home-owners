@@ -166,7 +166,7 @@ public class MemberController {
      * @param membershipId the membership id.
      * @return the membership with the id provided
      */
-    @GetMapping("/getMembershipById/{membershipId")
+    @GetMapping("/getMembershipById/{membershipId}")
     public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable String membershipId) {
         try {
             Membership membership = membershipService.getMembership(membershipId);

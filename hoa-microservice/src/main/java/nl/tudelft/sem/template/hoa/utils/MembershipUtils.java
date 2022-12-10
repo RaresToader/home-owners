@@ -2,17 +2,17 @@ package nl.tudelft.sem.template.hoa.utils;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.GenericType;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
-import org.glassfish.jersey.client.ClientConfig;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+
 
 /**
  * Utils class that makes API requests to the membership microservice.
  */
 public class MembershipUtils {
     private static final String server = "http://localhost:8083/";
+    private static final ResteasyClient client = new ResteasyClientBuilder().build();
 
     /**
      * Retrieves a membership (if present) from the membership microservice.
@@ -21,12 +21,15 @@ public class MembershipUtils {
      * @return the membership response model
      */
     public MembershipResponseModel getMembershipById(long membershipId) {
-        Client client = ClientBuilder.newClient(new ClientConfig());
-        return client.target(server).path("member/getMembershipById/" + membershipId)
-                .request(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .get(new GenericType<>() {
-                });
+        try {
+            MembershipResponseModel model = client.target(server).path("getMembershipById/" + membershipId)
+                    .request(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .get(MembershipResponseModel.class);
+            return model;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Membership id invalid.");
+        }
     }
 
 }
