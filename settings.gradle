@@ -1,6 +1,8 @@
 rootProject.name = 'template'
 
 include 'authentication-microservice'
+include 'hoa-microservice'
 include 'example-microservice'
+include 'authentication-and-member-microservice'
 include 'voting-microservice'
 
