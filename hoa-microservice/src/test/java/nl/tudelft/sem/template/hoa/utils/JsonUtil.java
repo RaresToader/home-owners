@@ -1,7 +1,10 @@
 package nl.tudelft.sem.template.hoa.utils;
 
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
  * The Json util for tests.
@@ -16,6 +19,7 @@ public class JsonUtil {
      */
     public static String serialize(Object object) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
         String string = objectMapper.writeValueAsString(object);
         System.out.println(string);
         return string;
@@ -31,6 +35,8 @@ public class JsonUtil {
      */
     public static <T> T deserialize(String json, Class<T> type) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return objectMapper.readValue(json, type);
     }
 }
