@@ -23,12 +23,12 @@ public class Membership {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO) //Automatically assign IDs
     @Column(name = "membershipid", nullable = false)
-    private int membershipId;
+    private long membershipId;
     @Column(name = "memberid")
     private String memberId;
     @Column(name = "hoaid")
 
-    private int hoaId;
+    private long hoaId;
     @Column(name = "address")
     @Lob
     @Convert(converter = AddressConverter.class)
@@ -51,7 +51,7 @@ public class Membership {
      * @param duration  the duration
      * @param isBoard   if the member is in the board
      */
-    public Membership(String memberId, int hoaId, Address address, LocalDateTime startTime, LocalDateTime duration,
+    public Membership(String memberId, long hoaId, Address address, LocalDateTime startTime, LocalDateTime duration,
                       boolean isBoard) {
         this.memberId = memberId;
         this.hoaId = hoaId;
@@ -70,7 +70,7 @@ public class Membership {
                 + duration + ", isBoard=" + isBoard + '}';
     }
 
-    public int getMembershipId() {
+    public long getMembershipId() {
         return membershipId;
     }
 
@@ -78,7 +78,7 @@ public class Membership {
         return memberId;
     }
 
-    public int getHoaId() {
+    public long getHoaId() {
         return hoaId;
     }
 

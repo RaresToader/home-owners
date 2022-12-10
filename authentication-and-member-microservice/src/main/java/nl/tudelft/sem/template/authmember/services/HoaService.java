@@ -31,10 +31,10 @@ public class HoaService {
      */
     //TODO: Call the HOA microservice to persist the data
     //TODO: Add unique exceptions for HOA doesn't exist and user already in HOA
-    public Membership joinHoa(JoinHoaModel model) throws MemberAlreadyInHoaException {
+    public void joinHoa(JoinHoaModel model) throws MemberAlreadyInHoaException {
         //TODO: API Logic to connect with HOA here
 
-        return membershipService.saveMembership(model);
+        membershipService.saveMembership(model);
     }
 
     /**
@@ -46,11 +46,11 @@ public class HoaService {
         return membershipService.stopMembership(model);
     }
 
-    public Membership getCurrentMembership(String memberId, int hoaId) throws IllegalArgumentException {
+    public Membership getCurrentMembership(String memberId, long hoaId) throws IllegalArgumentException {
         return membershipService.getActiveMembershipByMemberAndHoa(memberId, hoaId);
     }
 
-    public List<Membership> getMembershipsForHoa(String memberId, int hoaId) {
+    public List<Membership> getMembershipsForHoa(String memberId, long hoaId) {
         return membershipService.getMembershipsByMemberAndHoa(memberId, hoaId);
     }
 }

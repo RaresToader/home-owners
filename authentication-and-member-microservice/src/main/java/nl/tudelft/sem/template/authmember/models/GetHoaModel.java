@@ -8,5 +8,5 @@ import lombok.Data;
 @Data
 public class GetHoaModel extends HoaModel {
     private String memberId;
-    private int hoaId;
+    private long hoaId;
 }
