@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.hoa.db;
 
-import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +64,7 @@ public class ActivityService {
     }
 
     /**
-     * Method that adds a user to an activity.
+     * Method that adds a user to an activity, if that user is in the hoa that hosts the activity.
      *
      * @param membershipId the membership id of the user
      * @param activityId   the activity id
@@ -74,13 +73,19 @@ public class ActivityService {
      */
     public Activity joinActivity(long membershipId, long activityId) throws ActivityDoesntExistException {
         Activity activity = this.getActivityById(activityId);
-        activity.joinActivity(membershipId);
-        this.addActivity(activity);
-        return activity;
+        MembershipResponseModel model = MembershipUtils.getMembershipById(membershipId);
+        if (activity.getHoaId() != model.getHoaId()) {
+            throw new IllegalArgumentException("Member is not eligible to join this!");
+        } else {
+            activity.joinActivity(membershipId);
+            this.addActivity(activity);
+            return activity;
+        }
+
     }
 
     /**
-     * Method that enables a member to leave an activity.
+     * Method that enables a member to leave an activity, if that user is in the hoa that hosts the activity.
      *
      * @param membershipId the membership id
      * @param activityId   the id of the activity
@@ -89,9 +94,15 @@ public class ActivityService {
      */
     public Activity leaveActivity(long membershipId, long activityId) throws ActivityDoesntExistException {
         Activity activity = this.getActivityById(activityId);
-        activity.leaveActivity(membershipId);
-        this.addActivity(activity);
-        return activity;
+        MembershipResponseModel model = MembershipUtils.getMembershipById(membershipId);
+        if (activity.getHoaId() != model.getHoaId()) {
+            throw new IllegalArgumentException("Member is not eligible to join this!");
+        } else {
+            activity.leaveActivity(membershipId);
+            this.addActivity(activity);
+            return activity;
+        }
+
     }
 
     /**
@@ -135,12 +146,16 @@ public class ActivityService {
      * @return the activity created
      * @throws HoaDoesntExistException thrown if Hoa does not exist
      */
-    public Activity createActivity(ActivityRequestModel activityRequestModel, HoaService hoaService)
+    public Activity createActivity(ActivityRequestModel activityRequestModel, HoaService hoaService, long membershipId)
             throws HoaDoesntExistException {
         if (hoaService.findHoaById(activityRequestModel.getHoaId())) {
             Activity activity = new Activity(activityRequestModel.getHoaId(), activityRequestModel.getActivityName(),
                     activityRequestModel.getActivityDescription(), activityRequestModel.getActivityTime(),
                     activityRequestModel.getActivityDuration());
+            MembershipResponseModel model = MembershipUtils.getMembershipById(membershipId);
+            if (activity.getHoaId() != model.getHoaId()) {
+                throw new IllegalArgumentException("Not in the HOA!");
+            }
             this.addActivity(activity);
             return activity;
         }

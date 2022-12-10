@@ -6,6 +6,8 @@ import nl.tudelft.sem.template.hoa.db.HoaService;
 import nl.tudelft.sem.template.hoa.domain.Activity;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.models.ActivityRequestModel;
+import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
+import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +38,7 @@ public class ActivityController {
     }
 
     /**
-     * Endpoint for joining an activity.
+     * Endpoint for joining an activity, works if the member is in the hoa that hosts the activity.
      *
      * @param membershipId the membership id
      * @param activityId   the id of the activity
@@ -50,16 +52,10 @@ public class ActivityController {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-        //Optional<Membership> membership = membershipRepo.findById(memberIdl);
-        // if membership is not found => not found response
-        // if found, we then have hoaId, and memberId
-        // check if memberId is in that Hoa
-        // check if activityId is in that hoa's public board
-
     }
 
     /**
-     * Endpoint for leaving an activity.
+     * Endpoint for leaving an activity, works if the member is in the hoa that hosts the activity.
      *
      * @param membershipId the membership id
      * @param activityId   the id of the activity
@@ -73,11 +69,6 @@ public class ActivityController {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-        //Optional<Membership> membership = membershipRepo.findById(memberIdl);
-        // if membership is not found => not found response
-        // if found, we then have hoaId, and memberId
-        // check if memberId is in that Hoa
-        // check if activityId is in that hoa's public board
     }
 
 
@@ -104,16 +95,20 @@ public class ActivityController {
 
 
     /**
-     * Endpoint for creating an activity for a specific HOA.
+     * Endpoint for creating an activity for a specific HOA,
+     * works if the user requesting it is in the hoa that will host the activity.
      *
      * @return a response entity with all the new activity
      */
-    @PostMapping("/activity/create")
-    public ResponseEntity<Activity> createActivity(@RequestBody ActivityRequestModel activityRequestModel) {
+    @PostMapping("/activity/create/{membershipId}")
+    public ResponseEntity<Activity> createActivity(@RequestBody ActivityRequestModel activityRequestModel,
+                                                   @PathVariable long membershipId) {
         try {
-            return ResponseEntity.ok(this.activityService.createActivity(activityRequestModel, hoaService));
+            return ResponseEntity.ok(this.activityService.createActivity(activityRequestModel, hoaService, membershipId));
         } catch (HoaDoesntExistException e) {
             return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }
