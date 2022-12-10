@@ -29,15 +29,13 @@ public class MembershipService {
      *
      * @throws MemberAlreadyInHoaException if there is an active membership for that HOA.
      */
-    public Membership saveMembership(JoinHoaModel model) throws MemberAlreadyInHoaException {
+    public void saveMembership(JoinHoaModel model) throws MemberAlreadyInHoaException {
         if (membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull(model.getMemberId(),
                 model.getHoaId()).isPresent()) {
             throw new MemberAlreadyInHoaException(model);
         } else {
             membershipRepository.save(new Membership(model.getMemberId(),
                     model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, false));
-            return new Membership(model.getMemberId(),
-                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, false);
         }
     }
 
@@ -57,7 +55,7 @@ public class MembershipService {
         return membershipRepository.findAllByMemberId(memberId);
     }
 
-    public List<Membership> getMembershipsByMemberAndHoa(String memberId, int hoaId) {
+    public List<Membership> getMembershipsByMemberAndHoa(String memberId, long hoaId) {
         return membershipRepository.findAllByMemberIdAndHoaId(memberId, hoaId);
     }
 
@@ -68,7 +66,7 @@ public class MembershipService {
     /**
      * Returns the current membership in a given Hoa, if one exists.
      */
-    public Membership getActiveMembershipByMemberAndHoa(String memberId, int hoaId) {
+    public Membership getActiveMembershipByMemberAndHoa(String memberId, long hoaId) {
         Optional<Membership> membership = membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull(memberId, hoaId);
         if (membership.isPresent()) {
             return membership.get();
@@ -82,12 +80,15 @@ public class MembershipService {
      * @param membershipId the id of the membership
      * @return the membership, if found
      */
-    public Membership getMembership(String membershipId) {
-        if (membershipRepository.existsByMembershipId(membershipId)) {
-            if (membershipRepository.findByMembershipId(membershipId).isPresent()) {
-                return membershipRepository.findByMembershipId(membershipId).get();
-            }
+    public Membership getMembership(long membershipId) {
+        if (membershipRepository.findByMembershipId(membershipId).isPresent()) {
+            return membershipRepository.findByMembershipId(membershipId).get();
+        } else {
+            throw new IllegalArgumentException(String.valueOf(membershipId));
         }
-        throw new IllegalArgumentException(membershipId);
+    }
+
+    public List<Membership> getAll() {
+        return this.membershipRepository.findAll();
     }
 }

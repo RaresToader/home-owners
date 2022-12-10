@@ -11,11 +11,11 @@ import nl.tudelft.sem.template.authmember.domain.Address;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MembershipResponseModel {
-    private int membershipId;
+    private long membershipId;
     private String memberId;
-    private int hoaId;
-    private Address address;
-    private LocalDateTime startTime;
-    private LocalDateTime duration;
+    private long hoaId;
+    //private Address address;
+    //private LocalDateTime startTime;
+    //private LocalDateTime duration;
     private boolean isBoard;
 }

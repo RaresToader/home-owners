@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.hoa.db;
 
+import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,16 +19,14 @@ import org.springframework.stereotype.Service;
 public class ActivityService {
 
     private final transient ActivityRepo activityRepo;
-    private final transient MembershipUtils membershipUtils;
 
     /**
      * Constructor for the activity service.
      *
      * @param activityRepo the activity repository
      */
-    public ActivityService(ActivityRepo activityRepo, MembershipUtils membershipUtils) {
+    public ActivityService(ActivityRepo activityRepo) {
         this.activityRepo = activityRepo;
-        this.membershipUtils = membershipUtils;
     }
 
     /**
@@ -104,7 +103,7 @@ public class ActivityService {
      */
     public boolean isInThisHoa(long membershipId, long hoaId) {
         try {
-            MembershipResponseModel membership = this.membershipUtils.getMembershipById(membershipId);
+            MembershipResponseModel membership = MembershipUtils.getMembershipById(membershipId);
             return membership.getHoaId() == hoaId;
         } catch (Exception e) {
             return false;

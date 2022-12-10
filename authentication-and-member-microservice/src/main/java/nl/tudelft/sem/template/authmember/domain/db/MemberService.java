@@ -61,7 +61,6 @@ public class MemberService {
      * @return the member
      * @throws IllegalArgumentException if the member does not exist
      */
-
     public Member getMember(String memberId) {
         if (memberRepository.existsByMemberId(memberId)) {
             if (memberRepository.findByMemberId(memberId).isPresent()) {

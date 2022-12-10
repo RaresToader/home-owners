@@ -11,7 +11,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
  * Utils class that makes API requests to the membership microservice.
  */
 public class MembershipUtils {
-    private static final String server = "http://localhost:8083/";
+    private static final String server = "http://localhost:8083/member/";
     private static final ResteasyClient client = new ResteasyClientBuilder().build();
 
     /**
@@ -20,7 +20,7 @@ public class MembershipUtils {
      * @param membershipId the membership id for the membership being queried.
      * @return the membership response model
      */
-    public MembershipResponseModel getMembershipById(long membershipId) {
+    public static MembershipResponseModel getMembershipById(long membershipId) {
         try {
             MembershipResponseModel model = client.target(server).path("getMembershipById/" + membershipId)
                     .request(APPLICATION_JSON)

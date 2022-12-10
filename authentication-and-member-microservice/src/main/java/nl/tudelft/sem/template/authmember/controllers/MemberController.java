@@ -94,8 +94,8 @@ public class MemberController {
     @PostMapping("/joinHOA")
     public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model) {
         try {
-            Membership membership = hoaService.joinHoa(model);
-            return ResponseEntity.ok(membership);
+            hoaService.joinHoa(model);
+            return ResponseEntity.ok().build();
         } catch (MemberAlreadyInHoaException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already in Hoa", e);
         } catch (IllegalArgumentException e) {
@@ -167,14 +167,28 @@ public class MemberController {
      * @return the membership with the id provided
      */
     @GetMapping("/getMembershipById/{membershipId}")
-    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable String membershipId) {
+    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
         try {
             Membership membership = membershipService.getMembership(membershipId);
             MembershipResponseModel model = new MembershipResponseModel(membership.getMembershipId(),
-                    membership.getMemberId(), membership.getHoaId(), membership.getAddress(),
-                    membership.getStartTime(), membership.getDuration(), membership.isInBoard());
+                    membership.getMemberId(), membership.getHoaId(),
+                    membership.isInBoard());
 
             return ResponseEntity.ok(model);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Rest endpoint to get all memberships.
+     *
+     * @return all memberships
+     */
+    @GetMapping("/getAllMemberships")
+    public ResponseEntity<List<Membership>> getAllMemberships() {
+        try {
+            return ResponseEntity.ok(this.membershipService.getAll());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
