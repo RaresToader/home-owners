@@ -82,7 +82,7 @@ public class ActivityController {
 
 
     /**
-     * Endpoint for retrieving the public board for a specific hoa.
+     * Endpoint for retrieving the public board for a specific hoa, if the requesting member is in the HOA.
      *
      * @param hoaId        the hoaId
      * @param membershipId the membership id of the member requesting
@@ -92,7 +92,6 @@ public class ActivityController {
     public ResponseEntity<List<Activity>> getPublicBoard(@PathVariable long hoaId,
                                                          @PathVariable long membershipId) {
         try {
-            // check if member is actually part of this hoa
             if (this.activityService.isInThisHoa(membershipId, hoaId)) {
                 return ResponseEntity.ok(this.activityService.updateAndRetrieveActivities(hoaId));
             } else {

@@ -88,6 +88,11 @@ public class MembershipService {
         }
     }
 
+    /**
+     * Get all the memberships in the repository.
+     *
+     * @return all the memberships
+     */
     public List<Membership> getAll() {
         return this.membershipRepository.findAll();
     }
