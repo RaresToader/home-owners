@@ -173,8 +173,7 @@ public class Activity {
                 && Objects.equals(activityDescription, activity.activityDescription)
                 && Objects.equals(hoaId, activity.hoaId)
                 && Objects.equals(activityTime, activity.activityTime)
-                && Objects.equals(activityDuration, activity.activityDuration)
-                && Objects.equals(participants, activity.participants);
+                && Objects.equals(activityDuration, activity.activityDuration);
     }
 
     /**
