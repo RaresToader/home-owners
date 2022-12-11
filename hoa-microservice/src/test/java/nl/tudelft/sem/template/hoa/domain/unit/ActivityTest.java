@@ -1,12 +1,16 @@
 package nl.tudelft.sem.template.hoa.domain.unit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import nl.tudelft.sem.template.hoa.domain.Activity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class ActivityTest {
 
@@ -18,7 +22,7 @@ public class ActivityTest {
     Activity activity;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         hoaId = 1L;
         activityName = "BBQ";
         activityDescription = "Annual neighborhood BBQ";
@@ -74,7 +78,8 @@ public class ActivityTest {
     @Test
     public void isExpiredTest() {
         LocalDateTime activityTimeExpired = LocalDateTime.of(2022, 6, 25, 12, 0);
-        Activity activityExpired = new Activity(hoaId, activityName, activityDescription, activityTimeExpired, activityDuration);
+        Activity activityExpired = new Activity(hoaId, activityName, activityDescription,
+                activityTimeExpired, activityDuration);
 
         assertFalse(activity.isExpired());
         assertTrue(activityExpired.isExpired());
@@ -82,7 +87,7 @@ public class ActivityTest {
 
     @Test
     public void equalsTest() {
-        assertNotEquals(activity,null);
-        assertEquals(activity,activity);
+        assertNotEquals(activity, null);
+        assertEquals(activity, activity);
     }
 }

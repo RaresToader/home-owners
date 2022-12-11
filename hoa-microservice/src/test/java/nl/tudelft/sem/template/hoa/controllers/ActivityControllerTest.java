@@ -4,8 +4,16 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
 import nl.tudelft.sem.template.hoa.db.ActivityRepo;
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.domain.Activity;
@@ -14,24 +22,18 @@ import nl.tudelft.sem.template.hoa.models.ActivityRequestModel;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import nl.tudelft.sem.template.hoa.utils.JsonUtil;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
-import org.checkerframework.checker.units.qual.A;
-import org.h2.store.FileLock;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.List;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -48,39 +50,42 @@ class ActivityControllerTest {
     private static MockedStatic<MembershipUtils> membershipUtils;
 
     @BeforeAll
-    static void registerMocks(){
+    static void registerMocks() {
         membershipUtils = mockStatic(MembershipUtils.class);
-        when(MembershipUtils.getMembershipById(1L)).thenReturn(new MembershipResponseModel(1L,"test user",1L,false));
+        when(MembershipUtils.getMembershipById(1L)).thenReturn(new MembershipResponseModel(1L, "test user", 1L, false));
     }
 
     @AfterAll
-    static void deregisterMocks(){
+    static void deregisterMocks() {
         membershipUtils.close();
     }
 
-    void insertActivityInDatabase(){
-        LocalDateTime activityTime = LocalDateTime.of(2025,9,26,20,30,0);
-        LocalTime activityDuration = LocalTime.of(1,30,0);
+    void insertActivityInDatabase() {
+        LocalDateTime activityTime = LocalDateTime.of(2025, 9, 26, 20, 30, 0);
+        LocalTime activityDuration = LocalTime.of(1, 30, 0);
         Activity activity = new Activity(1L, "BBQ", "We are having a BBQ", activityTime, activityDuration);
         activityRepo.save(activity);
     }
+
     @BeforeEach
-    void setUp(){
-        Hoa hoa = Hoa.createHoa("Germany", "Berlin","Coolest");
+    void setUp() {
+        Hoa hoa = Hoa.createHoa("Germany", "Berlin", "Coolest");
         hoaRepo.save(hoa);
     }
 
     @Test
     public void createActivityTest() throws Exception {
 
-        LocalDateTime activityTime = LocalDateTime.of(2030,12,15,5,30,15);
-        LocalTime activityDuration = LocalTime.of(2,30,30);
+        LocalDateTime activityTime = LocalDateTime.of(2030, 12, 15, 5, 30, 15);
+        LocalTime activityDuration = LocalTime.of(2, 30, 30);
 
         // Set up the ActivityRequestModel to be provided in the request body
-        ActivityRequestModel requestModel = new ActivityRequestModel("Test Activity", "This is a test activity",1L, activityTime, activityDuration);
+        ActivityRequestModel requestModel = new ActivityRequestModel("Test Activity", "This is a test activity",
+                1L, activityTime, activityDuration);
 
         // Set up the expected Activity object that the ActivityService should be called with
-        Activity expectedActivity = new Activity(1L, "Test Activity", "This is a test activity",activityTime, activityDuration);
+        Activity expectedActivity = new Activity(1L, "Test Activity", "This is a test activity",
+                activityTime, activityDuration);
 
         // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
         ResultActions resultActions = mockMvc.perform(post("/activity/create/" + 1L)
@@ -126,7 +131,7 @@ class ActivityControllerTest {
         long membershipId = 1L;
         long activityId = 2L;
 
-        joinActivity(membershipId,activityId);
+        joinActivity(membershipId, activityId);
 
         // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
         ResultActions resultActions = mockMvc.perform(delete("/activity/leave/" + membershipId + "/" + activityId));
@@ -147,14 +152,15 @@ class ActivityControllerTest {
         long hoaId = 1L;
 
         // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
-        ResultActions resultActions = mockMvc.perform(get("/activity/publicBoard/" + hoaId + "/" + membershipId ));
+        ResultActions resultActions = mockMvc.perform(get("/activity/publicBoard/" + hoaId + "/" + membershipId));
 
         resultActions.andExpect(status().isOk()); // Assert that the response has a 200 OK status
 
-        List<Activity> resultActivities = Arrays.asList(JsonUtil.deserialize(resultActions.andReturn().getResponse().getContentAsString(), Activity[].class));
+        List<Activity> resultActivities = Arrays.asList(JsonUtil.deserialize(resultActions.andReturn()
+                .getResponse().getContentAsString(), Activity[].class));
         List<Activity> actualActivities = activityRepo.findByHoaId(hoaId).orElseThrow();
 
-        assertEquals(resultActivities,actualActivities);
+        assertEquals(resultActivities, actualActivities);
     }
 
 }

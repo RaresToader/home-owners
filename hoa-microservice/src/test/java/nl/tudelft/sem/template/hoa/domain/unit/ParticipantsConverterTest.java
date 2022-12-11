@@ -1,11 +1,11 @@
 package nl.tudelft.sem.template.hoa.domain.unit;
 
-import nl.tudelft.sem.template.hoa.domain.ParticipantsConverter;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import nl.tudelft.sem.template.hoa.domain.ParticipantsConverter;
+import org.junit.jupiter.api.Test;
 
 class ParticipantsConverterTest {
 
@@ -21,7 +21,7 @@ class ParticipantsConverterTest {
         result = participantsConverter.convertToDatabaseColumn(list);
         assertEquals("", result);
 
-        list = List.of(1L,2L,3L,4L);
+        list = List.of(1L, 2L, 3L, 4L);
         result = participantsConverter.convertToDatabaseColumn(list);
         assertEquals("1,2,3,4", result);
     }
