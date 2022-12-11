@@ -11,6 +11,9 @@ public class BoardElectionModel extends ElectionModel {
     public int amountOfWinners;
     public ArrayList<Integer> candidates;
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean isValid() {
         return amountOfWinners > 0
                 && candidates != null

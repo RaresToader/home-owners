@@ -1,10 +1,13 @@
 package voting.models;
 
+import lombok.Data;
+
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@Data
 public class TimeModel {
     public int seconds;
     public int minutes;

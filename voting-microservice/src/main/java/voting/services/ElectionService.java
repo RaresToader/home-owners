@@ -32,10 +32,10 @@ public class ElectionService {
     public BoardElection createBoardElection(BoardElectionModel model)
             throws BoardElectionAlreadyCreated, ElectionCannotBeCreated {
         if (!model.isValid()) throw new ElectionCannotBeCreated("Some/all of the provided fields are invalid");
-        LocalDateTime d = model.scheduledFor.createDate();
-        BoardElection boardElection = new BoardElection(model.name, model.description, model.hoaId, d,
-                model.amountOfWinners, model.candidates);
         if (electionRepository.getBoardElectionByHoaId(model.hoaId).isEmpty()) {
+            LocalDateTime d = model.scheduledFor.createDate();
+            BoardElection boardElection = new BoardElection(model.name, model.description, model.hoaId, d,
+                    model.amountOfWinners, model.candidates);
             electionRepository.save(boardElection);
             return boardElection;
         } else throw new BoardElectionAlreadyCreated("Board election with hoaId: "
@@ -51,9 +51,9 @@ public class ElectionService {
      */
     public Proposal createProposal(ProposalModel model) throws ProposalAlreadyCreated, ElectionCannotBeCreated {
         if (!model.isValid()) throw new ElectionCannotBeCreated("Some/all of the provided fields are invalid");
-        LocalDateTime d = model.scheduledFor.createDate();
-        Proposal proposal = new Proposal(model.name, model.description, model.hoaId, d);
         if (!electionRepository.existsByHoaIdAndName(model.hoaId, model.name)) {
+            LocalDateTime d = model.scheduledFor.createDate();
+            Proposal proposal = new Proposal(model.name, model.description, model.hoaId, d);
             electionRepository.save(proposal);
             return proposal;
         } else throw new ProposalAlreadyCreated("Proposal with hoaId: "

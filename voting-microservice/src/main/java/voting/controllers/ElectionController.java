@@ -21,7 +21,7 @@ import voting.models.ProposalModel;
 @RequestMapping("/voting")
 public class ElectionController {
 
-    private final ElectionService electionService;
+    private final transient ElectionService electionService;
 
     @Autowired
     public ElectionController(ElectionService electionService) {
