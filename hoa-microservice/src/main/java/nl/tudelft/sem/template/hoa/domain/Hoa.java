@@ -22,7 +22,7 @@ public class Hoa {
      * Identifier for an HOA in the database.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false, unique = true)
     private long id;
 
@@ -88,11 +88,11 @@ public class Hoa {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Hoa)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         Hoa hoa = (Hoa) o;
-        return id == hoa.id;
+        return Objects.equals(country, hoa.country) && Objects.equals(city, hoa.city) && Objects.equals(name, hoa.name);
     }
 
     /**
