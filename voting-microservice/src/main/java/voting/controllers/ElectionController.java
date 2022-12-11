@@ -9,6 +9,7 @@ import voting.domain.BoardElection;
 import voting.domain.Election;
 import voting.domain.Proposal;
 import voting.exceptions.BoardElectionAlreadyCreated;
+import voting.exceptions.ElectionCannotBeCreated;
 import voting.exceptions.ElectionDoesNotExist;
 import voting.exceptions.ProposalAlreadyCreated;
 import voting.models.VotingModel;
@@ -40,6 +41,8 @@ public class ElectionController {
             Proposal proposal = electionService.createProposal(model);
             return ResponseEntity.ok(proposal);
         } catch (ProposalAlreadyCreated e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Proposal already created", e);
+        } catch (ElectionCannotBeCreated e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create proposal", e);
         }
     }
@@ -57,6 +60,8 @@ public class ElectionController {
             BoardElection boardElection = electionService.createBoardElection(model);
             return ResponseEntity.ok(boardElection);
         } catch (BoardElectionAlreadyCreated e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Board election already created", e);
+        } catch (ElectionCannotBeCreated e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create board election", e);
         }
     }

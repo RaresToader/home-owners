@@ -10,4 +10,7 @@ import java.util.ArrayList;
 public class BoardElectionModel extends ElectionModel {
     public int amountOfWinners;
     public ArrayList<Integer> candidates;
+    public boolean isValid() {
+        return amountOfWinners > 0 && candidates.size() > 0 && super.isValid();
+    }
 }

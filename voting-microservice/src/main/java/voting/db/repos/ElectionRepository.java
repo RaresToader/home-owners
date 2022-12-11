@@ -4,11 +4,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import voting.domain.Election;
-import voting.exceptions.ElectionDoesNotExist;
+
+import java.util.Optional;
 
 @Repository
 public interface ElectionRepository extends JpaRepository<Election, Integer> {
-    Election findByElectionId(Integer electionId) throws ElectionDoesNotExist;
+
+    Optional<Election> findByElectionId(Integer electionId);
 
     boolean existsByHoaIdAndName(int hoaId, String name);
 
