@@ -6,10 +6,13 @@ import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.models.ActivityRequestModel;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,14 +39,21 @@ class ActivityServiceTest {
 
     private ActivityService activityService;
 
+    private static MockedStatic<MembershipUtils> membershipUtils;
+
     private final Activity activity = new Activity(1L, "activity 1", "description 1",
             LocalDateTime.of(2025,12,12,5,0,0),
             LocalTime.of(2,0,0));
 
     @BeforeAll
     static void registerMocks(){
-        mockStatic(MembershipUtils.class);
+        membershipUtils = mockStatic(MembershipUtils.class);
         when(MembershipUtils.getMembershipById(1L)).thenReturn(new MembershipResponseModel(1L,"test user",1L,false));
+    }
+
+    @AfterAll
+    static void deregisterMocks(){
+        membershipUtils.close();
     }
 
     @BeforeEach

@@ -16,10 +16,8 @@ import nl.tudelft.sem.template.hoa.utils.JsonUtil;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
 import org.checkerframework.checker.units.qual.A;
 import org.h2.store.FileLock;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,10 +45,17 @@ class ActivityControllerTest {
     @Autowired
     private HoaRepo hoaRepo;
 
+    private static MockedStatic<MembershipUtils> membershipUtils;
+
     @BeforeAll
     static void registerMocks(){
-        mockStatic(MembershipUtils.class);
+        membershipUtils = mockStatic(MembershipUtils.class);
         when(MembershipUtils.getMembershipById(1L)).thenReturn(new MembershipResponseModel(1L,"test user",1L,false));
+    }
+
+    @AfterAll
+    static void deregisterMocks(){
+        membershipUtils.close();
     }
 
     void insertActivityInDatabase(){
