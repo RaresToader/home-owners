@@ -35,7 +35,7 @@ public class ElectionService {
         LocalDateTime d = model.scheduledFor.createDate();
         BoardElection boardElection = new BoardElection(model.name, model.description, model.hoaId, d,
                 model.amountOfWinners, model.candidates);
-        if (electionRepository.getBoardElectionByHoaId(model.hoaId) != null) {
+        if (electionRepository.getBoardElectionByHoaId(model.hoaId).isEmpty()) {
             electionRepository.save(boardElection);
             return boardElection;
         } else throw new BoardElectionAlreadyCreated("Board election with hoaId: "

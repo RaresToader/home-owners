@@ -15,6 +15,6 @@ public interface ElectionRepository extends JpaRepository<Election, Integer> {
     boolean existsByHoaIdAndName(int hoaId, String name);
 
     @Query("SELECT u FROM BoardElection u WHERE u.hoaId = ?1")
-    Election getBoardElectionByHoaId(int hoaId);
+    Optional<Election> getBoardElectionByHoaId(int hoaId);
 
 }

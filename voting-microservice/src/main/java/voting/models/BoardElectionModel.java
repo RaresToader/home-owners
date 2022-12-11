@@ -12,6 +12,9 @@ public class BoardElectionModel extends ElectionModel {
     public ArrayList<Integer> candidates;
 
     public boolean isValid() {
-        return amountOfWinners > 0 && candidates.size() > 0 && super.isValid();
+        return amountOfWinners > 0
+                && candidates != null
+                && candidates.size() > 0
+                && super.isValid();
     }
 }
