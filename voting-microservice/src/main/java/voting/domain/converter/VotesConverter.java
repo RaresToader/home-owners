@@ -3,27 +3,32 @@ package voting.domain.converter;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Converter
-public class VotesConverter implements AttributeConverter<Map<String, Integer>, String> {
+public class VotesConverter<T>  implements AttributeConverter<HashMap<Integer, T>, String> {
 
 	@Override
-	public String convertToDatabaseColumn(Map<String, Integer> attribute) {
+	public String convertToDatabaseColumn(HashMap<Integer, T> attribute) {
 		StringBuilder mapAsString = new StringBuilder();
-		for (String key : attribute.keySet()) {
-			mapAsString.append(key + "=" + attribute.get(key) + ", ");
+		for (Integer key : attribute.keySet()) {
+			mapAsString.append(key).append("=").append(attribute.get(key)).append(",");
 		}
-		mapAsString.delete(mapAsString.length()-2, mapAsString.length());
+		mapAsString.deleteCharAt(mapAsString.length() - 1);
 		return mapAsString.toString();
 	}
 
 	@Override
-	public Map<String, Integer> convertToEntityAttribute(String dbData) {
-		Map<String, Integer> map = Arrays.stream(dbData.split(","))
-			.map(entry -> entry.split("="))
-			.collect(Collectors.toMap(entry -> entry[0], entry -> Integer.parseInt(entry[1])));
-		return map;
+	public HashMap<Integer, T> convertToEntityAttribute(String dbData) {
+		return (HashMap<Integer, T>) Arrays.stream(dbData.split(","))
+			.map(e -> e.split("="))
+			.collect(Collectors.toMap(e -> Integer.parseInt(e[0]), e -> {
+				try {
+					return Boolean.parseBoolean(e[1]);
+				} catch (Exception ignored) {
+					return Integer.parseInt(e[1]);
+				}
+			}));
 	}
 }
