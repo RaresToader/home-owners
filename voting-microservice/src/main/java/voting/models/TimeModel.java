@@ -17,12 +17,16 @@ public class TimeModel {
         return createDate() != null;
     }
 
+    /**
+     * Returns a new LocalDateTime object based on this model's attributes
+     *
+     * @return new LocalDateTime object
+     */
     public LocalDateTime createDate() {
         try {
             return LocalDateTime.of(LocalDate.of(this.year, this.month, this.day),
                     LocalTime.of(this.hours, this.minutes, this.seconds));
-        }
-        catch (DateTimeException e) {
+        } catch (DateTimeException e) {
             return null;
         }
     }
