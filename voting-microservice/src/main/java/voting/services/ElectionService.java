@@ -25,6 +25,7 @@ public class ElectionService {
 
     /**
      * Creates a board election
+     *
      * @param model Model from which to create the election
      * @return New board election, if one does not exist with same hoaID
      * @throws BoardElectionAlreadyCreated If board election for the given HoaID already exists
@@ -45,6 +46,7 @@ public class ElectionService {
 
     /**
      * Creates a proposal
+     *
      * @param model Model from which to create the proposal
      * @return New proposal, if one does not exist with same hoaID and name
      * @throws ProposalAlreadyCreated If proposal for the given HoaID and name already exists
@@ -59,14 +61,16 @@ public class ElectionService {
         } else throw new ProposalAlreadyCreated("Proposal with hoaId: "
                 + model.hoaId
                 + "and name: "
-                + model.name + "already exists.");
+                + model.name
+                + "already exists.");
     }
 
     /**
      * Method called when a member wants to vote
-     * @param electionId Id of election to vote for
+     *
+     * @param electionId   Id of election to vote for
      * @param memberShipId Id of member that wants to vote
-     * @param choice Choice of member (binary for proposal, id for candidates)
+     * @param choice       Choice of member (binary for proposal, id for candidates)
      * @throws ElectionDoesNotExist If election does not exist with provided id
      */
     public void vote(int electionId, int memberShipId, int choice) throws ElectionDoesNotExist {
@@ -79,6 +83,7 @@ public class ElectionService {
 
     /**
      * Gets an election with the given id
+     *
      * @param electionId Id of election to fetch
      * @return Fetched election, if it exists
      * @throws ElectionDoesNotExist If an election with given id does not exist
@@ -91,6 +96,7 @@ public class ElectionService {
 
     /**
      * Concludes an election with the given id
+     *
      * @param electionId Id of election to conclude
      * @return Result of the election
      * @throws ElectionDoesNotExist If an election with provided id does not exist
