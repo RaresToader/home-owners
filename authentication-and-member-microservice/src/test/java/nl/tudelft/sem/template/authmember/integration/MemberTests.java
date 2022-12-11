@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @AutoConfigureMockMvc
 public class MemberTests {
     @Autowired
-    private MockMvc mockMvc;
+    private transient MockMvc mockMvc;
     @Autowired
     private transient MemberRepository memberRepository;
 
