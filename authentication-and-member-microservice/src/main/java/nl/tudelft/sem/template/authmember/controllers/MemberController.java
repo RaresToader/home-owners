@@ -7,9 +7,11 @@ import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
+import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.HoaModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
+import nl.tudelft.sem.template.authmember.models.MembershipResponseModel;
 import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import nl.tudelft.sem.template.authmember.services.HoaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,12 +95,14 @@ public class MemberController {
     @PostMapping("/joinHOA")
     public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model) {
         try {
-            Membership membership = hoaService.joinHoa(model);
-            return ResponseEntity.ok(membership);
+            hoaService.joinHoa(model);
+            return ResponseEntity.ok().build();
         } catch (MemberAlreadyInHoaException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already in Hoa", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hoa or member do not exist", e);
+        } catch (MemberDifferentAddressException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Different address compared to hoa.", e);
         }
     }
 
@@ -156,6 +160,40 @@ public class MemberController {
             return ResponseEntity.ok(memberships);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member has not been found", e);
+        }
+    }
+
+    /**
+     * Endpoint to retrieve a membership by id.
+     *
+     * @param membershipId the membership id.
+     * @return the membership with the id provided
+     */
+    @GetMapping("/getMembershipById/{membershipId}")
+    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
+        try {
+            Membership membership = membershipService.getMembership(membershipId);
+            MembershipResponseModel model = new MembershipResponseModel(membership.getMembershipId(),
+                    membership.getMemberId(), membership.getHoaId(),
+                    membership.getAddress().getCountry(), membership.getAddress().getCity(), membership.isInBoard());
+
+            return ResponseEntity.ok(model);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Rest endpoint to get all memberships.
+     *
+     * @return all memberships
+     */
+    @GetMapping("/getAllMemberships")
+    public ResponseEntity<List<Membership>> getAllMemberships() {
+        try {
+            return ResponseEntity.ok(this.membershipService.getAll());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 

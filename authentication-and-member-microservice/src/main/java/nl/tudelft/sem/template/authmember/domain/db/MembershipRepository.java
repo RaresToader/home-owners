@@ -10,26 +10,28 @@ import org.springframework.stereotype.Repository;
  * A DDD repository for quering and persisting member aggregate roots.
  */
 @Repository
-public interface MembershipRepository extends JpaRepository<Membership, String> {
+public interface MembershipRepository extends JpaRepository<Membership, Long> {
     /**
      * Find membership by id.
      */
-    Optional<Membership> findByMembershipId(String membershipId);
+    Optional<Membership> findByMembershipId(long membershipId);
+
+
 
     /**
      * Check if a membership exists.
      */
-    boolean existsByMembershipId(String membershipId);
+    boolean existsByMembershipId(long membershipId);
 
     List<Membership> findAllByMemberId(String membershipId);
 
-    List<Membership> findAllByMemberIdAndHoaId(String memberId, int hoaId);
+    List<Membership> findAllByMemberIdAndHoaId(String memberId, long hoaId);
 
     /**
      * Finds active memberships.
      */
     List<Membership> findAllByMemberIdAndDurationIsNull(String memberId);
 
-    Optional<Membership> findByMemberIdAndHoaIdAndDurationIsNull(String memberId, int hoaId);
+    Optional<Membership> findByMemberIdAndHoaIdAndDurationIsNull(String memberId, long hoaId);
 
 }

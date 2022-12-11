@@ -169,11 +169,7 @@ public class Activity {
             return false;
         }
         Activity activity = (Activity) o;
-        return id == activity.id && Objects.equals(activityName, activity.activityName)
-                && Objects.equals(activityDescription, activity.activityDescription)
-                && Objects.equals(hoaId, activity.hoaId) && Objects.equals(activityTime, activity.activityTime)
-                && Objects.equals(activityDuration, activity.activityDuration)
-                && Objects.equals(participants, activity.participants);
+        return id == activity.id;
     }
 
     /**
