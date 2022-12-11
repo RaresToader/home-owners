@@ -1,6 +1,7 @@
 package voting.domain;
 
 import lombok.NoArgsConstructor;
+import voting.db.converters.BoardElectionVotesConverter;
 import voting.db.converters.CandidatesConverter;
 
 import javax.persistence.Convert;
@@ -24,7 +25,7 @@ public class BoardElection extends Election {
     @Convert(converter = CandidatesConverter.class)
     private List<Integer> candidates;
 
-    @Convert(converter = VotesConverter.class)
+    @Convert(converter = BoardElectionVotesConverter.class)
     private HashMap<Integer, Integer> votes;
 
     /**

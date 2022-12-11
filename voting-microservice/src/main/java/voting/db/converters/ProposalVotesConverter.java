@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Converter
-public class VotesConverter<T>  implements AttributeConverter<HashMap<Integer, T>, String> {
+public class ProposalVotesConverter implements AttributeConverter<HashMap<Integer, Boolean>, String> {
 
 	@Override
-	public String convertToDatabaseColumn(HashMap<Integer, T> attribute) {
+	public String convertToDatabaseColumn(HashMap<Integer, Boolean> attribute) {
 		StringBuilder mapAsString = new StringBuilder();
 		for (Integer key : attribute.keySet()) {
 			mapAsString.append(key).append("=").append(attribute.get(key)).append(",");
@@ -20,15 +20,9 @@ public class VotesConverter<T>  implements AttributeConverter<HashMap<Integer, T
 	}
 
 	@Override
-	public HashMap<Integer, T> convertToEntityAttribute(String dbData) {
-		return (HashMap<Integer, T>) Arrays.stream(dbData.split(","))
+	public HashMap<Integer, Boolean> convertToEntityAttribute(String dbData) {
+		return (HashMap<Integer, Boolean>) Arrays.stream(dbData.split(","))
 			.map(e -> e.split("="))
-			.collect(Collectors.toMap(e -> Integer.parseInt(e[0]), e -> {
-				try {
-					return Boolean.parseBoolean(e[1]);
-				} catch (Exception ignored) {
-					return Integer.parseInt(e[1]);
-				}
-			}));
+			.collect(Collectors.toMap(e -> Integer.parseInt(e[0]), e -> Boolean.parseBoolean(e[1])));
 	}
 }
