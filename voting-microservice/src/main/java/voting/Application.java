@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.authmember;
+package voting;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
