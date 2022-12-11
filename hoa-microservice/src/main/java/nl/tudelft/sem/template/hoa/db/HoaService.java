@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.HoaNameAlreadyTakenException;
+import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
 import org.springframework.stereotype.Service;
 
 /**
@@ -62,6 +63,28 @@ public class HoaService {
         return hoa.get();
     }
 
+    /**
+     * Method to create a new Hoa.
+     *
+     * @param request a hoa request model
+     * @return the hoa newly created
+     * @throws HoaNameAlreadyTakenException thrown if the hoa name already exists
+     */
+    public Hoa registerHoa(HoaRequestModel request) throws HoaNameAlreadyTakenException {
+        String country = request.getCountry();
+        String city = request.getCity();
+        String name = request.getName();
+        Hoa newHoa = Hoa.createHoa(country, city, name);
+        this.saveHoa(newHoa);
+        return newHoa;
+    }
+
+    /**
+     * Checks whether a Hoa exists.
+     *
+     * @param hoaId the hoaId
+     * @return true if the hoa exists, false otherwise
+     */
     public boolean findHoaById(long hoaId) {
         return hoaRepo.existsById(hoaId);
     }

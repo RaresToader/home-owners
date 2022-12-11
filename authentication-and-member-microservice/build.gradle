@@ -47,7 +47,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
-
+	implementation group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '3.1.0'
+	implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '3.1.0'
+	implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '3.1.0'
+	implementation 'org.jboss.resteasy:resteasy-client:3.15.0.Final'
+	implementation 'org.jboss.resteasy:resteasy-jackson2-provider:3.15.0.Final'
+	implementation 'org.jboss.resteasy:resteasy-jaxrs:3.15.0.Final'
 
 	// Local test database (in-memory)
 	runtimeOnly 'com.h2database:h2'

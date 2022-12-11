@@ -9,6 +9,6 @@ import nl.tudelft.sem.template.authmember.domain.Address;
 @Data
 public class JoinHoaModel  extends HoaModel {
     private String memberId;
-    private int hoaId;
+    private long hoaId;
     private Address address;
 }

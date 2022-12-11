@@ -51,10 +51,4 @@ public class RequirementTest {
         Assertions.assertNotEquals(req, null);
     }
 
-    @Test
-    void equalsTest3() {
-        Requirement req = new Requirement("Cannot be null.", 10L);
-        Requirement req2 = new Requirement("Other.", 25L);
-        Assertions.assertNotEquals(req, req2);
-    }
 }

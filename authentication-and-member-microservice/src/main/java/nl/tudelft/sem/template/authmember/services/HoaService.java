@@ -4,8 +4,11 @@ import java.util.List;
 import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
+import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
+import nl.tudelft.sem.template.authmember.models.HoaResponseModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
+import nl.tudelft.sem.template.authmember.utils.HoaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,14 +30,26 @@ public class HoaService {
     /**
      * Joins HOA if all requirements are fulfilled.
      *
-     * @throws IllegalArgumentException thrown if hoa does not exist
+     * @throws IllegalArgumentException    thrown if hoa does not exist
+     * @throws MemberAlreadyInHoaException thrown if the party requesting is already part of the hoa.
      */
-    //TODO: Call the HOA microservice to persist the data
-    //TODO: Add unique exceptions for HOA doesn't exist and user already in HOA
-    public Membership joinHoa(JoinHoaModel model) throws MemberAlreadyInHoaException {
-        //TODO: API Logic to connect with HOA here
-
-        return membershipService.saveMembership(model);
+    public void joinHoa(JoinHoaModel model) throws MemberAlreadyInHoaException, MemberDifferentAddressException {
+        try {
+            List<Membership> activeMemberships = this.membershipService.getActiveMemberships(model.getMemberId());
+            for (Membership membership : activeMemberships) {
+                if (membership.getHoaId() == model.getHoaId()) {
+                    throw new MemberAlreadyInHoaException(model);
+                }
+            }
+            HoaResponseModel hoa = HoaUtils.getHoaById(model.getHoaId());
+            if (!hoa.getCountry().equals(model.getAddress().getCountry())
+                    || !hoa.getCity().equals(model.getAddress().getCity())) {
+                throw new MemberDifferentAddressException(model);
+            }
+            membershipService.saveMembership(model);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Hoa does not exist!");
+        }
     }
 
     /**
@@ -46,11 +61,26 @@ public class HoaService {
         return membershipService.stopMembership(model);
     }
 
-    public Membership getCurrentMembership(String memberId, int hoaId) throws IllegalArgumentException {
+    /**
+     * Get the current membership for a specific hoa.
+     *
+     * @param memberId the id of the member.
+     * @param hoaId    the id of the hoa
+     * @return the current membership
+     * @throws IllegalArgumentException thrown if there is none
+     */
+    public Membership getCurrentMembership(String memberId, long hoaId) throws IllegalArgumentException {
         return membershipService.getActiveMembershipByMemberAndHoa(memberId, hoaId);
     }
 
-    public List<Membership> getMembershipsForHoa(String memberId, int hoaId) {
+    /**
+     * Get all the memberships for a specific hoa.
+     *
+     * @param memberId the member id
+     * @param hoaId    the hoa id
+     * @return all the memberships
+     */
+    public List<Membership> getMembershipsForHoa(String memberId, long hoaId) {
         return membershipService.getMembershipsByMemberAndHoa(memberId, hoaId);
     }
 }
