@@ -5,55 +5,95 @@ import voting.domain.BoardElection;
 import voting.domain.Election;
 import voting.domain.Proposal;
 import voting.domain.db.repos.ElectionRepository;
+import voting.domain.exceptions.BoardElectionAlreadyCreated;
+import voting.domain.exceptions.ElectionDoesNotExist;
+import voting.domain.exceptions.ProposalAlreadyCreated;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
 
 @Service
 public class ElectionService {
-	private final transient ElectionRepository electionRepository;
+    private final transient ElectionRepository electionRepository;
 
-	public ElectionService(ElectionRepository electionRepository) {
-	  	this.electionRepository = electionRepository;
-	}
+    public ElectionService(ElectionRepository electionRepository) {
+        this.electionRepository = electionRepository;
+    }
 
-	public BoardElection createBoardElection(BoardElectionModel model) {
-		BoardElection boardElection = new BoardElection(model.getName(), model.getDescription(), model.getHoaId(),
-			model.getScheduledFor(), model.getAmountOfWinners(), model.getCandidates());
+    /**
+     * Creates a board election
+     * @param model Model from which to create the election
+     * @return New board election, if one does not exist with same hoaID
+     * @throws BoardElectionAlreadyCreated If board election for the given HoaID already exists
+     */
+    public BoardElection createBoardElection(BoardElectionModel model) throws BoardElectionAlreadyCreated {
+        BoardElection boardElection = new BoardElection(model.name, model.description, model.hoaId,
+                model.scheduledFor, model.amountOfWinners, model.candidates);
+        if (electionRepository.getBoardElectionByHoaId(model.hoaId) != null) {
+            electionRepository.save(boardElection);
+            return boardElection;
+        } else throw new BoardElectionAlreadyCreated("Board election with hoaId: "
+                + model.hoaId
+                + "already exists.");
+    }
 
-		if (!electionRepository.existsByElectionId(boardElection.getElectionId())) {
-			electionRepository.save(boardElection);
-			return boardElection;
-		}
+    /**
+     * Creates a proposal
+     * @param model Model from which to create the proposal
+     * @return New proposal, if one does not exist with same hoaID and name
+     * @throws ProposalAlreadyCreated If proposal for the given HoaID and name already exists
+     */
+    public Proposal createProposal(ProposalModel model) throws ProposalAlreadyCreated {
+        Proposal proposal = new Proposal(model.name, model.description, model.hoaId, model.scheduledFor);
+        if (!electionRepository.existsByHoaIdAndName(model.hoaId, model.name)) {
+            electionRepository.save(proposal);
+            return proposal;
+        } else throw new ProposalAlreadyCreated("Proposal with hoaId: "
+                + model.hoaId
+                + "and name: "
+                + model.name + "already exists.");
+    }
 
-		return null;
-	}
+    /**
+     * Method called when a member wants to vote
+     * @param electionId Id of election to vote for
+     * @param memberShipId Id of member that wants to vote
+     * @param choice Choice of member (binary for proposal, id for candidates)
+     * @throws ElectionDoesNotExist If election does not exist with provided id
+     */
+    public void vote(int electionId, int memberShipId, int choice) throws ElectionDoesNotExist {
+        try {
+            Election election = this.electionRepository.findByElectionId(electionId);
+            election.vote(memberShipId, choice);
+            this.electionRepository.save(election);
+        } catch (ElectionDoesNotExist e) {
+            throw new ElectionDoesNotExist("Election not found");
+        }
+    }
 
-	public Proposal createProposal(ProposalModel model) {
-		Proposal proposal = new Proposal(model.getName(), model.getDescription(), model.getHoaId(), model.getScheduledFor());
+    /**
+     * Gets an election with the given id
+     * @param electionId Id of election to fetch
+     * @return Fetched election, if it exists
+     * @throws ElectionDoesNotExist If an election with given id does not exist
+     */
+    public Election getElection(int electionId) throws ElectionDoesNotExist {
+        return this.electionRepository.findByElectionId(electionId);
+    }
 
-		if (!electionRepository.existsByElectionId(proposal.getElectionId())) {
-			electionRepository.save(proposal);
-			return proposal;
-		}
-
-		return null;
-	}
-
-	public void vote(int electionId, int memberShipId, int choice) {
-		Election election = this.electionRepository.findByElectionId(electionId).
-			orElseThrow(() -> new IllegalArgumentException("Election not found"));
-		election.vote(memberShipId, choice);
-		this.electionRepository.save(election);
-	}
-
-	public Election getElection(int electionId) {
-		return this.electionRepository.findByElectionId(electionId).get();
-	}
-
-	public void conclude(int electionId) {
-		Election election = this.electionRepository.findByElectionId(electionId).
-			orElseThrow(() -> new IllegalArgumentException("Election not found"));
-		election.conclude();
-		this.electionRepository.save(election);
-	}
+    /**
+     * Concludes an election with the given id
+     * @param electionId Id of election to conclude
+     * @return Result of the election
+     * @throws ElectionDoesNotExist If an election with provided id does not exist
+     */
+    public Object conclude(int electionId) throws ElectionDoesNotExist {
+        try {
+            Election election = this.electionRepository.findByElectionId(electionId);
+            Object res = election.conclude();
+            this.electionRepository.save(election);
+            return res;
+        } catch (ElectionDoesNotExist e) {
+            throw new ElectionDoesNotExist("Election not found");
+        }
+    }
 }
