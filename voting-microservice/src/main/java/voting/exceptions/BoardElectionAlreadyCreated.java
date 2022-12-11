@@ -1,4 +1,4 @@
-package voting.domain.exceptions;
+package voting.exceptions;
 
 /**
  * Exception to indicate that a name already exists.

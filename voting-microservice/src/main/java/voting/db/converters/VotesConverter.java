@@ -1,4 +1,4 @@
-package voting.domain.converter;
+package voting.db.converters;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

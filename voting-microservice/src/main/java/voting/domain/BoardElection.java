@@ -1,8 +1,8 @@
 package voting.domain;
 
 import lombok.NoArgsConstructor;
-import voting.domain.converter.CandidatesConverter;
-import voting.domain.converter.VotesConverter;
+import voting.db.converters.CandidatesConverter;
+import voting.db.converters.VotesConverter;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;

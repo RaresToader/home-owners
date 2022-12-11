@@ -1,10 +1,10 @@
-package voting.domain.db.repos;
+package voting.db.repos;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import voting.domain.Election;
-import voting.domain.exceptions.ElectionDoesNotExist;
+import voting.exceptions.ElectionDoesNotExist;
 
 @Repository
 public interface ElectionRepository extends JpaRepository<Election, Integer> {

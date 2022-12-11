@@ -4,10 +4,10 @@ import org.springframework.stereotype.Service;
 import voting.domain.BoardElection;
 import voting.domain.Election;
 import voting.domain.Proposal;
-import voting.domain.db.repos.ElectionRepository;
-import voting.domain.exceptions.BoardElectionAlreadyCreated;
-import voting.domain.exceptions.ElectionDoesNotExist;
-import voting.domain.exceptions.ProposalAlreadyCreated;
+import voting.db.repos.ElectionRepository;
+import voting.exceptions.BoardElectionAlreadyCreated;
+import voting.exceptions.ElectionDoesNotExist;
+import voting.exceptions.ProposalAlreadyCreated;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
 
