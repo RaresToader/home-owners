@@ -6,7 +6,7 @@ import voting.db.converters.VotesConverter;
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import java.sql.Time;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 
 @Entity
@@ -27,7 +27,7 @@ public class Proposal extends Election {
      * @param hoaId        hoaID the proposal refers to
      * @param scheduledFor Time object, when the election will start
      */
-    public Proposal(String name, String description, int hoaId, Time scheduledFor) {
+    public Proposal(String name, String description, int hoaId, LocalDateTime scheduledFor) {
         super(name, description, hoaId, scheduledFor);
         winningChoice = false;
         status = "scheduled";

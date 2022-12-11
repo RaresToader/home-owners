@@ -2,12 +2,11 @@ package voting.domain;
 
 import lombok.NoArgsConstructor;
 import voting.db.converters.CandidatesConverter;
-import voting.db.converters.VotesConverter;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import java.sql.Time;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,11 +33,11 @@ public class BoardElection extends Election {
      * @param name            Name of board election
      * @param description     Description of board election
      * @param hoaId           hoaID the board election refers to
-     * @param scheduledFor    Time object, when the election will start
+     * @param scheduledFor    LocalDateTime object, when the election will start
      * @param amountOfWinners Amount of winners for this board election
      * @param candidates      List of member ids of board candidates
      */
-    public BoardElection(String name, String description, int hoaId, Time scheduledFor, int amountOfWinners,
+    public BoardElection(String name, String description, int hoaId, LocalDateTime scheduledFor, int amountOfWinners,
                          ArrayList<Integer> candidates) {
         super(name, description, hoaId, scheduledFor);
         this.amountOfWinners = amountOfWinners;

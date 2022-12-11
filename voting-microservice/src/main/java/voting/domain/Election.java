@@ -1,9 +1,10 @@
 package voting.domain;
 
 import lombok.NoArgsConstructor;
+import voting.db.converters.LocalDateTimeConverter;
 
 import javax.persistence.*;
-import java.sql.Time;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "elections")
@@ -20,7 +21,9 @@ public abstract class Election {
     private String name;
     private String description;
     private int voteCount;
-    private Time scheduledFor;
+
+    @Convert(converter = LocalDateTimeConverter.class)
+    private LocalDateTime scheduledFor;
 
     /**
      * Creates a new election, called exclusively by a subclass
@@ -30,7 +33,7 @@ public abstract class Election {
      * @param hoaId        Id of Hoa that it is a part of
      * @param scheduledFor Time object, when the election will start
      */
-    public Election(String name, String description, int hoaId, Time scheduledFor) {
+    public Election(String name, String description, int hoaId, LocalDateTime scheduledFor) {
         this.name = name;
         this.description = description;
         this.hoaId = hoaId;
@@ -86,7 +89,7 @@ public abstract class Election {
         return voteCount;
     }
 
-    public Time getScheduledFor() {
+    public LocalDateTime getScheduledFor() {
         return scheduledFor;
     }
 
@@ -98,7 +101,7 @@ public abstract class Election {
         this.description = description;
     }
 
-    public void setScheduledFor(Time scheduledFor) {
+    public void setScheduledFor(LocalDateTime scheduledFor) {
         this.scheduledFor = scheduledFor;
     }
 
