@@ -1,8 +1,10 @@
 package voting.models;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class ProposalModel extends ElectionModel{
+@EqualsAndHashCode(callSuper = true)
+public class ProposalModel extends ElectionModel {
 
 }

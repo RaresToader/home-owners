@@ -1,20 +1,13 @@
 package voting.models;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 
 @Data
-public class BoardElectionModel extends ElectionModel{
-
-	private int amountOfWinners;
-	private ArrayList<Integer> candidates;
-
-	public int getAmountOfWinners() {
-		return amountOfWinners;
-	}
-
-	public ArrayList<Integer> getCandidates() {
-		return candidates;
-	}
+@EqualsAndHashCode(callSuper = true)
+public class BoardElectionModel extends ElectionModel {
+    public int amountOfWinners;
+    public ArrayList<Integer> candidates;
 }
