@@ -9,12 +9,21 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 @Data
 public class Address {
-    private final transient String country;
-    private final transient String city;
-    private final transient String street;
-    private final transient String houseNumber;
-    private final transient String postalCode;
+    private final String country;
+    private final String city;
+    private final String street;
+    private final String houseNumber;
+    private final String postalCode;
 
+    /**
+     * Creates an Address DTO
+     *
+     * @param country     Country of address
+     * @param city        City of address
+     * @param street      Street of address (name only)
+     * @param houseNumber House number (including its suffix)
+     * @param postalCode  Postal code (postalCode, may include letters)
+     */
     public Address(String country, String city, String street, String houseNumber, String postalCode) {
         this.country = country;
         this.city = city;
@@ -26,6 +35,7 @@ public class Address {
     /**
      * Creates an Address object from database String
      * Extracts the fields from the toString method
+     *
      * @param fromDB DB String to convert from
      */
     public Address(String fromDB) {
@@ -40,13 +50,13 @@ public class Address {
 
     @Override
     public String toString() {
-        return "Address{" +
-                "country='" + country + '\'' +
-                ", city='" + city + '\'' +
-                ", street='" + street + '\'' +
-                ", houseNumber='" + houseNumber + '\'' +
-                ", postalCode='" + postalCode + '\'' +
-                '}';
+        return "Address{"
+                + "country='" + country + '\''
+                + ", city='" + city + '\''
+                + ", street='" + street + '\''
+                + ", houseNumber='" + houseNumber + '\''
+                + ", postalCode='" + postalCode + '\''
+                + '}';
     }
 
     public String toDBString() {
