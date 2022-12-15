@@ -1,7 +1,7 @@
 package voting.domain;
 
 import lombok.NoArgsConstructor;
-import voting.db.converters.ProposalVotesConverter;
+import voting.db.converters.VotesConverter;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;
@@ -14,10 +14,9 @@ import java.util.HashMap;
 @NoArgsConstructor
 public class Proposal extends Election {
     private boolean winningChoice;
-    private String status;
 
-    @Convert(converter = ProposalVotesConverter.class)
-    private HashMap<Integer, Boolean> votes;
+    @Convert(converter = VotesConverter.class)
+    private HashMap<Integer, Integer> votes;
 
     /**
      * Creates a proposal

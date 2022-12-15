@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Converter
-public class BoardElectionVotesConverter implements AttributeConverter<HashMap<Integer, Integer>, String> {
+public class VotesConverter implements AttributeConverter<HashMap<Integer, Integer>, String> {
 
 	@Override
 	public String convertToDatabaseColumn(HashMap<Integer, Integer> attribute) {
