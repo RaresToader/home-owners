@@ -15,12 +15,14 @@ import java.time.LocalDateTime;
 public abstract class Election {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     int electionId;
 
     private int hoaId;
     private String name;
     private String description;
     private int voteCount;
+    private String status;
 
     @Convert(converter = LocalDateTimeConverter.class)
     private LocalDateTime scheduledFor;
@@ -39,6 +41,7 @@ public abstract class Election {
         this.hoaId = hoaId;
         this.scheduledFor = scheduledFor;
         this.voteCount = 0;
+        this.status = "scheduled";
     }
 
     /**
@@ -103,6 +106,14 @@ public abstract class Election {
 
     public void setScheduledFor(LocalDateTime scheduledFor) {
         this.scheduledFor = scheduledFor;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override

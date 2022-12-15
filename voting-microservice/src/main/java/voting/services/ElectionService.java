@@ -5,12 +5,10 @@ import voting.domain.BoardElection;
 import voting.domain.Election;
 import voting.domain.Proposal;
 import voting.db.repos.ElectionRepository;
-import voting.exceptions.BoardElectionAlreadyCreated;
-import voting.exceptions.ElectionCannotBeCreated;
-import voting.exceptions.ElectionDoesNotExist;
-import voting.exceptions.ProposalAlreadyCreated;
+import voting.exceptions.*;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
+import voting.models.VotingModel;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -68,16 +66,21 @@ public class ElectionService {
     /**
      * Method called when a member wants to vote
      *
-     * @param electionId   Id of election to vote for
-     * @param memberShipId Id of member that wants to vote
-     * @param choice       Choice of member (binary for proposal, id for candidates)
+     * @param model VotingModel that contains electionId, memberID, and voting choice
      * @throws ElectionDoesNotExist If election does not exist with provided id
      */
-    public void vote(int electionId, int memberShipId, int choice) throws ElectionDoesNotExist {
-        if (electionId <= 0 || memberShipId <= 0) throw new ElectionDoesNotExist("Ids not valid");
-        Optional<Election> election = this.electionRepository.findByElectionId(electionId);
-        if (election.isEmpty()) throw new ElectionDoesNotExist("Election not found");
-        election.get().vote(memberShipId, choice);
+    public void vote(VotingModel model, LocalDateTime currTime) throws ElectionDoesNotExist, CannotProceedVote {
+        if (!model.isValid())
+            throw new ElectionDoesNotExist("Ids not valid");
+        Optional<Election> election = this.electionRepository.findByElectionId(model.electionId);
+        if (election.isEmpty())
+            throw new ElectionDoesNotExist("Election not found");
+        if (election.get().getScheduledFor().isAfter(currTime))
+            throw new CannotProceedVote("Election has not started");
+        if (election.get().getStatus().equals("finished"))
+            throw new CannotProceedVote("Election has been concluded");
+        election.get().setStatus("ongoing");
+        election.get().vote(model.membershipId, model.choice);
         this.electionRepository.save(election.get());
     }
 

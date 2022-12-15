@@ -29,7 +29,6 @@ public class Proposal extends Election {
     public Proposal(String name, String description, int hoaId, LocalDateTime scheduledFor) {
         super(name, description, hoaId, scheduledFor);
         winningChoice = false;
-        status = "scheduled";
         votes = new HashMap<>();
     }
 
@@ -43,8 +42,8 @@ public class Proposal extends Election {
     /**
      * {@inheritDoc}
      */
-    public void vote(int membershipId, boolean vote) {
-        if (status.equals("ongoing") && canParticipate(membershipId)) {
+    public void vote(int membershipId, int vote) {
+        if (getStatus().equals("ongoing") && canParticipate(membershipId)) {
             votes.put(membershipId, vote);
             this.incrementVoteCount();
         }
@@ -56,17 +55,19 @@ public class Proposal extends Election {
      * @return Binary decision, based on majority voting
      */
     public boolean findOutcome() {
-        Integer[] counts = votes.values().stream()
-                .collect(() -> new Integer[2],
-                        (acc, b) -> {
-                            if (b) acc[1]++;
-                            else acc[0]++;
-                        },
-                        (acc, acc2) -> {
-                            acc[0] += acc2[0];
-                            acc[1] += acc2[1];
-                        });
-        return counts[0] <= counts[1];
+        Integer[] counts = votes.values().stream().collect(() -> new Integer[]{0, 0},
+                (acc, b) -> {
+                    // PMD thinks it's smelly if boolean is not stored in a variable
+                    // ?????
+                    boolean positive = b == 1;
+                    if (positive) acc[1]++;
+                    else acc[0]++;
+                },
+                (acc, acc2) -> {
+                    acc[0] += acc2[0];
+                    acc[1] += acc2[1];
+                });
+        return counts[0] < counts[1];
     }
 
     /**
@@ -74,7 +75,7 @@ public class Proposal extends Election {
      */
     public Boolean conclude() {
         winningChoice = findOutcome();
-        status = "finished";
+        setStatus("finished");
         return winningChoice;
     }
 }

@@ -1,7 +1,7 @@
 package voting.domain;
 
 import lombok.NoArgsConstructor;
-import voting.db.converters.BoardElectionVotesConverter;
+import voting.db.converters.VotesConverter;
 import voting.db.converters.CandidatesConverter;
 
 import javax.persistence.Convert;
@@ -20,12 +20,11 @@ import java.util.stream.Collectors;
 public class BoardElection extends Election {
 
     private int amountOfWinners;
-    private String status;
 
     @Convert(converter = CandidatesConverter.class)
     private List<Integer> candidates;
 
-    @Convert(converter = BoardElectionVotesConverter.class)
+    @Convert(converter = VotesConverter.class)
     private HashMap<Integer, Integer> votes;
 
     /**
@@ -43,7 +42,6 @@ public class BoardElection extends Election {
         super(name, description, hoaId, scheduledFor);
         this.amountOfWinners = amountOfWinners;
         this.candidates = candidates;
-        status = "scheduled";
         votes = new HashMap<>();
     }
 
@@ -59,7 +57,7 @@ public class BoardElection extends Election {
      */
     @Override
     public void vote(int membershipId, int voteChoice) {
-        if (this.status.equals("ongoing") && canParticipate(membershipId)) {
+        if (getStatus().equals("ongoing") && canParticipate(membershipId)) {
             votes.put(membershipId, voteChoice);
             this.incrementVoteCount();
         }
@@ -83,7 +81,7 @@ public class BoardElection extends Election {
      */
     public List<Integer> conclude() {
         List<Integer> currentWinners = findOutcome();
-        status = "finished";
+        this.setStatus("finished");
         return currentWinners;
     }
 }

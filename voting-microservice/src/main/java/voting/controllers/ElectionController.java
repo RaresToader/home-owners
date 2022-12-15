@@ -8,14 +8,13 @@ import org.springframework.web.server.ResponseStatusException;
 import voting.domain.BoardElection;
 import voting.domain.Election;
 import voting.domain.Proposal;
-import voting.exceptions.BoardElectionAlreadyCreated;
-import voting.exceptions.ElectionCannotBeCreated;
-import voting.exceptions.ElectionDoesNotExist;
-import voting.exceptions.ProposalAlreadyCreated;
+import voting.exceptions.*;
 import voting.models.VotingModel;
 import voting.services.ElectionService;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/voting")
@@ -75,10 +74,12 @@ public class ElectionController {
     @PostMapping("/vote")
     public ResponseEntity<HttpStatus> vote(@RequestBody VotingModel model) {
         try {
-            electionService.vote(model.electionId, model.membershipId, model.choice);
+            electionService.vote(model, LocalDateTime.now());
             return ResponseEntity.ok().build();
         } catch (ElectionDoesNotExist e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election with provided id was not found", e);
+        } catch (CannotProceedVote e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Voting round of election has not started yet", e);
         }
     }
 
@@ -106,7 +107,7 @@ public class ElectionController {
      * Boolean if it's a proposal
      * List of winning candidates otherwise
      */
-    @GetMapping("/conclude/{id}")
+    @PostMapping("/conclude/{id}")
     public ResponseEntity<Object> concludeElection(@PathVariable("id") int id) {
         try {
             Object result = electionService.conclude(id);
