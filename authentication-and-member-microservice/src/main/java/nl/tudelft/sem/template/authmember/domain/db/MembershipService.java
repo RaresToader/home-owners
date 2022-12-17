@@ -7,7 +7,7 @@ import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
-import nl.tudelft.sem.template.authmember.services.TimeUtils;
+import nl.tudelft.sem.template.authmember.utils.TimeUtils;
 import org.springframework.stereotype.Service;
 
 /**
