@@ -119,7 +119,7 @@ public class HoaService {
         if (name == null || name.isEmpty() || name.isBlank()) {
             return false;
         }
-        if (!Character.isUpperCase(name.charAt(0))) {
+        if (!Character.isUpperCase(name.charAt(0)) || name.length() > 50) {
             return false;
         }
         return enoughCharsAndWhitespace(name);
