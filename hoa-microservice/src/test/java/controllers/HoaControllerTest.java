@@ -27,7 +27,7 @@ public class HoaControllerTest {
         Mockito.when(hoaService.registerHoa(request)).thenReturn(newHoa);
         RequirementService requirementService = Mockito.mock(RequirementService.class);
         HoaController controller = new HoaController(hoaService, requirementService);
-        ResponseEntity<Hoa> response = controller.register(request);
+        ResponseEntity<Hoa> response = controller.register(request, "joe");
         Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
         Assertions.assertEquals(response.getBody(), newHoa);
     }
@@ -41,7 +41,7 @@ public class HoaControllerTest {
         Hoa hoa2 = Hoa.createHoa("TS", "Test City", "Test HOA2");
         List<Hoa> hoa = Arrays.asList(hoa1, hoa2);
         Mockito.when(hoaService.getAllHoa()).thenReturn(hoa);
-        ResponseEntity<List<Hoa>> response = controller.getAll();
+        ResponseEntity<List<Hoa>> response = controller.getAll("joe");
         Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
         Assertions.assertEquals(response.getBody(), hoa);
     }
@@ -53,7 +53,7 @@ public class HoaControllerTest {
         HoaController controller = new HoaController(mockHoaService, mockRequirementService);
         Hoa hoa = Hoa.createHoa("TS", "Test City", "Test HOA");
         Mockito.when(mockHoaService.getHoaById(1L)).thenReturn(hoa);
-        ResponseEntity<Hoa> response = controller.getById(1L);
+        ResponseEntity<Hoa> response = controller.getById(1L, "joe");
         Assertions.assertEquals(response.getBody(), hoa);
         Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
     }
