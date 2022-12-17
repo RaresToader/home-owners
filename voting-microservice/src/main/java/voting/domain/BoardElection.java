@@ -45,6 +45,30 @@ public class BoardElection extends Election {
         votes = new HashMap<>();
     }
 
+    public int getAmountOfWinners() {
+        return amountOfWinners;
+    }
+
+    public void setAmountOfWinners(int amountOfWinners) {
+        this.amountOfWinners = amountOfWinners;
+    }
+
+    public List<Integer> getCandidates() {
+        return candidates;
+    }
+
+    public void setCandidates(List<Integer> candidates) {
+        this.candidates = candidates;
+    }
+
+    public HashMap<Integer, Integer> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(HashMap<Integer, Integer> votes) {
+        this.votes = votes;
+    }
+
     /**
      * {@inheritDoc}
      */

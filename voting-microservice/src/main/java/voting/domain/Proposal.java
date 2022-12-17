@@ -32,6 +32,22 @@ public class Proposal extends Election {
         votes = new HashMap<>();
     }
 
+    public boolean isWinningChoice() {
+        return winningChoice;
+    }
+
+    public void setWinningChoice(boolean winningChoice) {
+        this.winningChoice = winningChoice;
+    }
+
+    public HashMap<Integer, Integer> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(HashMap<Integer, Integer> votes) {
+        this.votes = votes;
+    }
+
     /**
      * {@inheritDoc}
      */
