@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.hoa.db;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -138,7 +137,11 @@ public class HoaService {
             return false;
         }
         String[] split = name.split(" ");
-        String result = Arrays.toString(split);
+        StringBuilder sb = new StringBuilder();
+        for (String s : split) {
+            sb.append(s);
+        }
+        String result = sb.toString();
         char[] array = result.toCharArray();
         for (Character x : array) {
             if (!Character.isLetterOrDigit(x)) {

@@ -1,6 +1,7 @@
 package db;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,7 +65,7 @@ public class HoaServiceTest {
     @Test
     void findHoaByIdTest() {
         when(hoaRepo.existsById(1L)).thenReturn(true);
-        Assertions.assertTrue(hoaService.findHoaById(1L));
+        assertTrue(hoaService.findHoaById(1L));
     }
 
     @Test
@@ -88,6 +89,86 @@ public class HoaServiceTest {
     void registerHoa() throws HoaNameAlreadyTakenException, BadFormatHoaException {
         HoaRequestModel model = new HoaRequestModel("Test country", "Test city", "Test");
         Assertions.assertEquals(hoaService.registerHoa(model), hoa);
+    }
+
+    @Test
+    void countryCheckNull() {
+        assertTrue(hoaService.countryCheck(null));
+    }
+
+    @Test
+    void countryCheckEmpty() {
+        assertTrue(hoaService.countryCheck(""));
+    }
+
+    @Test
+    void countryCheckBlank() {
+        assertTrue(hoaService.countryCheck("     "));
+
+    }
+
+    @Test
+    void countryNotUpper() {
+        assertTrue(hoaService.countryCheck("a"));
+    }
+
+    @Test
+    void otherChar() {
+        assertTrue(hoaService.countryCheck("Australia $$"));
+
+    }
+
+    @Test
+    void correctFormat() {
+        Assertions.assertFalse(hoaService.countryCheck("Australia"));
+    }
+
+    @Test
+    void nullName() {
+        Assertions.assertFalse(hoaService.nameCheck(null));
+    }
+
+    @Test
+    void emptyName() {
+        Assertions.assertFalse(hoaService.nameCheck(""));
+    }
+
+    @Test
+    void blankName() {
+        Assertions.assertFalse(hoaService.nameCheck("    "));
+    }
+
+    @Test
+    void nameNotUpper() {
+        Assertions.assertFalse(hoaService.nameCheck("a"));
+    }
+
+    @Test
+    void happyName() {
+        Assertions.assertTrue(hoaService.nameCheck("Test name"));
+    }
+
+    @Test
+    void enoughCharsAndWhitespaceNull() {
+        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace(null));
+
+    }
+
+    @Test
+    void enoughCharsAndWhitespaceEmpty() {
+        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace(""));
+
+    }
+
+    @Test
+    void enoughCharsAndWhitespaceBlank() {
+        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace("    "));
+
+    }
+    @Test
+    void enoughCharsAndWhitespaceHappy(){
+        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace("Test 123"));
+
     }
 
 }
