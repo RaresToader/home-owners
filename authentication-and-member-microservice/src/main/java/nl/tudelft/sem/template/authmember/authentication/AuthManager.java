@@ -8,6 +8,13 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AuthManager {
+
+    private final transient JwtTokenVerifier jwtTokenVerifier;
+
+    public AuthManager(JwtTokenVerifier jwtTokenVerifier) {
+        this.jwtTokenVerifier = jwtTokenVerifier;
+    }
+
     /**
      * Interfaces with spring security to get the name of the user in the current context.
      *
@@ -18,6 +25,9 @@ public class AuthManager {
     }
 
     public void validateMember(String member) throws IllegalAccessException {
+        if(!jwtTokenVerifier.validateToken(member)) {
+            throw new IllegalAccessException();
+        }
         if (!member.equals(getMemberId())) {
             throw new IllegalAccessException();
         }
