@@ -21,7 +21,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -80,8 +79,8 @@ public class MemberController {
     @PostMapping("/updatePassword")
     public ResponseEntity<Member> updatePassword(@RequestBody RegistrationModel request) {
         try {
+            authManager.validateMember(request.getMemberId());
             Member member = memberService.getMember(request.getMemberId());
-            authManager.validateMember(member.getMemberId());
             return ResponseEntity.ok(member);
         }catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access not allowed", e);
@@ -99,8 +98,8 @@ public class MemberController {
     @GetMapping("/get/{memberId}")
     public ResponseEntity<Member> getMember(@PathVariable String memberId) {
         try {
+            authManager.validateMember(memberId);
             Member member = memberService.getMember(memberId);
-            authManager.validateMember(member.getMemberId());
             return ResponseEntity.ok(member);
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access not allowed", e);
@@ -116,8 +115,8 @@ public class MemberController {
     @PostMapping("/joinHOA")
     public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model) {
         try {
-            hoaService.joinHoa(model);
             authManager.validateMember(model.getMemberId());
+            hoaService.joinHoa(model);
             return ResponseEntity.ok().build();
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access not allowed", e);
@@ -138,8 +137,8 @@ public class MemberController {
     public ResponseEntity<Membership> leaveHoa(@RequestBody GetHoaModel model) {
         validateExistence(model);
         try {
+            authManager.validateMember(model.getMemberId());
             Membership membership = hoaService.leaveHoa(model);
-            authManager.validateMember(membership.getMemberId());
             return ResponseEntity.ok(membership);
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access not allowed", e);
@@ -155,8 +154,8 @@ public class MemberController {
     public ResponseEntity<Membership> getMembership(@RequestBody GetHoaModel model) {
         validateExistence(model);
         try {
+            authManager.validateMember(model.getMemberId());
             Membership membership = hoaService.getCurrentMembership(model.getMemberId(), model.getHoaId());
-            authManager.validateMember(membership.getMemberId());
             return ResponseEntity.ok(membership);
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access not allowed", e);
@@ -172,8 +171,11 @@ public class MemberController {
     public ResponseEntity<List<Membership>> getMembershipsForHoa(@RequestBody GetHoaModel model) {
         validateExistence(model);
         try {
+            authManager.validateMember(model.getMemberId());
             List<Membership> memberships = hoaService.getMembershipsForHoa(model.getMemberId(), model.getHoaId());
             return ResponseEntity.ok(memberships);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access not allowed", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "HOA or member do not exist", e);
         }
@@ -185,9 +187,12 @@ public class MemberController {
     @GetMapping("/getMemberships/{memberId}")
     public ResponseEntity<List<Membership>> getMemberships(@PathVariable String memberId) {
         try {
+            authManager.validateMember(memberId);
             memberService.getMember(memberId); //Validate existence
             List<Membership> memberships = membershipService.getMembershipsForMember(memberId);
             return ResponseEntity.ok(memberships);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access not allowed", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member has not been found", e);
         }
@@ -207,7 +212,10 @@ public class MemberController {
                     membership.getMemberId(), membership.getHoaId(),
                     membership.getAddress().getCountry(), membership.getAddress().getCity(), membership.isInBoard());
 
+            authManager.validateMember(membership.getMemberId());
             return ResponseEntity.ok(model);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access not allowed", e);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -235,7 +243,10 @@ public class MemberController {
         try {
             memberService.getMember(memberId); //Validate existence
             List<Membership> memberships = membershipService.getActiveMemberships(memberId);
+            authManager.validateMember(memberId);
             return ResponseEntity.ok(memberships);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access not allowed", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member does not exist", e);
         }
@@ -247,7 +258,10 @@ public class MemberController {
     //TODO: Verify that HOA exists
     public void validateExistence(HoaModel model) {
         try {
+            authManager.validateMember(model.getMemberId());
             memberService.getMember(model.getMemberId());
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access not allowed", e);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "HOA or member are not stored", e);
         }
