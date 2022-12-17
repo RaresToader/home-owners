@@ -11,6 +11,7 @@ import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
+import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
 import nl.tudelft.sem.template.authmember.models.*;
 import nl.tudelft.sem.template.authmember.services.HoaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,9 +116,8 @@ public class MemberController {
     @PostMapping("/joinHOA")
     public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model) {
         try {
-            Membership membership = hoaService.joinHoa(model);
-            authManager.validateMember(membership.getMemberId());
             hoaService.joinHoa(model);
+            authManager.validateMember(model.getMemberId());
             return ResponseEntity.ok().build();
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access not allowed", e);
