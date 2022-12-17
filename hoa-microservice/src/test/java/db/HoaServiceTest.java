@@ -11,6 +11,7 @@ import java.util.Optional;
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.db.HoaService;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
+import nl.tudelft.sem.template.hoa.exception.BadFormatHoaException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.HoaNameAlreadyTakenException;
 import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
@@ -84,7 +85,7 @@ public class HoaServiceTest {
     }
 
     @Test
-    void registerHoa() throws HoaNameAlreadyTakenException {
+    void registerHoa() throws HoaNameAlreadyTakenException, BadFormatHoaException {
         HoaRequestModel model = new HoaRequestModel("Test country", "Test city", "Test");
         Assertions.assertEquals(hoaService.registerHoa(model), hoa);
     }

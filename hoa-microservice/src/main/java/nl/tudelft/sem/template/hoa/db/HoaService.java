@@ -1,9 +1,12 @@
 package nl.tudelft.sem.template.hoa.db;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import nl.tudelft.sem.template.hoa.domain.Hoa;
+import nl.tudelft.sem.template.hoa.exception.BadFormatHoaException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.HoaNameAlreadyTakenException;
 import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
@@ -70,13 +73,79 @@ public class HoaService {
      * @return the hoa newly created
      * @throws HoaNameAlreadyTakenException thrown if the hoa name already exists
      */
-    public Hoa registerHoa(HoaRequestModel request) throws HoaNameAlreadyTakenException {
+    public Hoa registerHoa(HoaRequestModel request) throws HoaNameAlreadyTakenException, BadFormatHoaException {
         String country = request.getCountry();
         String city = request.getCity();
         String name = request.getName();
+        if (countryCheck(country) || countryCheck(city) || !nameCheck(name)) {
+            throw new BadFormatHoaException("Wrong format for the country, city, or name!");
+        }
+
         Hoa newHoa = Hoa.createHoa(country, city, name);
         this.saveHoa(newHoa);
         return newHoa;
+    }
+
+    /**
+     * This method checks that a country/city has the correct format.
+     * This means that it must have maximum 50 characters, only letters (only ASCII), whitespaces are admissible,
+     * no numbers and the first letter needs to be uppercase. Of course, the string cannot contain only whitespaces.
+     *
+     * @param country the country or city name
+     * @return true if the country name fails to adhere to the format, false otherwise
+     */
+    public boolean countryCheck(String country) {
+        if (country == null || country.isEmpty() || country.isBlank()) {
+            return true;
+        }
+        if (!Character.isUpperCase(country.charAt(0)) || country.length() > 50) {
+            return true;
+        }
+        for (int i = 1; i < country.length(); i++) {
+            char c = country.charAt(i);
+            if (!Character.isWhitespace(c) && !Character.isLetter(c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * This is a method that checks whether the format for a name is correct.
+     *
+     * @param name the name of the hoa
+     * @return true if the format is satisfied, false otherwise
+     */
+    public boolean nameCheck(String name) {
+        if (name == null || name.isEmpty() || name.isBlank()) {
+            return false;
+        }
+        if (!Character.isUpperCase(name.charAt(0))) {
+            return false;
+        }
+        return enoughCharsAndWhitespace(name);
+    }
+
+    /**
+     * Checks that a string has at least 4 characters.
+     * Only letters or digits are allowed. The name can have at most 50 characters.
+     *
+     * @param name the name
+     * @return true if the conditions are met, false otherwise.
+     */
+    public boolean enoughCharsAndWhitespace(String name) {
+        if (name == null || name.isEmpty() || name.isBlank()) {
+            return false;
+        }
+        String[] split = name.split(" ");
+        String result = Arrays.toString(split);
+        char[] array = result.toCharArray();
+        for (Character x : array) {
+            if (!Character.isLetterOrDigit(x)) {
+                return false;
+            }
+        }
+        return result.length() >= 4;
     }
 
     /**

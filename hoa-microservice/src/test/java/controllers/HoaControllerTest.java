@@ -6,6 +6,7 @@ import nl.tudelft.sem.template.hoa.controllers.HoaController;
 import nl.tudelft.sem.template.hoa.db.HoaService;
 import nl.tudelft.sem.template.hoa.db.RequirementService;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
+import nl.tudelft.sem.template.hoa.exception.BadFormatHoaException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.HoaNameAlreadyTakenException;
 import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
@@ -17,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 
 public class HoaControllerTest {
     @Test
-    public void testRegister() throws HoaNameAlreadyTakenException {
+    public void testRegister() throws HoaNameAlreadyTakenException, BadFormatHoaException {
         HoaRequestModel request = new HoaRequestModel();
         request.setName("Test HOA");
         request.setCity("Test City");
