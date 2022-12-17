@@ -3,7 +3,6 @@ package nl.tudelft.sem.template.hoa.controllers;
 import java.util.List;
 
 import nl.tudelft.sem.template.hoa.authentication.AuthManager;
-import nl.tudelft.sem.template.hoa.authentication.JwtTokenVerifier;
 import nl.tudelft.sem.template.hoa.db.HoaService;
 import nl.tudelft.sem.template.hoa.db.RequirementService;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
