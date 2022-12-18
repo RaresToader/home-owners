@@ -183,21 +183,21 @@ public class HoaServiceTest {
     }
 
     @Test
-    void registerHoaInvalidCountry(){
+    void registerHoaInvalidCountry() {
         HoaRequestModel model = new HoaRequestModel("Tes$t country", "Test city", "Test");
-        assertThrows(BadFormatHoaException.class,() -> hoaService.registerHoa(model));
+        assertThrows(BadFormatHoaException.class, () -> hoaService.registerHoa(model));
     }
 
     @Test
-    void registerHoaInvalidCity(){
+    void registerHoaInvalidCity() {
         HoaRequestModel model = new HoaRequestModel("Test country", "Test ci$ty", "Test");
-        assertThrows(BadFormatHoaException.class,() -> hoaService.registerHoa(model));
+        assertThrows(BadFormatHoaException.class, () -> hoaService.registerHoa(model));
     }
 
     @Test
-    void registerHoaInvalidName(){
+    void registerHoaInvalidName() {
         HoaRequestModel model = new HoaRequestModel("Test country", "Test city", "Tst");
-        assertThrows(BadFormatHoaException.class,() -> hoaService.registerHoa(model));
+        assertThrows(BadFormatHoaException.class, () -> hoaService.registerHoa(model));
     }
 
 
