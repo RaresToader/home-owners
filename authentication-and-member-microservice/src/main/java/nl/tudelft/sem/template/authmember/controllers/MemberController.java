@@ -10,6 +10,7 @@ import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
+import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
 import nl.tudelft.sem.template.authmember.models.AuthenticationRequestModel;
 import nl.tudelft.sem.template.authmember.models.AuthenticationResponseModel;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
@@ -119,11 +120,11 @@ public class MemberController {
      * Only succeeds if a user exists and doesn't have an active membership in the HOA.
      */
     @PostMapping("/joinHOA")
-    public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model) {
+    public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model) throws MemberDifferentAddressException {
         try {
-            Membership membership = hoaService.joinHoa(model);
-            authManager.validateMember(membership.getMemberId());
-            return ResponseEntity.ok(membership);
+            String memberId = hoaService.joinHoa(model);
+            authManager.validateMember(memberId);
+            return ResponseEntity.ok().build();
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access is not allowed!", e);
         } catch (MemberAlreadyInHoaException e) {
