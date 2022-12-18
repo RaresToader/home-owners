@@ -1,7 +1,11 @@
 package nl.tudelft.sem.template.authmember.domain;
 
 import java.util.Objects;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.NoArgsConstructor;
 import nl.tudelft.sem.template.authmember.domain.password.HashedPassword;
 import nl.tudelft.sem.template.authmember.domain.password.HashedPasswordAttributeConverter;

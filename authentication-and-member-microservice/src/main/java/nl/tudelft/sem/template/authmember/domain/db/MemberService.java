@@ -1,8 +1,8 @@
 package nl.tudelft.sem.template.authmember.domain.db;
 
 import nl.tudelft.sem.template.authmember.domain.Member;
-import nl.tudelft.sem.template.authmember.domain.password.PasswordHashingService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
+import nl.tudelft.sem.template.authmember.domain.password.PasswordHashingService;
 import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import org.springframework.stereotype.Service;
 

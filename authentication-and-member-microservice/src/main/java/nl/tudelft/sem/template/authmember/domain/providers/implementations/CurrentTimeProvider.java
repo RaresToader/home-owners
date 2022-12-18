@@ -1,9 +1,8 @@
 package nl.tudelft.sem.template.authmember.domain.providers.implementations;
 
+import java.time.Instant;
 import nl.tudelft.sem.template.authmember.domain.providers.TimeProvider;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
 
 /**
  * An abstract time provider to make services testable.

@@ -2,17 +2,15 @@ package nl.tudelft.sem.template.authmember.authentication;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import nl.tudelft.sem.template.authmember.domain.providers.TimeProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import nl.tudelft.sem.template.authmember.domain.Member;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import nl.tudelft.sem.template.authmember.domain.providers.TimeProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
 
 /**
  * Generator for JWT tokens.

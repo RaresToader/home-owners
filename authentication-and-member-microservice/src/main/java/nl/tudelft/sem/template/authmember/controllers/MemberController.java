@@ -1,7 +1,6 @@
 package nl.tudelft.sem.template.authmember.controllers;
 
 import java.util.List;
-
 import nl.tudelft.sem.template.authmember.authentication.AuthManager;
 import nl.tudelft.sem.template.authmember.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.template.authmember.authentication.JwtUserDetailsService;
@@ -11,7 +10,12 @@ import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
-import nl.tudelft.sem.template.authmember.models.*;
+import nl.tudelft.sem.template.authmember.models.AuthenticationRequestModel;
+import nl.tudelft.sem.template.authmember.models.AuthenticationResponseModel;
+import nl.tudelft.sem.template.authmember.models.GetHoaModel;
+import nl.tudelft.sem.template.authmember.models.HoaModel;
+import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
+import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import nl.tudelft.sem.template.authmember.services.HoaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +24,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,7 +52,10 @@ public class MemberController {
      * Instantiates a new MemberController.
      */
     @Autowired
-    public MemberController(MemberService memberService, HoaService hoaService, MembershipService membershipService, AuthenticationManager authenticationManager, JwtTokenGenerator jwtTokenGenerator, JwtUserDetailsService jwtUserDetailsService, AuthManager authManager) {
+    public MemberController(MemberService memberService, HoaService hoaService,
+                            MembershipService membershipService,
+                            AuthenticationManager authenticationManager, JwtTokenGenerator jwtTokenGenerator,
+                            JwtUserDetailsService jwtUserDetailsService, AuthManager authManager) {
         this.membershipService = membershipService;
         this.memberService = memberService;
         this.hoaService = hoaService;
@@ -65,7 +71,7 @@ public class MemberController {
     @PostMapping("/register")
     public ResponseEntity<Member> register(@RequestBody RegistrationModel request) {
         try {
-            Member member = memberService.registerUser(request);
+            memberService.registerUser(request);
             return ResponseEntity.ok().build();
         } catch (MemberAlreadyExistsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already exists", e);
@@ -82,8 +88,8 @@ public class MemberController {
             authManager.validateMember(request.getMemberId());
             Member member = memberService.updatePassword(request);
             return ResponseEntity.ok(member);
-        }catch (IllegalAccessException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access not allowed", e);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access not allowed!", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member doesn't exist", e);
         }
@@ -102,7 +108,7 @@ public class MemberController {
             authManager.validateMember(member.getMemberId());
             return ResponseEntity.ok(member);
         } catch (IllegalAccessException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access not allowed", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access is not allowed", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member does not exist", e);
         }
@@ -119,7 +125,7 @@ public class MemberController {
             authManager.validateMember(membership.getMemberId());
             return ResponseEntity.ok(membership);
         } catch (IllegalAccessException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access not allowed", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access is not allowed!", e);
         } catch (MemberAlreadyInHoaException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already in Hoa", e);
         } catch (IllegalArgumentException e) {
@@ -139,7 +145,7 @@ public class MemberController {
             authManager.validateMember(membership.getMemberId());
             return ResponseEntity.ok(membership);
         } catch (IllegalAccessException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access not allowed", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access not permitted", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hoa or member are not found.", e);
         }
@@ -221,11 +227,9 @@ public class MemberController {
      *
      * @param request The login model
      * @return JWT token if the login is successful
-     * @throws Exception if the user does not exist or the password is incorrect
      */
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponseModel> authenticate(@RequestBody AuthenticationRequestModel request)
-            throws Exception {
+    public ResponseEntity<AuthenticationResponseModel> authenticate(@RequestBody AuthenticationRequestModel request) {
 
         try {
             authenticationManager.authenticate(

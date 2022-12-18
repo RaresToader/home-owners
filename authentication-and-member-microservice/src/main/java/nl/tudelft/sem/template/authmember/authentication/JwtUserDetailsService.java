@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.authmember.authentication;
 
+import java.util.ArrayList;
 import nl.tudelft.sem.template.authmember.domain.db.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -7,8 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 
 /**
  * User details service responsible for retrieving the user from the DB.
