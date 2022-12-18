@@ -167,9 +167,38 @@ public class HoaServiceTest {
     }
 
     @Test
-    void enoughCharsAndWhitespaceHappy() {
-        Assertions.assertTrue(hoaService.enoughCharsAndWhitespace("Test 123"));
+    void enoughCharsAndWhitespaceOtherChar() {
+        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace("Test 1$23"));
 
     }
+
+    @Test
+    void enoughCharsAndWhitespaceHappy() {
+        Assertions.assertTrue(hoaService.enoughCharsAndWhitespace("Test 123"));
+    }
+
+    @Test
+    void enoughCharsAndWhitespaceHappyButNotEnoughChars() {
+        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace("Tes"));
+    }
+
+    @Test
+    void registerHoaInvalidCountry(){
+        HoaRequestModel model = new HoaRequestModel("Tes$t country", "Test city", "Test");
+        assertThrows(BadFormatHoaException.class,() -> hoaService.registerHoa(model));
+    }
+
+    @Test
+    void registerHoaInvalidCity(){
+        HoaRequestModel model = new HoaRequestModel("Test country", "Test ci$ty", "Test");
+        assertThrows(BadFormatHoaException.class,() -> hoaService.registerHoa(model));
+    }
+
+    @Test
+    void registerHoaInvalidName(){
+        HoaRequestModel model = new HoaRequestModel("Test country", "Test city", "Tst");
+        assertThrows(BadFormatHoaException.class,() -> hoaService.registerHoa(model));
+    }
+
 
 }
