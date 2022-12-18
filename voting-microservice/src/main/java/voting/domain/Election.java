@@ -3,7 +3,16 @@ package voting.domain;
 import lombok.NoArgsConstructor;
 import voting.db.converters.LocalDateTimeConverter;
 
-import javax.persistence.*;
+import javax.persistence.Convert;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity

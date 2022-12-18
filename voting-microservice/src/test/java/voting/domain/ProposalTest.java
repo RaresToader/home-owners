@@ -6,7 +6,10 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 class ProposalTest {
 
@@ -23,13 +26,13 @@ class ProposalTest {
 
 	@Test
 	void isWinningChoiceTest() {
-		assertEquals(false, proposal.isWinningChoice());
+		assertFalse(proposal.isWinningChoice());
 	}
 
 	@Test
 	void setWinningChoiceTest() {
 		proposal.setWinningChoice(true);
-		assertEquals(true, proposal.isWinningChoice());
+		assertTrue(proposal.isWinningChoice());
 	}
 
 	@Test
@@ -75,6 +78,6 @@ class ProposalTest {
 	void conclude() {
 		boolean ans = proposal.conclude();
 		assertEquals("finished", proposal.getStatus());
-		assertEquals(false, ans);
+		assertFalse(ans);
 	}
 }
