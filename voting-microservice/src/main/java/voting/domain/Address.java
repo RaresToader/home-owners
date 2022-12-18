@@ -2,12 +2,14 @@ package voting.domain;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import voting.annotations.Generated;
 
 /**
  * A DDD value object representing an Address
  */
 @EqualsAndHashCode
 @Data
+@Generated
 public class Address {
     private final String country;
     private final String city;

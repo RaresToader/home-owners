@@ -5,19 +5,23 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import voting.annotations.TestSuite;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
+@TestSuite
 class ElectionTest {
 
 	private String description;
 	private LocalDateTime scheduledFor;
 	private int amountOfWinners;
-	private ArrayList<Integer> candidates;
+	private List<Integer> candidates;
 	private Election boardElection;
 	private Election proposal;
+
+	private static final String STR_BE = "BoardElection";
 
 	@BeforeEach
 	void setUp() {
@@ -25,7 +29,7 @@ class ElectionTest {
 		this.scheduledFor = LocalDateTime.now();
 		this.amountOfWinners = 2;
 		this.candidates = new ArrayList<>(List.of(1, 2, 3, 4));
-		this.boardElection = new BoardElection("BoardElection", description, 1, scheduledFor, amountOfWinners, candidates);
+		this.boardElection = new BoardElection(STR_BE, description, 1, scheduledFor, amountOfWinners, candidates);
 		this.proposal = new Proposal("Proposal", description, 1, scheduledFor);
 	}
 
@@ -42,7 +46,7 @@ class ElectionTest {
 
 	@Test
 	void getName() {
-		assertEquals("BoardElection", boardElection.getName());
+		assertEquals(STR_BE, boardElection.getName());
 		assertEquals("Proposal", proposal.getName());
 	}
 
@@ -95,18 +99,39 @@ class ElectionTest {
 	}
 
 	@Test
-	void testEqualsDifferentClasses() {
-		assertFalse(boardElection.equals(1));
+	void testEquals() {
+		// Null
+		assertNotEquals(boardElection, null);
+		// Different class
+		assertNotEquals(1, boardElection);
+		// Different subclass
+		assertNotEquals(boardElection, proposal);
+		// Identity
+		assertEquals(boardElection, boardElection);
+		// Different id
+		BoardElection second = new BoardElection(STR_BE, this.description, 1,
+				this.scheduledFor, this.amountOfWinners, this.candidates);
+		second.electionId = 10;
+		assertNotEquals(boardElection, second);
+		// Same id -> should not happen, DB error!
+		second.electionId = boardElection.getElectionId();
+		assertEquals(boardElection, second);
 	}
 
 	@Test
-	void testEqualsFalse() {
-		assertFalse(boardElection.equals(proposal));
-	}
-
-	@Test
-	void testEqualsTrue() {
-		assertTrue(boardElection.equals(boardElection));
+	void testHashCode() {
+		// Brute-check
+		assertEquals(boardElection.hashCode(), ("be:0:1:" + STR_BE.hashCode()).hashCode());
+		// Different subclass
+		assertNotEquals(boardElection.hashCode(), proposal.hashCode());
+		// Same type, different id
+		BoardElection second = new BoardElection(STR_BE, this.description, 1,
+				this.scheduledFor, this.amountOfWinners, this.candidates);
+		second.electionId = 10;
+		assertNotEquals(boardElection.hashCode(), second.hashCode());
+		// Same object
+		second.electionId = boardElection.getElectionId();
+		assertEquals(boardElection.hashCode(), second.hashCode());
 	}
 
 	@Test
@@ -114,7 +139,6 @@ class ElectionTest {
 		assertEquals(0, boardElection.getVoteCount());
 		boardElection.incrementVoteCount();
 		assertEquals(1, boardElection.getVoteCount());
-
 	}
 
 	@Test

@@ -2,6 +2,7 @@ package voting.domain;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import voting.annotations.TestSuite;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -11,17 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
+@TestSuite
 class ProposalTest {
 
-	private String description;
-	private LocalDateTime scheduledFor;
 	private Proposal proposal;
 
 	@BeforeEach
 	void setUp() {
-		this.description = "TestExample";
-		this.scheduledFor = LocalDateTime.now();
-		this.proposal = new Proposal("Proposal", description, 1, scheduledFor);
+		this.proposal = new Proposal("Proposal", "TestExample", 1, LocalDateTime.now());
 	}
 
 	@Test
@@ -70,7 +68,20 @@ class ProposalTest {
 	@Test
 	void findOutcome() {
 		proposal.setStatus("ongoing");
+		// One positive
 		proposal.vote(1, 1);
+		assertTrue(proposal.findOutcome());
+
+		// Majority is no longer valid
+		proposal.vote(2, 0);
+		assertFalse(proposal.findOutcome());
+
+		// Idempotence
+		proposal.vote(1, 1);
+		assertFalse(proposal.findOutcome());
+
+		// Majority valid once more
+		proposal.vote(2, 1);
 		assertTrue(proposal.findOutcome());
 	}
 

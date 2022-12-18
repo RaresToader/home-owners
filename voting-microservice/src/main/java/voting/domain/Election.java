@@ -2,6 +2,7 @@ package voting.domain;
 
 import lombok.NoArgsConstructor;
 import voting.db.converters.LocalDateTimeConverter;
+import voting.exceptions.CannotProceedVote;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorColumn;
@@ -54,32 +55,19 @@ public abstract class Election {
     }
 
     /**
-     * Checks if the member with the provided id can participate in the election
-     *
-     * @param memberId Id of member to consider
-     * @return Whether the member can vote
-     */
-    private boolean canParticipate(Integer memberId) {
-        return false;
-    }
-
-    /**
      * Allows for a member to vote on this election
      *
      * @param membershipId Id of member that votes
      * @param choice       Choice of member that voted
      */
-    public void vote(int membershipId, int choice) {
-    }
+    public abstract void vote(int membershipId, int choice) throws CannotProceedVote;
 
     /**
      * Concludes the current election
      *
      * @return Result of election
      */
-    public Object conclude() {
-        return null;
-    }
+    public abstract Object conclude();
 
     public int getElectionId() {
         return electionId;
@@ -135,13 +123,16 @@ public abstract class Election {
 
     @Override
     public int hashCode() {
-        return (this.electionId + this.hoaId + this.name.hashCode() + "").hashCode();
+        if (this.getClass() != BoardElection.class)
+            return ("prop:" + this.electionId + ":" + this.hoaId + ":" + this.name.hashCode()).hashCode();
+        return ("be:" + this.electionId + ":" + this.hoaId + ":" + this.name.hashCode()).hashCode();
     }
 
     public void incrementVoteCount() {
         this.voteCount++;
     }
 
+    @Override
     public String toString() {
         return "Election{"
                 + "electionID='" + electionId

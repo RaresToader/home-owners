@@ -3,11 +3,18 @@ package voting.models;
 import lombok.Data;
 
 @Data
-public abstract class ElectionModel {
+public class ElectionModel {
     public int hoaId;
     public String name;
     public String description;
     public TimeModel scheduledFor;
+
+    /**
+     * Overwrite base DTO constructor to change visibility to protected (cannot be instantiated)
+     */
+    protected ElectionModel() {
+        // This constructor cannot be called, hence it is left empty.
+    }
 
     /**
      * Checks whether this model is a valid one for creating an election

@@ -1,6 +1,7 @@
 package voting.domain;
 
 import lombok.NoArgsConstructor;
+import voting.annotations.Generated;
 import voting.db.converters.VotesConverter;
 
 import javax.persistence.Convert;
@@ -8,6 +9,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @DiscriminatorValue("1")
@@ -16,7 +18,7 @@ public class Proposal extends Election {
     private boolean winningChoice;
 
     @Convert(converter = VotesConverter.class)
-    private HashMap<Integer, Integer> votes;
+    private Map<Integer, Integer> votes;
 
     /**
      * Creates a proposal
@@ -40,26 +42,20 @@ public class Proposal extends Election {
         this.winningChoice = winningChoice;
     }
 
-    public HashMap<Integer, Integer> getVotes() {
+    public Map<Integer, Integer> getVotes() {
         return votes;
     }
 
-    public void setVotes(HashMap<Integer, Integer> votes) {
+    public void setVotes(Map<Integer, Integer> votes) {
         this.votes = votes;
     }
 
     /**
      * {@inheritDoc}
      */
-    private boolean canParticipate(Integer memberId) {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void vote(int membershipId, int vote) {
-        if (getStatus().equals("ongoing") && canParticipate(membershipId)) {
+        if (getStatus().equals("ongoing")) {
             votes.put(membershipId, vote);
             this.incrementVoteCount();
         }
@@ -78,17 +74,27 @@ public class Proposal extends Election {
                     boolean positive = b == 1;
                     if (positive) acc[1]++;
                     else acc[0]++;
-                },
-                (acc, acc2) -> {
-                    acc[0] += acc2[0];
-                    acc[1] += acc2[1];
-                });
+                }, this::findOutcomeAccHelper);
         return counts[0] < counts[1];
+    }
+
+    /**
+     * Accumulator helper function made for testability
+     * Combines all sub-acc values to master acc
+     *
+     * @param a Master accumulator
+     * @param b Sub-accumulator
+     */
+    @Generated
+    public void findOutcomeAccHelper(Integer[] a, Integer[] b) {
+        a[0] += b[0];
+        a[1] += b[1];
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public Boolean conclude() {
         winningChoice = findOutcome();
         setStatus("finished");

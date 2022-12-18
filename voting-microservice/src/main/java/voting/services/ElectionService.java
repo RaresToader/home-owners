@@ -55,16 +55,18 @@ public class ElectionService {
      */
     public Proposal createProposal(ProposalModel model) throws ProposalAlreadyCreated, ElectionCannotBeCreated {
         if (!model.isValid()) throw new ElectionCannotBeCreated("Some/all of the provided fields are invalid");
-        if (!electionRepository.existsByHoaIdAndName(model.hoaId, model.name)) {
+        if (electionRepository.existsByHoaIdAndName(model.hoaId, model.name))
+            throw new ProposalAlreadyCreated("Proposal with hoaId: "
+                    + model.hoaId
+                    + "and name: "
+                    + model.name
+                    + "already exists.");
+        else {
             LocalDateTime d = model.scheduledFor.createDate();
             Proposal proposal = new Proposal(model.name, model.description, model.hoaId, d);
             electionRepository.save(proposal);
             return proposal;
-        } else throw new ProposalAlreadyCreated("Proposal with hoaId: "
-                + model.hoaId
-                + "and name: "
-                + model.name
-                + "already exists.");
+        }
     }
 
     /**
@@ -83,6 +85,9 @@ public class ElectionService {
             throw new CannotProceedVote("Election has not started");
         if (election.get().getStatus().equals("finished"))
             throw new CannotProceedVote("Election has been concluded");
+        if (election.get().getClass() == BoardElection.class
+                && !((BoardElection) election.get()).getCandidates().contains(model.choice))
+            throw new CannotProceedVote("Candidate with given id is not nominated for the election");
         election.get().setStatus("ongoing");
         election.get().vote(model.membershipId, model.choice);
         this.electionRepository.save(election.get());

@@ -8,10 +8,11 @@ import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -25,7 +26,7 @@ public class BoardElection extends Election {
     private List<Integer> candidates;
 
     @Convert(converter = VotesConverter.class)
-    private HashMap<Integer, Integer> votes;
+    private Map<Integer, Integer> votes;
 
     /**
      * Create a board election
@@ -38,7 +39,7 @@ public class BoardElection extends Election {
      * @param candidates      List of member ids of board candidates
      */
     public BoardElection(String name, String description, int hoaId, LocalDateTime scheduledFor, int amountOfWinners,
-                         ArrayList<Integer> candidates) {
+                         List<Integer> candidates) {
         super(name, description, hoaId, scheduledFor);
         this.amountOfWinners = amountOfWinners;
         this.candidates = candidates;
@@ -61,19 +62,12 @@ public class BoardElection extends Election {
         this.candidates = candidates;
     }
 
-    public HashMap<Integer, Integer> getVotes() {
+    public Map<Integer, Integer> getVotes() {
         return votes;
     }
 
-    public void setVotes(HashMap<Integer, Integer> votes) {
+    public void setVotes(Map<Integer, Integer> votes) {
         this.votes = votes;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    private boolean canParticipate(Integer memberId) {
-        return true;
     }
 
     /**
@@ -81,7 +75,7 @@ public class BoardElection extends Election {
      */
     @Override
     public void vote(int membershipId, int voteChoice) {
-        if (getStatus().equals("ongoing") && canParticipate(membershipId)) {
+        if (getStatus().equals("ongoing") && candidates.contains(voteChoice)) {
             votes.put(membershipId, voteChoice);
             this.incrementVoteCount();
         }
@@ -90,21 +84,30 @@ public class BoardElection extends Election {
     /**
      * Calculates the outcome of a board election
      *
-     * @return List of winners, capped if less than amountOfWinners
+     * @return Set of winners, capped if less than amountOfWinners
      */
-    public List<Integer> findOutcome() {
-        return votes.values()
+    public Set<Integer> findOutcome() {
+        var votesByCandidate = votes.entrySet().stream()
+                // Map candidateIds (values) to keys, and vote counts to values
+                .collect(Collectors.toMap(Map.Entry::getValue,
+                        e -> votes.values().stream().filter(ee -> ee.equals(e.getValue())).count(),
+                        Long::sum));
+        return votesByCandidate.entrySet()
                 .stream()
-                .sorted(Collections.reverseOrder())
+                // Master sort by number of votes, candidate application order as a tie-breaker
+                .sorted(Comparator.comparing(i -> candidates.indexOf(i.getKey())))
+                .sorted(Comparator.comparing(i -> -i.getValue()))
                 .limit(Math.min(amountOfWinners, candidates.size()))
-                .collect(Collectors.toList());
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     /**
      * {@inheritDoc}
      */
-    public List<Integer> conclude() {
-        List<Integer> currentWinners = findOutcome();
+    @Override
+    public Set<Integer> conclude() {
+        Set<Integer> currentWinners = findOutcome();
         this.setStatus("finished");
         return currentWinners;
     }
