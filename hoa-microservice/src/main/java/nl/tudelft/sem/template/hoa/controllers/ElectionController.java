@@ -20,7 +20,7 @@ public class ElectionController {
      * @return The created proposal or bad request
      */
     @PostMapping("/proposal")
-    public ResponseEntity<String> createProposal(@RequestBody ProposalRequestModel model) {
+    public ResponseEntity<Object> createProposal(@RequestBody ProposalRequestModel model) {
         try {
             return ResponseEntity.ok(ElectionUtils.createProposal(model));
         } catch (Exception e) {
@@ -35,7 +35,7 @@ public class ElectionController {
      * @return The created board election or bad request
      */
     @PostMapping("/boardElection")
-    public ResponseEntity<String> createBoardElection(@RequestBody BoardElectionRequestModel model) {
+    public ResponseEntity<Object> createBoardElection(@RequestBody BoardElectionRequestModel model) {
         try {
             return ResponseEntity.ok(ElectionUtils.createBoardElection(model));
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public class ElectionController {
      * @return Fetched election, if any with given id
      */
     @GetMapping("/getElection/{id}")
-    public ResponseEntity<String> getElectionById(@PathVariable("id") int electionId) {
+    public ResponseEntity<Object> getElectionById(@PathVariable("id") int electionId) {
         try {
             return ResponseEntity.ok(ElectionUtils.getElectionById(electionId));
         } catch (Exception e) {

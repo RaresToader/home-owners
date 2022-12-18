@@ -23,11 +23,11 @@ public class ElectionUtils {
      * @param model the model for the proposal
      * @return the created proposal
      */
-    public static String createProposal(ProposalRequestModel model) {
+    public static Object createProposal(ProposalRequestModel model) {
         return client.target(server).path("proposal/")
                 .request(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .post(Entity.entity(model, APPLICATION_JSON), String.class);
+                .post(Entity.entity(model, APPLICATION_JSON), Object.class);
     }
 
     /**
@@ -36,11 +36,11 @@ public class ElectionUtils {
      * @param model the model for the board election
      * @return the created board election
      */
-    public static String createBoardElection(BoardElectionRequestModel model) {
+    public static Object createBoardElection(BoardElectionRequestModel model) {
         return client.target(server).path("boardElection/")
                 .request(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .post(Entity.entity(model, APPLICATION_JSON), String.class);
+                .post(Entity.entity(model, APPLICATION_JSON), Object.class);
     }
 
     /**
@@ -62,11 +62,11 @@ public class ElectionUtils {
      * @param electionId the id of the election
      * @return the fetched election
      */
-    public static String getElectionById(int electionId) {
+    public static Object getElectionById(int electionId) {
         return client.target(server).path("getElection/" + electionId)
                 .request(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .get(String.class);
+                .get(Object.class);
     }
 
     /**
