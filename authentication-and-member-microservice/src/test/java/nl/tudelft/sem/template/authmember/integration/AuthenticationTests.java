@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @AutoConfigureMockMvc
 public class AuthenticationTests {
     @Autowired
-    private MockMvc mockMvc;
+    private transient MockMvc mockMvc;
     @Autowired
     private transient MemberRepository memberRepository;
     @Autowired
@@ -40,7 +40,6 @@ public class AuthenticationTests {
     @Test
     public void authenticateGoodCase() throws Exception {
         // STEP 1: Register user
-        final Member member = new Member("Stefan", passwordHashingService.hash("coati69"));
         final RegistrationModel model = new RegistrationModel();
         model.setMemberId("Stefan");
         model.setPassword("coati69");
