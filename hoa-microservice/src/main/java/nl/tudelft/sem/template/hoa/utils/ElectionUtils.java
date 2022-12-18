@@ -1,9 +1,11 @@
 package nl.tudelft.sem.template.hoa.utils;
 
+import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;
+import nl.tudelft.sem.template.hoa.models.VotingModel;
+import org.springframework.http.HttpStatus;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-
 import javax.inject.Singleton;
 import javax.ws.rs.client.Entity;
 
@@ -26,5 +28,57 @@ public class ElectionUtils {
                 .request(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .post(Entity.entity(model, APPLICATION_JSON), String.class);
+    }
+
+    /**
+     * Creates a board election using the voting microservice
+     *
+     * @param model the model for the board election
+     * @return the created board election
+     */
+    public static String createBoardElection(BoardElectionRequestModel model) {
+        return client.target(server).path("boardElection/")
+                .request(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .post(Entity.entity(model, APPLICATION_JSON), String.class);
+    }
+
+    /**
+     * Allows the user to vote on an election using the voting microservice
+     *
+     * @param model the model for vote
+     * @return the status of the vote
+     */
+    public static HttpStatus vote(VotingModel model) {
+        return client.target(server).path("vote/")
+                .request(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .post(Entity.entity(model, APPLICATION_JSON), HttpStatus.class);
+    }
+
+    /**
+     * Getter for elections using the voting microservice
+     *
+     * @param electionId the id of the election
+     * @return the fetched election
+     */
+    public static String getElectionById(int electionId) {
+        return client.target(server).path("getElection/" + electionId)
+                .request(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .get(String.class);
+    }
+
+    /**
+     * Concludes an election with the given id using the voting miccroservice
+     *
+     * @param id the id of election to conclude
+     * @return Result of the election
+     */
+    public static Object concludeElection(int id) {
+        return client.target(server).path("conclude/" + id)
+                .request(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .post(null, Object.class);
     }
 }
