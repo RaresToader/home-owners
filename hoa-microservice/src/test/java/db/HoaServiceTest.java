@@ -165,8 +165,9 @@ public class HoaServiceTest {
         Assertions.assertFalse(hoaService.enoughCharsAndWhitespace("    "));
 
     }
+
     @Test
-    void enoughCharsAndWhitespaceHappy(){
+    void enoughCharsAndWhitespaceHappy() {
         Assertions.assertTrue(hoaService.enoughCharsAndWhitespace("Test 123"));
 
     }
