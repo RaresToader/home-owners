@@ -1,6 +1,6 @@
 package nl.tudelft.sem.template.hoa.domain;
 
-
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,7 +8,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.NoArgsConstructor;
-
 
 
 /**
@@ -23,7 +22,7 @@ public class Hoa {
      * Identifier for an HOA in the database.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false, unique = true)
     private long id;
 
@@ -78,4 +77,31 @@ public class Hoa {
         return new Hoa(country, city, name);
     }
 
+    /**
+     * Equals method for HOA class.
+     *
+     * @param o another object
+     * @return true, if this is equal to the other
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Hoa hoa = (Hoa) o;
+        return Objects.equals(country, hoa.country) && Objects.equals(city, hoa.city) && Objects.equals(name, hoa.name);
+    }
+
+    /**
+     * Implementation of hash code for Hoa class.
+     *
+     * @return a hash of this.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, country, city, name);
+    }
 }

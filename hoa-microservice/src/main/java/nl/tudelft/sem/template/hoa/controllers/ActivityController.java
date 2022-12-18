@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.hoa.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 import nl.tudelft.sem.template.hoa.db.ActivityService;
 import nl.tudelft.sem.template.hoa.db.HoaService;
@@ -37,7 +36,7 @@ public class ActivityController {
     }
 
     /**
-     * Endpoint for joining an activity.
+     * Endpoint for joining an activity, works if the member is in the hoa that hosts the activity.
      *
      * @param membershipId the membership id
      * @param activityId   the id of the activity
@@ -46,23 +45,15 @@ public class ActivityController {
     @PutMapping("/activity/join/{membershipId}/{activityId}")
     public ResponseEntity<Activity> joinActivity(@PathVariable long membershipId, @PathVariable long activityId) {
         try {
-            Activity activity = activityService.getActivityById(activityId);
-            activity.joinActivity(membershipId);
-            activityService.addActivity(activity);
+            Activity activity = this.activityService.joinActivity(membershipId, activityId);
             return ResponseEntity.ok(activity);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-        //Optional<Membership> membership = membershipRepo.findById(memberIdl);
-        // if membership is not found => not found response
-        // if found, we then have hoaId, and memberId
-        // check if memberId is in that Hoa
-        // check if activityId is in that hoa's public board
-
     }
 
     /**
-     * Endpoint for leaving an activity.
+     * Endpoint for leaving an activity, works if the member is in the hoa that hosts the activity.
      *
      * @param membershipId the membership id
      * @param activityId   the id of the activity
@@ -71,22 +62,16 @@ public class ActivityController {
     @DeleteMapping("/activity/leave/{membershipId}/{activityId}")
     public ResponseEntity<Activity> leaveActivity(@PathVariable long membershipId, @PathVariable long activityId) {
         try {
-            Activity activity = activityService.getActivityById(activityId);
-            activity.leaveActivity(membershipId);
-            activityService.addActivity(activity);
+            Activity activity = this.activityService.leaveActivity(membershipId, activityId);
             return ResponseEntity.ok(activity);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-        //Optional<Membership> membership = membershipRepo.findById(memberIdl);
-        // if membership is not found => not found response
-        // if found, we then have hoaId, and memberId
-        // check if memberId is in that Hoa
-        // check if activityId is in that hoa's public board
     }
 
+
     /**
-     * Endpoint for retrieving the public board for a specific hoa.
+     * Endpoint for retrieving the public board for a specific hoa, if the requesting member is in the HOA.
      *
      * @param hoaId        the hoaId
      * @param membershipId the membership id of the member requesting
@@ -94,39 +79,34 @@ public class ActivityController {
      */
     @GetMapping("/activity/publicBoard/{hoaId}/{membershipId}")
     public ResponseEntity<List<Activity>> getPublicBoard(@PathVariable long hoaId,
-                                                                      @PathVariable long membershipId) {
+                                                         @PathVariable long membershipId) {
         try {
-            List<Activity> activities = activityService.getActivitiesByHoaId(hoaId);
-            // check if member is actually part of this hoa
-            for (Activity activity : activities) {
-                if (activity.isExpired()) {
-                    activityService.deleteActivity(activity);
-                }
+            if (this.activityService.isInThisHoa(membershipId, hoaId)) {
+                return ResponseEntity.ok(this.activityService.updateAndRetrieveActivities(hoaId));
+            } else {
+                return ResponseEntity.badRequest().build();
             }
-            activities = activityService.getActivitiesByHoaId(hoaId);
-            return ResponseEntity.ok(activities);
-
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 
+
     /**
-     * Endpoint for creating an activity for a specific HOA.
+     * Endpoint for creating an activity for a specific HOA,
+     * works if the user requesting it is in the hoa that will host the activity.
      *
      * @return a response entity with all the new activity
      */
-    @PostMapping("/activity/create")
-    public ResponseEntity<Activity>
-        createActivity(@RequestBody ActivityRequestModel activityRequestModel) throws HoaDoesntExistException {
-
-        if (hoaService.findHoaById(activityRequestModel.getHoaId())) {
-            Activity activity = new Activity(activityRequestModel.getHoaId(), activityRequestModel.getActivityName(),
-                    activityRequestModel.getActivityDescription(), activityRequestModel.getActivityTime(),
-                    activityRequestModel.getActivityDuration());
-            activityService.addActivity(activity);
-            return ResponseEntity.ok(activity);
+    @PostMapping("/activity/create/{membershipId}")
+    public ResponseEntity<Activity> createActivity(@RequestBody ActivityRequestModel activityRequestModel,
+                                                   @PathVariable long membershipId) {
+        try {
+            return ResponseEntity.ok(this.activityService.createActivity(activityRequestModel, hoaService, membershipId));
+        } catch (HoaDoesntExistException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
         }
-        throw new HoaDoesntExistException("Hoa with id " + activityRequestModel.getHoaId() + " doesn't exist");
     }
 }

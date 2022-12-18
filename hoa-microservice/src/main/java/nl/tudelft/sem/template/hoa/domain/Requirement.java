@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Requirement {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "Id", nullable = false)
     private long id;
     @Column(name = "prompt", nullable = false)
@@ -77,11 +77,11 @@ public class Requirement {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Requirement)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         Requirement that = (Requirement) o;
-        return id == that.id && hoaId == that.hoaId && Objects.equals(prompt, that.prompt);
+        return hoaId == that.hoaId && Objects.equals(prompt, that.prompt);
     }
 
     /**

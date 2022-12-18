@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.hoa.config;
 
-
 import nl.tudelft.sem.template.hoa.authentication.JwtAuthenticationEntryPoint;
 import nl.tudelft.sem.template.hoa.authentication.JwtRequestFilter;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class RequestAuthenticationConfig extends WebSecurityConfigurerAdapter {
     private final transient JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final transient JwtRequestFilter jwtRequestFilter;
-
 
     public RequestAuthenticationConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
                                        JwtRequestFilter jwtRequestFilter) {

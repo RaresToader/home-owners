@@ -2,10 +2,11 @@ package nl.tudelft.sem.template.hoa.authentication;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import java.util.Date;
-import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
+import java.util.function.Function;
 
 /**
  * Verifies the JWT token in the request for validity.
@@ -22,7 +23,7 @@ public class JwtTokenVerifier {
         return !isTokenExpired(token);
     }
 
-    public String getNetIdFromToken(String token) {
+    public String getMemberIdFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
 

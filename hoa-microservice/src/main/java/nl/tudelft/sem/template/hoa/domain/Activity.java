@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 public class Activity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private long id;
 
@@ -155,25 +155,25 @@ public class Activity {
     }
 
     /**
-     * Equals method for activity class.
+     * Equals method for Activity class.
      *
-     * @param o an object
-     * @return true if this is equal to o, false otherwise
+     * @param o another object
+     * @return true, if this is equal to the other
      */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Activity)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         Activity activity = (Activity) o;
-        return id == activity.id && Objects.equals(activityName, activity.activityName)
+        return Objects.equals(activityName, activity.activityName)
                 && Objects.equals(activityDescription, activity.activityDescription)
-                && Objects.equals(hoaId, activity.hoaId) && Objects.equals(activityTime, activity.activityTime)
-                && Objects.equals(activityDuration, activity.activityDuration)
-                && Objects.equals(participants, activity.participants);
+                && Objects.equals(hoaId, activity.hoaId)
+                && Objects.equals(activityTime, activity.activityTime)
+                && Objects.equals(activityDuration, activity.activityDuration);
     }
 
     /**

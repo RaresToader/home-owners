@@ -2,18 +2,19 @@ package nl.tudelft.sem.template.hoa.authentication;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import java.io.IOException;
-import java.util.List;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Request filter for JWT security.
@@ -63,9 +64,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
                 try {
                     if (jwtTokenVerifier.validateToken(token)) {
-                        String netId = jwtTokenVerifier.getNetIdFromToken(token);
+                        String memberId = jwtTokenVerifier.getMemberIdFromToken(token);
                         var authenticationToken = new UsernamePasswordAuthenticationToken(
-                                netId,
+                                memberId,
                                 null, List.of() // no credentials and no authorities
                         );
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource()
@@ -83,7 +84,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     System.err.println("Unable to parse JWT token");
                 }
             }
-            //System.err.println("Invalid authorization header");
+//            System.err.println("Invalid authorization header");
         }
 
         filterChain.doFilter(request, response);
