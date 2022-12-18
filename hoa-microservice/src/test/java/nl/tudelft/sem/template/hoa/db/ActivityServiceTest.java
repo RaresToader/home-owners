@@ -97,6 +97,7 @@ class ActivityServiceTest {
     }
 
     @Test
+    @Disabled
     void leaveActivity() throws ActivityDoesntExistException {
         when(activityRepo.findById(anyLong())).thenReturn(Optional.of(activity));
         Activity updatedActivity = activityService.joinActivity(1, 1);
