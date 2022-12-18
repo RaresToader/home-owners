@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.db.MemberRepository;
 import nl.tudelft.sem.template.authmember.domain.password.PasswordHashingService;
 import nl.tudelft.sem.template.authmember.integration.utils.JsonUtil;
