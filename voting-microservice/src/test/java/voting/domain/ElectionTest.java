@@ -1,13 +1,10 @@
 package voting.domain;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import voting.db.converters.LocalDateTimeConverter;
-
-import javax.persistence.Convert;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,14 +22,14 @@ class ElectionTest {
 		this.description = "TestExample";
 		this.scheduledFor = LocalDateTime.now();
 		this.amountOfWinners = 2;
-		this.candidates = new ArrayList<>(List.of(1, 2 ,3 ,4));
+		this.candidates = new ArrayList<>(List.of(1, 2, 3, 4));
 		this.boardElection = new BoardElection("BoardElection", description, 1, scheduledFor, amountOfWinners, candidates);
 		this.proposal = new Proposal("Proposal", description, 1, scheduledFor);
 	}
 
 	@Test
 	void getElectionId() {
-		assertEquals(0 ,boardElection.getElectionId());
+		assertEquals(0, boardElection.getElectionId());
 	}
 
 	@Test
@@ -79,8 +76,8 @@ class ElectionTest {
 
 	@Test
 	void setScheduledFor() {
-		boardElection.setScheduledFor(LocalDateTime.of(1, 1 ,1, 1, 1));
-		assertEquals(LocalDateTime.of(1, 1, 1, 1 ,1), boardElection.getScheduledFor());
+		boardElection.setScheduledFor(LocalDateTime.of(1, 1, 1, 1, 1));
+		assertEquals(LocalDateTime.of(1, 1, 1, 1, 1), boardElection.getScheduledFor());
 	}
 
 	@Test
@@ -127,6 +124,6 @@ class ElectionTest {
 			+ '\'' + ", description='TestExample"
 			+ '\'' + ", voteCount='0"
 			+ '\'' + ", time=" + scheduledFor.toString() + '}';
-		assertEquals(ans,boardElection.toString());
+		assertEquals(ans, boardElection.toString());
 	}
 }

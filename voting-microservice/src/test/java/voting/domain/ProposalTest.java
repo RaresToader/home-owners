@@ -4,10 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +40,7 @@ class ProposalTest {
 	@Test
 	void setVotesTest() {
 		HashMap<Integer, Integer> map = new HashMap<>();
-		map.put(1,1);
+		map.put(1, 1);
 		proposal.setVotes(map);
 		assertEquals(map, proposal.getVotes());
 	}
