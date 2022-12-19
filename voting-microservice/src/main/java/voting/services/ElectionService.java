@@ -107,6 +107,32 @@ public class ElectionService {
     }
 
     /**
+     * Returns board election for a given hoa, if one is running
+     */
+    public BoardElection getBoardElectionByHoaId(long hoaId) throws ElectionDoesNotExist {
+        Optional<Election> e = this.electionRepository.getBoardElectionByHoaId(hoaId);
+        if (e.isEmpty()) throw new ElectionDoesNotExist("This hoa does not have an election");
+        return (BoardElection) e.get();
+    }
+
+    /**
+     * Adds a participant to board election if there is an election
+     */
+    public boolean addParticipantToBoardElection(String memberId, long hoaId) throws ElectionDoesNotExist {
+        BoardElection e = getBoardElectionByHoaId(hoaId);
+        e.addParticipant(memberId);
+        return true;
+    }
+
+    /**
+     * Removes participant from board election if there is a board election and the member is participating
+     */
+    public boolean removeParticipantFromBoardElection(String memberId, long hoaId) throws ElectionDoesNotExist {
+        BoardElection e = getBoardElectionByHoaId(hoaId);
+        return e.removeParticipant(memberId);
+    }
+
+    /**
      * Concludes an election with the given id
      *
      * @param electionId Id of election to conclude

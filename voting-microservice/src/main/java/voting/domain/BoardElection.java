@@ -23,7 +23,7 @@ public class BoardElection extends Election {
     private int amountOfWinners;
 
     @Convert(converter = CandidatesConverter.class)
-    private List<Integer> candidates;
+    private List<String> candidates;
 
     @Convert(converter = VotesConverter.class)
     private Map<Integer, Integer> votes;
@@ -39,7 +39,7 @@ public class BoardElection extends Election {
      * @param candidates      List of member ids of board candidates
      */
     public BoardElection(String name, String description, int hoaId, LocalDateTime scheduledFor, int amountOfWinners,
-                         List<Integer> candidates) {
+                         List<String> candidates) {
         super(name, description, hoaId, scheduledFor);
         this.amountOfWinners = amountOfWinners;
         this.candidates = candidates;
@@ -54,11 +54,11 @@ public class BoardElection extends Election {
         this.amountOfWinners = amountOfWinners;
     }
 
-    public List<Integer> getCandidates() {
+    public List<String> getCandidates() {
         return candidates;
     }
 
-    public void setCandidates(List<Integer> candidates) {
+    public void setCandidates(List<String> candidates) {
         this.candidates = candidates;
     }
 
@@ -110,5 +110,13 @@ public class BoardElection extends Election {
         Set<Integer> currentWinners = findOutcome();
         this.setStatus("finished");
         return currentWinners;
+    }
+
+    public void addParticipant(String memberId) {
+        this.candidates.add(memberId);
+    }
+
+    public boolean removeParticipant(String memberId) {
+        return this.candidates.remove(memberId);
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class BoardElectionModel extends ElectionModel {
     public int amountOfWinners;
-    public List<Integer> candidates;
+    public List<String> candidates;
 
     /**
      * {@inheritDoc}

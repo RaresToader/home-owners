@@ -18,11 +18,11 @@ import static voting.annotations.TestSuite.TestType.UNIT;
 class BoardElectionTest {
 
 	private BoardElection boardElection;
-	private List<Integer> candidates;
+	private List<String> candidates;
 
 	@BeforeEach
 	void setUp() {
-		this.candidates = new ArrayList<>(List.of(0, 1, 2));
+		this.candidates = new ArrayList<>(List.of("0", "1", "2"));
 		this.boardElection = new BoardElection("BoardElection", "TestExample", 1,
 				LocalDateTime.now(), 2, candidates);
 	}
@@ -34,7 +34,7 @@ class BoardElectionTest {
 
 	@Test
 	void setCandidatesTest() {
-		boardElection.setCandidates(new ArrayList<>(List.of(4, 5)));
+		boardElection.setCandidates(new ArrayList<>(List.of("4", "5")));
 		assertEquals(new ArrayList<>(List.of(4, 5)), boardElection.getCandidates());
 	}
 
