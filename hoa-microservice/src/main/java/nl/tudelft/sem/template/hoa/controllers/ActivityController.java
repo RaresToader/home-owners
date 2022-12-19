@@ -1,9 +1,11 @@
 package nl.tudelft.sem.template.hoa.controllers;
 
 import java.util.List;
+
 import nl.tudelft.sem.template.hoa.db.ActivityService;
 import nl.tudelft.sem.template.hoa.db.HoaService;
 import nl.tudelft.sem.template.hoa.domain.Activity;
+import nl.tudelft.sem.template.hoa.exception.BadActivityException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.models.ActivityRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +105,7 @@ public class ActivityController {
                                                    @PathVariable long membershipId) {
         try {
             return ResponseEntity.ok(this.activityService.createActivity(activityRequestModel, hoaService, membershipId));
-        } catch (HoaDoesntExistException e) {
+        } catch (HoaDoesntExistException | BadActivityException e) {
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

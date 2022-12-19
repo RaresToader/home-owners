@@ -1,10 +1,12 @@
 package nl.tudelft.sem.template.hoa.db;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import nl.tudelft.sem.template.hoa.domain.Activity;
 import nl.tudelft.sem.template.hoa.exception.ActivityDoesntExistException;
+import nl.tudelft.sem.template.hoa.exception.BadActivityException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.models.ActivityRequestModel;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
@@ -147,7 +149,11 @@ public class ActivityService {
      * @throws HoaDoesntExistException thrown if Hoa does not exist
      */
     public Activity createActivity(ActivityRequestModel activityRequestModel, HoaService hoaService, long membershipId)
-            throws HoaDoesntExistException {
+            throws HoaDoesntExistException, BadActivityException {
+        if (!validateActivity(activityRequestModel, LocalDateTime.now())) {
+            throw new BadActivityException("Bad format for name or description. "
+                    + "Activity start time needs to be in the future!");
+        }
         if (hoaService.findHoaById(activityRequestModel.getHoaId())) {
             Activity activity = new Activity(activityRequestModel.getHoaId(), activityRequestModel.getActivityName(),
                     activityRequestModel.getActivityDescription(), activityRequestModel.getActivityTime(),
@@ -160,6 +166,40 @@ public class ActivityService {
             return activity;
         }
         throw new HoaDoesntExistException("Hoa with id " + activityRequestModel.getHoaId() + " doesn't exist");
+    }
+
+    /**
+     * Helper method that validates an activity request model.
+     * The activity can be added iff the name and description have the right format.
+     * The activity can be added iff the starting time is in the future.
+     * Thus, it should be impossible to add an activity that starts in the past.
+     *
+     * @param model the request model
+     * @param now the time
+     * @return true if the activity can be added, false otherwise
+     */
+    public boolean validateActivity(ActivityRequestModel model, LocalDateTime now) {
+        String name = model.getActivityName();
+        String description = model.getActivityDescription();
+        if (!rightFormat(name) || !rightFormat(description)) {
+            return false;
+        }
+        LocalDateTime startTime = model.getActivityTime();
+        return now.isBefore(startTime);
+    }
+
+    /**
+     * Helper method to be used to determine if the name and description of an activity is valid.
+     * The name can have at most 100 characters.
+     *
+     * @param name the string
+     * @return true, if the name has the right format, false otherwise;
+     */
+    public boolean rightFormat(String name) {
+        if (name == null || name.isBlank() || name.isEmpty()) {
+            return false;
+        }
+        return name.length() <= 100;
     }
 
     /**

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import nl.tudelft.sem.template.hoa.domain.Activity;
 import nl.tudelft.sem.template.hoa.exception.ActivityDoesntExistException;
+import nl.tudelft.sem.template.hoa.exception.BadActivityException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.models.ActivityRequestModel;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
@@ -127,7 +128,7 @@ class ActivityServiceTest {
     }
 
     @Test
-    void createActivity() throws HoaDoesntExistException {
+    void createActivity() throws HoaDoesntExistException, BadActivityException {
         HoaService hoaService = mock(HoaService.class);
         when(hoaService.findHoaById(any(Long.class))).thenReturn(true);
 
