@@ -33,7 +33,7 @@ public class HoaService {
      * @throws IllegalArgumentException    thrown if hoa does not exist
      * @throws MemberAlreadyInHoaException thrown if the party requesting is already part of the hoa.
      */
-    public void joinHoa(JoinHoaModel model) throws MemberAlreadyInHoaException, MemberDifferentAddressException {
+    public String joinHoa(JoinHoaModel model) throws MemberAlreadyInHoaException, MemberDifferentAddressException {
         try {
             List<Membership> activeMemberships = this.membershipService.getActiveMemberships(model.getMemberId());
             for (Membership membership : activeMemberships) {
@@ -47,6 +47,7 @@ public class HoaService {
                 throw new MemberDifferentAddressException(model);
             }
             membershipService.saveMembership(model);
+            return model.getMemberId();
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Hoa does not exist!");
         }

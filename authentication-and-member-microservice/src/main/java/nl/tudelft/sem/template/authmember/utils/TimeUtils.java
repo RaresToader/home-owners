@@ -1,4 +1,4 @@
-package nl.tudelft.sem.template.authmember.services;
+package nl.tudelft.sem.template.authmember.utils;
 
 import java.time.Duration;
 import java.time.Instant;
