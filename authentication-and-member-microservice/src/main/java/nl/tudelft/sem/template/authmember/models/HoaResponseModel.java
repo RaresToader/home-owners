@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HoaResponseModel {
+    private long id;
     private String country;
     private String city;
     private String name;

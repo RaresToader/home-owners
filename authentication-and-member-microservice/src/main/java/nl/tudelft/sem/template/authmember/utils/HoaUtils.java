@@ -3,6 +3,8 @@ package nl.tudelft.sem.template.authmember.utils;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import javax.inject.Singleton;
+import javax.ws.rs.core.HttpHeaders;
+
 import nl.tudelft.sem.template.authmember.models.HoaResponseModel;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -22,11 +24,12 @@ public class HoaUtils {
      * @param hoaId the hoa id
      * @return the hoa response model
      */
-    public static HoaResponseModel getHoaById(long hoaId) {
+    public static HoaResponseModel getHoaById(long hoaId, String token) {
         try {
             return client.target(server).path("getById/" + hoaId)
                     .request(APPLICATION_JSON)
                     .accept(APPLICATION_JSON)
+                    .header(HttpHeaders.AUTHORIZATION, token)
                     .get(HoaResponseModel.class);
         } catch (Exception e) {
             throw new IllegalArgumentException("Hoa id is invalid.");
