@@ -9,9 +9,10 @@ import voting.annotations.TestSuite;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static voting.annotations.TestSuite.TestType.UNIT;
 
 
-@TestSuite
+@TestSuite(testType = UNIT)
 class ElectionTest {
 
 	private String description;

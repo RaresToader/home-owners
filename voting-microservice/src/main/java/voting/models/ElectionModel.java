@@ -25,8 +25,10 @@ public class ElectionModel {
         return hoaId > 0
                 && name != null
                 && name.length() > 0
+                && name.length() < 90
                 && description != null
                 && description.length() > 0
+                && description.length() < 240
                 && scheduledFor != null
                 && scheduledFor.isValid();
     }

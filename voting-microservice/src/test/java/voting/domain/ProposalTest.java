@@ -10,9 +10,10 @@ import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static voting.annotations.TestSuite.TestType.UNIT;
 
 
-@TestSuite
+@TestSuite(testType = UNIT)
 class ProposalTest {
 
 	private Proposal proposal;
