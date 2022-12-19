@@ -1,10 +1,12 @@
 package nl.tudelft.sem.template.authmember.controllers;
 
 import java.util.List;
+
 import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
+import nl.tudelft.sem.template.authmember.domain.exceptions.BadRegistrationModelException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
@@ -55,6 +57,8 @@ public class MemberController {
 
         } catch (MemberAlreadyExistsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already exists", e);
+        } catch (BadRegistrationModelException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad username or password!", e);
         }
     }
 
@@ -69,6 +73,8 @@ public class MemberController {
 
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member doesn't exist", e);
+        } catch (BadRegistrationModelException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad password.", e);
         }
     }
 
