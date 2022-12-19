@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-
 import nl.tudelft.sem.template.hoa.domain.Activity;
 import nl.tudelft.sem.template.hoa.exception.ActivityDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.BadActivityException;
@@ -165,37 +164,43 @@ class ActivityServiceTest {
 
     @Test
     void addActivityNullName() {
-        ActivityRequestModel model = new ActivityRequestModel(null, "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(null,
+                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
     }
 
     @Test
     void addActivityNullDescription() {
-        ActivityRequestModel model = new ActivityRequestModel("Test", null, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(
+                "Test", null, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
     }
 
     @Test
     void addActivityEmptyName() {
-        ActivityRequestModel model = new ActivityRequestModel("", "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel("",
+                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
     }
 
     @Test
     void addActivityEmptyDescription() {
-        ActivityRequestModel model = new ActivityRequestModel("Test", "", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(
+                "Test", "", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
     }
 
     @Test
     void addActivityBlankName() {
-        ActivityRequestModel model = new ActivityRequestModel("   ", "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel("   ",
+                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
     }
 
     @Test
     void addActivityBlankDescription() {
-        ActivityRequestModel model = new ActivityRequestModel("Test", "   ", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(
+                "Test", "   ", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
     }
 
@@ -221,43 +226,50 @@ class ActivityServiceTest {
 
     @Test
     void validateNullName() {
-        ActivityRequestModel model = new ActivityRequestModel(null, "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(null,
+                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateNullDescription() {
-        ActivityRequestModel model = new ActivityRequestModel("Test", null, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(
+                "Test", null, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateEmptyName() {
-        ActivityRequestModel model = new ActivityRequestModel("", "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel("",
+                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateEmptyDescription() {
-        ActivityRequestModel model = new ActivityRequestModel("Test", "", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(
+                "Test", "", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateBlankName() {
-        ActivityRequestModel model = new ActivityRequestModel("   ", "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel("   ",
+                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateBlankDescription() {
-        ActivityRequestModel model = new ActivityRequestModel("Test", "   ", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(
+                "Test", "   ", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateHappyCase() {
-        ActivityRequestModel model = new ActivityRequestModel("Test", "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(
+                "Test", "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertTrue(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
