@@ -13,9 +13,12 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 public @interface TestSuite {
     /**
      * Documentation variable for indicating test suite type
+     *
      * @return Type of test suite, based on enum. Multiple values allowed.
      */
-    TestType testType() default TestType.NONE;
+    TestType[] testType() default {TestType.NONE};
+
+    @Generated
     enum TestType {
         NONE,
         UNIT,
