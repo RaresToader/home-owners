@@ -12,8 +12,9 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static voting.annotations.TestSuite.TestType.UNIT;
 
-@TestSuite
+@TestSuite(testType = UNIT)
 class BoardElectionTest {
 
 	private BoardElection boardElection;

@@ -18,7 +18,6 @@ public class BoardElectionModel extends ElectionModel {
     public boolean isValid() {
         return amountOfWinners > 0
                 && candidates != null
-                && !candidates.isEmpty()
                 && super.isValid();
     }
 }
