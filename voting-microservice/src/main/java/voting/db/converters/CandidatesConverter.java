@@ -21,7 +21,6 @@ public class CandidatesConverter implements AttributeConverter<List<Integer>, St
 	@Override
 	public List<Integer> convertToEntityAttribute(String dbData) {
 		if (dbData.equals("")) return new ArrayList<>();
-		if (dbData.isEmpty()) return new ArrayList<>();
 		return Arrays.stream(dbData.split(",")).map(Integer::parseInt).collect(Collectors.toList());
 	}
 }

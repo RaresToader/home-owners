@@ -43,11 +43,11 @@ public class Address {
     public Address(String fromDB) {
         String[] extracted = fromDB.split(",");
 
-        this.country = extracted[0];
-        this.city = extracted[1];
-        this.street = extracted[2];
-        this.houseNumber = extracted[3];
-        this.postalCode = extracted[4];
+        this.country = extracted.length > 0 ? extracted[0] : "";
+        this.city = extracted.length > 1 ? extracted[1] : "";
+        this.street = extracted.length > 2 ? extracted[2] : "";
+        this.houseNumber = extracted.length > 3 ? extracted[3] : "";
+        this.postalCode = extracted.length > 4 ? extracted[4] : "";
     }
 
     @Override
