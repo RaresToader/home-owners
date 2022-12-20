@@ -41,7 +41,7 @@ public class AuthenticationTests {
         // STEP 1: Register user
         final RegistrationModel model = new RegistrationModel();
         model.setMemberId("Stefan");
-        model.setPassword("coati69");
+        model.setPassword("coati69696969");
         // Act
         ResultActions resultActions = mockMvc.perform(post("/member/register")
                 .contentType(MediaType.APPLICATION_JSON)
