@@ -87,10 +87,10 @@ public class ElectionUtils {
      */
     public static boolean joinElection(String memberID, long hoaID) {
         try {
-            return client.target(server).path("joinElection/" + memberID + hoaID)
+            return client.target(server).path("joinElection/" + memberID + "/" + hoaID)
                 .request(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .get(Boolean.class);
+                .post(null, Boolean.class);
         } catch (Exception e) {
             throw new IllegalArgumentException("The HOA has no running election.");
 
@@ -102,10 +102,10 @@ public class ElectionUtils {
      */
     public static boolean leaveElection(String memberID, long hoaID) {
         try {
-            return client.target(server).path("leaveElection/" + memberID + hoaID)
+            return client.target(server).path("leaveElection/" + memberID + "/" +  hoaID)
                 .request(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .get(Boolean.class);
+                .post(null, Boolean.class);
         } catch (Exception e) {
             throw new IllegalArgumentException("The HOA has no running election or the member did not participate.");
 

@@ -122,7 +122,7 @@ class ElectionControllerTest {
         reqModel.description = "This is a test board election";
         reqModel.scheduledFor = validTimeModel;
         reqModel.amountOfWinners = 1;
-        reqModel.candidates = List.of(1, 2, 3);
+        reqModel.candidates = List.of("1", "2", "3");
 
         Election expected = new BoardElection(reqModel.name, reqModel.description, reqModel.hoaId,
                 reqModel.scheduledFor.createDate(), reqModel.amountOfWinners, reqModel.candidates);
@@ -151,7 +151,7 @@ class ElectionControllerTest {
         reqModel.description = "This is a test board election";
         reqModel.scheduledFor = validTimeModel;
         reqModel.amountOfWinners = 1;
-        reqModel.candidates = List.of(1, 2, 3);
+        reqModel.candidates = List.of("1", "2", "3");
 
         // Perform a POST request
         ResultActions response = mockMvc.perform(post("/voting/boardElection")
@@ -166,7 +166,7 @@ class ElectionControllerTest {
     void voteSuccessTest() throws Exception {
         Election p = new Proposal(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate());
         electionRepo.save(p);
-        VotingModel reqModel = new VotingModel(1, 2, 3);
+        VotingModel reqModel = new VotingModel(1, "2", "3");
 
         // Perform a POST request
         ResultActions response = mockMvc.perform(post("/voting/vote")
@@ -179,7 +179,7 @@ class ElectionControllerTest {
         Proposal fetchedP = (Proposal) electionRepo.findByElectionId(1).orElse(null);
         assertNotNull(fetchedP, "Make sure entry is persisted");
         assertTrue(fetchedP.getVotes().entrySet()
-                .stream().anyMatch(e -> e.getKey() == 2 && e.getValue() == 3), "Make sure vote is persisted");
+                .stream().anyMatch(e -> e.getKey().equals("2") && e.getValue() == 3), "Make sure vote is persisted");
     }
 
     @Test
@@ -249,7 +249,7 @@ class ElectionControllerTest {
                 .getResponse().getContentAsString(), Boolean.class);
         assertTrue(returned, "Majority vote is positive/true");
 
-        VotingModel reqModel = new VotingModel(1, 2, 3);
+        VotingModel reqModel = new VotingModel(1, "2", "3");
         // Perform a POST request
         response = mockMvc.perform(post("/voting/vote")
                 .contentType(MediaType.APPLICATION_JSON)

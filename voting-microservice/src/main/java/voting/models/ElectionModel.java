@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ElectionModel {
-    public int hoaId;
+    public long hoaId;
     public String name;
     public String description;
     public TimeModel scheduledFor;

@@ -45,11 +45,11 @@ public class ElectionControllerTest {
         memberships.add(a2);
 
         try (MockedStatic<MembershipUtils> membershipUtils = Mockito.mockStatic(MembershipUtils.class)) {
-            membershipUtils.when(() -> MembershipUtils.getMembershipsForUser("sem")).thenReturn(memberships);
+            membershipUtils.when(() -> MembershipUtils.getMembershipsForUser("sem", "a")).thenReturn(memberships);
             try (MockedStatic<ElectionUtils> electionUtils = Mockito.mockStatic(ElectionUtils.class)) {
                 electionUtils.when(() -> ElectionUtils.joinElection("sem", 0)).thenReturn(true);
 
-                assertTrue(controller.joinElection("sem", 0).getBody());
+                assertTrue(controller.joinElection("sem", 0, "a").getBody());
             }
         }
     }
@@ -69,11 +69,11 @@ public class ElectionControllerTest {
         memberships.add(a2);
 
         try (MockedStatic<MembershipUtils> membershipUtils = Mockito.mockStatic(MembershipUtils.class)) {
-            membershipUtils.when(() -> MembershipUtils.getMembershipsForUser("sem")).thenReturn(memberships);
+            membershipUtils.when(() -> MembershipUtils.getMembershipsForUser("sem", "a")).thenReturn(memberships);
             try (MockedStatic<ElectionUtils> electionUtils = Mockito.mockStatic(ElectionUtils.class)) {
                 electionUtils.when(() -> ElectionUtils.joinElection("sem", 0)).thenReturn(true);
 
-                assertThrows(ResponseStatusException.class, () -> controller.joinElection("sem", 0).getBody());
+                assertThrows(ResponseStatusException.class, () -> controller.joinElection("sem", 0, "a").getBody());
             }
         }
     }

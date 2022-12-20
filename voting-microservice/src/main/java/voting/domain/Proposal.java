@@ -28,7 +28,7 @@ public class Proposal extends Election {
      * @param hoaId        hoaID the proposal refers to
      * @param scheduledFor Time object, when the election will start
      */
-    public Proposal(String name, String description, int hoaId, LocalDateTime scheduledFor) {
+    public Proposal(String name, String description, long hoaId, LocalDateTime scheduledFor) {
         super(name, description, hoaId, scheduledFor);
         winningChoice = false;
         votes = new HashMap<>();

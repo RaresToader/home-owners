@@ -126,6 +126,8 @@ public class ElectionService {
     public boolean addParticipantToBoardElection(String memberId, long hoaId) throws ElectionDoesNotExist {
         BoardElection e = getBoardElectionByHoaId(hoaId);
         e.addParticipant(memberId);
+        electionRepository.deleteById(e.getElectionId());
+        electionRepository.save(e);
         return true;
     }
 
@@ -134,7 +136,12 @@ public class ElectionService {
      */
     public boolean removeParticipantFromBoardElection(String memberId, long hoaId) throws ElectionDoesNotExist {
         BoardElection e = getBoardElectionByHoaId(hoaId);
-        return e.removeParticipant(memberId);
+        if(e.removeParticipant(memberId)) {
+            electionRepository.deleteById(e.getElectionId());
+            electionRepository.save(e);
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -12,7 +12,7 @@ import java.util.List;
 public class BoardElectionRequestModel {
     public int hoaId;
     public int amountOfWinners;
-    public List<Integer> candidates;
+    public List<String> candidates;
     public String name;
     public String description;
     public TimeModel scheduledFor;
