@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.authmember;
 
-import nl.tudelft.sem.template.authmember.domain.Address;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

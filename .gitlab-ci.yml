@@ -1,4 +1,4 @@
 include:
   - authentication-and-member-microservice/.gitlab-ci.yml
-  - authentication-microservice/.gitlab-ci.yml
   - hoa-microservice/.gitlab-ci.yml
+  - voting-microservice/.gitlab-ci.yml

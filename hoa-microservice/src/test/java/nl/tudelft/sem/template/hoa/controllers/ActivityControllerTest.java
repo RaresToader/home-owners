@@ -2,8 +2,7 @@ package nl.tudelft.sem.template.hoa.controllers;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,7 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class ActivityControllerTest {
 
@@ -52,7 +51,10 @@ class ActivityControllerTest {
     @BeforeAll
     static void registerMocks() {
         membershipUtils = mockStatic(MembershipUtils.class);
-        when(MembershipUtils.getMembershipById(1L)).thenReturn(new MembershipResponseModel(1L, "test user", 1L, false));
+        when(MembershipUtils.getMembershipById(1L))
+                .thenReturn(new MembershipResponseModel(1L, "test user", 1L, "country", "city", false));
+        when(MembershipUtils.getMembershipById(2L))
+                .thenReturn(new MembershipResponseModel(2L, "test user 2", 2L, "country 2", "city 2", false));
     }
 
     @AfterAll
@@ -100,6 +102,54 @@ class ActivityControllerTest {
         assertTrue(expectedActivity.equals(responseActivity));
     }
 
+    @Test
+    public void createActivityTest_BadCaseNotFound() throws Exception {
+
+        LocalDateTime activityTime = LocalDateTime.of(2030, 12, 15, 5, 30, 15);
+        LocalTime activityDuration = LocalTime.of(2, 30, 30);
+
+        // Set up the ActivityRequestModel to be provided in the request body
+        ActivityRequestModel requestModel = new ActivityRequestModel("Test Activity", "This is a test activity",
+                1L, activityTime, activityDuration);
+
+        // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
+        ResultActions resultActions = mockMvc.perform(post("/activity/create/" + 2L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(requestModel)));
+
+        resultActions.andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void createActivityTest_BadCaseBadRequest() throws Exception {
+
+        LocalDateTime activityTime = LocalDateTime.of(2030, 12, 15, 5, 30, 15);
+        LocalTime activityDuration = LocalTime.of(2, 30, 30);
+
+        // Set up the ActivityRequestModel to be provided in the request body
+        ActivityRequestModel requestModel = new ActivityRequestModel("", "This is a test activity",
+                1L, activityTime, activityDuration);
+
+        // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
+        ResultActions resultActions = mockMvc.perform(post("/activity/create/" + 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(requestModel)));
+
+        resultActions.andExpect(status().isBadRequest());
+
+        // Set up the ActivityRequestModel to be provided in the request body
+        ActivityRequestModel requestModel1 = new ActivityRequestModel("", "This is a test activity",
+                3L, activityTime, activityDuration);
+
+        // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
+        ResultActions resultActions1 = mockMvc.perform(post("/activity/create/" + 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(requestModel1)));
+
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+
 
     @Test
     void joinActivityTest() throws Exception {
@@ -117,6 +167,20 @@ class ActivityControllerTest {
         Activity updatedActivity = activityRepo.findById(activityId).orElseThrow();
 
         assertTrue(updatedActivity.getParticipants().contains(membershipId));
+    }
+
+    @Test
+    void joinActivityTest_BadCase() throws Exception {
+
+        insertActivityInDatabase();
+
+        long membershipId = 2L;
+        long activityId = 2L;
+
+        // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
+        ResultActions resultActions = mockMvc.perform(put("/activity/join/" + membershipId + "/" + activityId));
+
+        resultActions.andExpect(status().isBadRequest());
     }
 
     private void joinActivity(long membershipId, long activityId) {
@@ -144,6 +208,22 @@ class ActivityControllerTest {
     }
 
     @Test
+    void leaveActivityTest_BadCase() throws Exception {
+
+        insertActivityInDatabase();
+
+        long membershipId = 2L;
+        long activityId = 2L;
+
+        joinActivity(membershipId, activityId);
+
+        // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
+        ResultActions resultActions = mockMvc.perform(delete("/activity/leave/" + membershipId + "/" + activityId));
+
+        resultActions.andExpect(status().isBadRequest()); // Assert that the response has a 200 OK status
+    }
+
+    @Test
     void getPublicBoardTest() throws Exception {
 
         insertActivityInDatabase();
@@ -161,6 +241,20 @@ class ActivityControllerTest {
         List<Activity> actualActivities = activityRepo.findByHoaId(hoaId).orElseThrow();
 
         assertEquals(resultActivities, actualActivities);
+    }
+
+    @Test
+    void getPublicBoardTest_BadCaseBadRequest() throws Exception {
+
+        insertActivityInDatabase();
+
+        long membershipId = 2L;
+        long hoaId = 1L;
+
+        // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
+        ResultActions resultActions = mockMvc.perform(get("/activity/publicBoard/" + hoaId + "/" + membershipId));
+
+        resultActions.andExpect(status().isBadRequest());
     }
 
 }
