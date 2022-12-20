@@ -28,7 +28,7 @@ class ProposalVotesConverterTest {
 
         map = Map.of(CHAD, true, "chad2", false);
         String finalRes = sut.convertToDatabaseColumn(map);
-        assertTrue(() -> finalRes.equals("1=1,2=0") || finalRes.equals("chad=T,chad2=F"));
+        assertTrue(() -> finalRes.equals("chad2=F,chad=T") || finalRes.equals("chad=T,chad2=F"));
     }
 
     @Test
