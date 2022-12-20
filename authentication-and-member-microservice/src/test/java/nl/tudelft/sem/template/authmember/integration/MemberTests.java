@@ -40,7 +40,7 @@ public class MemberTests {
         final Member member = new Member("Stefan", passwordHashingService.hash("coati69"));
         final RegistrationModel model = new RegistrationModel();
         model.setMemberId("Stefan");
-        model.setPassword("coati69");
+        model.setPassword("coati6969coati");
         // Act
         ResultActions resultActions = mockMvc.perform(post("/member/register")
                 .contentType(MediaType.APPLICATION_JSON)

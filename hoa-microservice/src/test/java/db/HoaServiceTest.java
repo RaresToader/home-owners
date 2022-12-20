@@ -1,6 +1,7 @@
 package db;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.db.HoaService;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
+import nl.tudelft.sem.template.hoa.exception.BadFormatHoaException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.HoaNameAlreadyTakenException;
 import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
@@ -63,7 +65,7 @@ public class HoaServiceTest {
     @Test
     void findHoaByIdTest() {
         when(hoaRepo.existsById(1L)).thenReturn(true);
-        Assertions.assertTrue(hoaService.findHoaById(1L));
+        assertTrue(hoaService.findHoaById(1L));
     }
 
     @Test
@@ -84,9 +86,120 @@ public class HoaServiceTest {
     }
 
     @Test
-    void registerHoa() throws HoaNameAlreadyTakenException {
+    void registerHoa() throws HoaNameAlreadyTakenException, BadFormatHoaException {
         HoaRequestModel model = new HoaRequestModel("Test country", "Test city", "Test");
         Assertions.assertEquals(hoaService.registerHoa(model), hoa);
     }
+
+    @Test
+    void countryCheckNull() {
+        assertTrue(hoaService.countryCheck(null));
+    }
+
+    @Test
+    void countryCheckEmpty() {
+        assertTrue(hoaService.countryCheck(""));
+    }
+
+    @Test
+    void countryCheckBlank() {
+        assertTrue(hoaService.countryCheck("     "));
+
+    }
+
+    @Test
+    void countryNotUpper() {
+        assertTrue(hoaService.countryCheck("a"));
+    }
+
+    @Test
+    void otherChar() {
+        assertTrue(hoaService.countryCheck("Australia $$"));
+
+    }
+
+    @Test
+    void correctFormat() {
+        Assertions.assertFalse(hoaService.countryCheck("Australia"));
+    }
+
+    @Test
+    void nullName() {
+        Assertions.assertFalse(hoaService.nameCheck(null));
+    }
+
+    @Test
+    void emptyName() {
+        Assertions.assertFalse(hoaService.nameCheck(""));
+    }
+
+    @Test
+    void blankName() {
+        Assertions.assertFalse(hoaService.nameCheck("    "));
+    }
+
+    @Test
+    void nameNotUpper() {
+        Assertions.assertFalse(hoaService.nameCheck("a"));
+    }
+
+    @Test
+    void happyName() {
+        Assertions.assertTrue(hoaService.nameCheck("Test name"));
+    }
+
+    @Test
+    void enoughCharsAndWhitespaceNull() {
+        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace(null));
+
+    }
+
+    @Test
+    void enoughCharsAndWhitespaceEmpty() {
+        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace(""));
+
+    }
+
+    @Test
+    void enoughCharsAndWhitespaceBlank() {
+        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace("    "));
+
+    }
+
+    @Test
+    void enoughCharsAndWhitespaceOtherChar() {
+        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace("Test 1$23"));
+
+    }
+
+    @Test
+    void enoughCharsAndWhitespaceHappy() {
+        Assertions.assertTrue(hoaService.enoughCharsAndWhitespace("Test 123"));
+    }
+
+    @Test
+    void enoughCharsAndWhitespaceHappyButNotEnoughChars() {
+        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace("Tes"));
+    }
+
+    @Test
+    void registerHoaInvalidCountry() {
+        HoaRequestModel model = new HoaRequestModel("Tes$t country", "Test city", "Test");
+        assertThrows(BadFormatHoaException.class, () -> hoaService.registerHoa(model));
+    }
+
+    @Test
+    void registerHoaInvalidCity() {
+        HoaRequestModel model = new HoaRequestModel("Test country", "Test ci$ty", "Test");
+        assertThrows(BadFormatHoaException.class, () -> hoaService.registerHoa(model));
+    }
+
+    @Test
+    void registerHoaInvalidName() {
+        HoaRequestModel model = new HoaRequestModel("Test country", "Test city", "Tst");
+        assertThrows(BadFormatHoaException.class, () -> hoaService.registerHoa(model));
+    }
+
+
 
 }

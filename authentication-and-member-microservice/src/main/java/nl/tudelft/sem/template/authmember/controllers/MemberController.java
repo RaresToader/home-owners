@@ -4,6 +4,7 @@ import java.util.List;
 import nl.tudelft.sem.template.authmember.authentication.AuthManager;
 import nl.tudelft.sem.template.authmember.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.template.authmember.authentication.JwtUserDetailsService;
+
 import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.db.MemberService;
@@ -13,6 +14,7 @@ import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaEx
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
 import nl.tudelft.sem.template.authmember.models.AuthenticationRequestModel;
 import nl.tudelft.sem.template.authmember.models.AuthenticationResponseModel;
+import nl.tudelft.sem.template.authmember.domain.exceptions.*;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.HoaModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
@@ -77,6 +79,8 @@ public class MemberController {
             return ResponseEntity.ok().build();
         } catch (MemberAlreadyExistsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already exists", e);
+        } catch (BadRegistrationModelException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad username or password!", e);
         }
     }
 
@@ -94,6 +98,8 @@ public class MemberController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member doesn't exist", e);
+        } catch (BadRegistrationModelException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad password.", e);
         }
     }
 
@@ -132,6 +138,10 @@ public class MemberController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already in Hoa", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hoa or member do not exist", e);
+        } catch (MemberDifferentAddressException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Different address compared to hoa.", e);
+        } catch (BadJoinHoaModelException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad JoinHoaModel!.", e);
         }
     }
 
