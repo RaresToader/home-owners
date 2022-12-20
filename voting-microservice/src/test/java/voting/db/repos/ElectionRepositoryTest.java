@@ -1,6 +1,7 @@
 package voting.db.repos;
 
 import org.junit.jupiter.api.Test;
+import voting.annotations.TestSuite;
 import voting.domain.BoardElection;
 import voting.domain.Election;
 
@@ -8,10 +9,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static voting.annotations.TestSuite.TestType.INTEGRATION;
 
+@TestSuite(testType = {INTEGRATION})
 class ElectionRepositoryTest {
 
 	@Test

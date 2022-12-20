@@ -2,7 +2,6 @@ package voting.domain;
 
 import lombok.NoArgsConstructor;
 import voting.db.converters.LocalDateTimeConverter;
-import voting.exceptions.CannotProceedVote;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorColumn;
@@ -46,6 +45,7 @@ public abstract class Election {
      * @param scheduledFor Time object, when the election will start
      */
     public Election(String name, String description, int hoaId, LocalDateTime scheduledFor) {
+
         this.name = name;
         this.description = description;
         this.hoaId = hoaId;
@@ -60,7 +60,7 @@ public abstract class Election {
      * @param membershipId Id of member that votes
      * @param choice       Choice of member that voted
      */
-    public abstract void vote(int membershipId, int choice) throws CannotProceedVote;
+    public abstract void vote(int membershipId, int choice);
 
     /**
      * Concludes the current election
@@ -91,6 +91,15 @@ public abstract class Election {
 
     public LocalDateTime getScheduledFor() {
         return scheduledFor;
+    }
+
+    // Use this method only for testing purposes!
+    public void  setElectionId(int electionId) {
+        this.electionId = electionId;
+    }
+
+    public void setHoaId(int hoaId) {
+        this.hoaId = hoaId;
     }
 
     public void setName(String name) {
