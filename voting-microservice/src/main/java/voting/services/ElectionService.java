@@ -15,6 +15,8 @@ import voting.models.ProposalModel;
 import voting.models.VotingModel;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -87,6 +89,9 @@ public class ElectionService {
             throw new CannotProceedVote("Election has been concluded");
         if (election.get().getClass() == BoardElection.class
                 && !((BoardElection) election.get()).getCandidates().contains(model.choice))
+            throw new CannotProceedVote("Candidate with given id is not nominated for the election");
+        if (election.get().getClass() == Proposal.class
+                && (List.of("True", "true", "T", "False", "false", "F").contains(model.choice)))
             throw new CannotProceedVote("Candidate with given id is not nominated for the election");
         election.get().setStatus("ongoing");
         election.get().vote(model.memberId, model.choice);

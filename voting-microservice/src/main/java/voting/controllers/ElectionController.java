@@ -105,15 +105,15 @@ public class ElectionController {
     /**
      * Concludes an election based on id
      *
-     * @param id Id of election to be concluded
+     * @param electionId Id of election to be concluded
      * @return Object that contains the winners
      * Boolean if it's a proposal
      * List of winning candidates otherwise
      */
     @PostMapping("/conclude/{id}")
-    public ResponseEntity<Object> concludeElection(@PathVariable("id") int id) {
+    public ResponseEntity<Object> concludeElection(@PathVariable("id") int electionId) {
         try {
-            Object result = electionService.conclude(id);
+            Object result = electionService.conclude(electionId);
             return ResponseEntity.ok(result);
         } catch (ElectionDoesNotExist e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);

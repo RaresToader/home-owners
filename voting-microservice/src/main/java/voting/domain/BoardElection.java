@@ -1,7 +1,8 @@
 package voting.domain;
 
 import lombok.NoArgsConstructor;
-import voting.db.converters.VotesConverter;
+import voting.db.converters.BoardElectionVotesConverter;
+import voting.db.converters.ProposalVotesConverter;
 import voting.db.converters.CandidatesConverter;
 
 import javax.persistence.Convert;
@@ -25,7 +26,7 @@ public class BoardElection extends Election {
     @Convert(converter = CandidatesConverter.class)
     private List<String> candidates;
 
-    @Convert(converter = VotesConverter.class)
+    @Convert(converter = BoardElectionVotesConverter.class)
     private Map<String, String> votes;
 
     /**
@@ -74,9 +75,9 @@ public class BoardElection extends Election {
      * {@inheritDoc}
      */
     @Override
-    public void vote(String memberId, String voteChoice) {
-        if (getStatus().equals("ongoing") && candidates.contains(voteChoice)) {
-            votes.put(memberId, voteChoice);
+    public void vote(String memberId, Object voteChoice) {
+        if (getStatus().equals("ongoing") && candidates.contains((String) voteChoice)) {
+            votes.put(memberId, (String) voteChoice);
             this.incrementVoteCount();
         }
     }

@@ -2,7 +2,7 @@ package voting.domain;
 
 import lombok.NoArgsConstructor;
 import voting.annotations.Generated;
-import voting.db.converters.VotesConverter;
+import voting.db.converters.ProposalVotesConverter;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;
@@ -17,8 +17,8 @@ import java.util.Map;
 public class Proposal extends Election {
     private boolean winningChoice;
 
-    @Convert(converter = VotesConverter.class)
-    private Map<String, Integer> votes;
+    @Convert(converter = ProposalVotesConverter.class)
+    private Map<String, Boolean> votes;
 
     /**
      * Creates a proposal
@@ -42,11 +42,11 @@ public class Proposal extends Election {
         this.winningChoice = winningChoice;
     }
 
-    public Map<String, Integer> getVotes() {
+    public Map<String, Boolean> getVotes() {
         return votes;
     }
 
-    public void setVotes(Map<String, Integer> votes) {
+    public void setVotes(Map<String, Boolean> votes) {
         this.votes = votes;
     }
 
@@ -54,9 +54,9 @@ public class Proposal extends Election {
      * {@inheritDoc}
      */
     @Override
-    public void vote(String memberId, String vote) {
+    public void vote(String memberId, Object vote) {
         if (getStatus().equals("ongoing")) {
-            votes.put(memberId, Integer.valueOf(vote));
+            votes.put(memberId, (Boolean) vote);
             this.incrementVoteCount();
         }
     }
@@ -71,8 +71,7 @@ public class Proposal extends Election {
                 (acc, b) -> {
                     // PMD thinks it's smelly if boolean is not stored in a variable
                     // ?????
-                    boolean positive = b == 1;
-                    if (positive) acc[1]++;
+                    if (b) acc[1]++;
                     else acc[0]++;
                 }, this::findOutcomeAccHelper);
         return counts[0] < counts[1];

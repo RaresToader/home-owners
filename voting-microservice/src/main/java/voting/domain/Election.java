@@ -61,7 +61,7 @@ public abstract class Election {
      * @param membershipId Id of member that votes
      * @param choice       Choice of member that voted
      */
-    public abstract void vote(String membershipId, String choice) throws CannotProceedVote;
+    public abstract void vote(String membershipId, Object choice) throws CannotProceedVote;
 
     /**
      * Concludes the current election
