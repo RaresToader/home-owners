@@ -22,12 +22,12 @@ class AuthManagerTest {
 
     @BeforeEach
     public void setup() {
-        this.mockSecurityContextHolder = (SecurityContextHolder)Mockito.mock(SecurityContextHolder.class);
-        this.mockSecurityContext = (SecurityContext)Mockito.mock(SecurityContext.class);
-        this.mockAuthentication = (Authentication)Mockito.mock(Authentication.class);
-        Mockito.when(this.mockSecurityContextHolder.getContext()).thenReturn(this.mockSecurityContext);
-        Mockito.when(this.mockSecurityContext.getAuthentication()).thenReturn(this.mockAuthentication);
-        Mockito.when(this.mockAuthentication.getName()).thenReturn(this.memberId);
+//        this.mockSecurityContextHolder = (SecurityContextHolder)Mockito.mock(SecurityContextHolder.class);
+//        this.mockSecurityContext = (SecurityContext)Mockito.mock(SecurityContext.class);
+//        this.mockAuthentication = (Authentication)Mockito.mock(Authentication.class);
+//        Mockito.when(this.mockSecurityContextHolder.getContext()).thenReturn(this.mockSecurityContext);
+//        Mockito.when(this.mockSecurityContext.getAuthentication()).thenReturn(this.mockAuthentication);
+//        Mockito.when(this.mockAuthentication.getName()).thenReturn(this.memberId);
 
 
         this.authManager = new AuthManager();
