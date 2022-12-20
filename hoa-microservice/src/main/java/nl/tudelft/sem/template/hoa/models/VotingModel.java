@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class VotingModel {
     public int electionId;
-    public int membershipId;
-    public int choice;
+    public String memberId;
+    public String choice;
 
 }
