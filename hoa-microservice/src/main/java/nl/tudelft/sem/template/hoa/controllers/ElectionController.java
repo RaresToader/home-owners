@@ -4,6 +4,7 @@ import nl.tudelft.sem.template.hoa.domain.electionchecks.NotBoardForTooLongValid
 import nl.tudelft.sem.template.hoa.domain.electionchecks.NotInAnyOtherBoardValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.TimeInCurrentHoaValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.Validator;
+import nl.tudelft.sem.template.hoa.exception.MemberNotInBoardException;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;
 import nl.tudelft.sem.template.hoa.models.VotingModel;
@@ -34,9 +37,14 @@ public class ElectionController {
      * @param model the proposal
      * @return The created proposal or bad request
      */
-    @PostMapping("/proposal")
-    public ResponseEntity<Object> createProposal(@RequestBody ProposalRequestModel model) {
+    @PostMapping("/proposal/{id}")
+    public ResponseEntity<Object> createProposal(@PathVariable("id") String memberId,
+                    @RequestBody ProposalRequestModel model, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
+            List<MembershipResponseModel> memberships = MembershipUtils.getMembershipsForUser(memberId, token);
+            boolean ans = memberships.stream().filter(m -> m.getHoaId() == model.getHoaId() && m.isBoard() == true)
+                .collect(Collectors.toList()).isEmpty();
+            if (ans) throw new MemberNotInBoardException("Member should be in the board");
             return ResponseEntity.ok(ElectionUtils.createProposal(model));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create proposal", e);

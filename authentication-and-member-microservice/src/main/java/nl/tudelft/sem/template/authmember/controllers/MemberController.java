@@ -10,6 +10,8 @@ import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.converters.MembershipConverter;
 import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
+import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
+import nl.tudelft.sem.template.authmember.domain.exceptions.BadRegistrationModelException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
@@ -131,8 +133,7 @@ public class MemberController {
      */
     @PostMapping("/joinHOA")
     public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model,
-                                              @RequestHeader(HttpHeaders.AUTHORIZATION) String token)
-            throws MemberDifferentAddressException {
+                                              @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
             authManager.validateMember(model.getMemberId());
             hoaService.joinHoa(model, token);
@@ -278,9 +279,7 @@ public class MemberController {
     public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
         try {
             Membership membership = membershipService.getMembership(membershipId);
-            MembershipResponseModel model = new MembershipResponseModel(membership.getMembershipId(),
-                    membership.getMemberId(), membership.getHoaId(),
-                    membership.getAddress().getCountry(), membership.getAddress().getCity(), membership.isInBoard());
+            MembershipResponseModel model = MembershipConverter.convert(membership);
 
             return ResponseEntity.ok(model);
         } catch (IllegalArgumentException e) {
