@@ -2,7 +2,7 @@ package voting.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import voting.annotations.TestSuite;
 import voting.db.repos.ElectionRepository;
 import voting.domain.BoardElection;
 import voting.domain.Election;
@@ -22,39 +22,43 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static voting.annotations.TestSuite.TestType.INTEGRATION;
 
+@TestSuite(testType = {INTEGRATION})
 class ElectionServiceTest {
 
 	private TimeModel validTM;
 	private BoardElectionModel beModel;
-	private ProposalModel pModel;
-	private VotingModel vModel;
+	private ProposalModel propModel;
+	private VotingModel voteModel;
 	private ElectionService electionService;
 	private ElectionRepository repository;
 
 	@BeforeEach
 	void setUp() {
 		validTM = new TimeModel(10, 10, 10, 10, 10, 10);
-		ArrayList<Integer> candidates = new ArrayList<>(List.of(1, 2, 3));
 		beModel = new BoardElectionModel();
-		pModel = new ProposalModel();
-		vModel = new VotingModel(0, 1, 2);
-		beModel.hoaId = pModel.hoaId = 1;
 		beModel.name = "BoardElection";
 		beModel.description = "TestBoardElection";
-		beModel.candidates = candidates;
+		beModel.candidates = new ArrayList<>(List.of(1, 2, 3));
 		beModel.amountOfWinners = 2;
-		beModel.scheduledFor = pModel.scheduledFor = validTM;
-		pModel.name = "Proposal";
-		pModel.description = "TestProposal";
+
+		propModel = new ProposalModel();
+		propModel.name = "Proposal";
+		propModel.description = "TestProposal";
+
+		beModel.scheduledFor = propModel.scheduledFor = validTM;
+		beModel.hoaId = propModel.hoaId = 1;
+
+		voteModel = new VotingModel(0, 1, 2);
 		repository = mock(ElectionRepository.class);
 		electionService = new ElectionService(repository);
 	}
@@ -63,7 +67,7 @@ class ElectionServiceTest {
 	void createBoardElectionInvalidModel() {
 		beModel.amountOfWinners = 0;
 		assertThrows(ElectionCannotBeCreated.class, () -> electionService.createBoardElection(beModel));
-		Mockito.verify(repository, times(0)).getBoardElectionByHoaId(beModel.getHoaId());
+		verify(repository, times(0)).getBoardElectionByHoaId(beModel.hoaId);
 	}
 
 	@Test
@@ -73,110 +77,112 @@ class ElectionServiceTest {
 			LocalDateTime.now(), 2, new ArrayList<>());
 		when(repository.getBoardElectionByHoaId(2)).thenReturn(Optional.of(boardElection));
 		assertThrows(BoardElectionAlreadyCreated.class, () -> electionService.createBoardElection(beModel));
-		Mockito.verify(repository, times(1)).getBoardElectionByHoaId(beModel.getHoaId());
-		Mockito.verify(repository, times(0)).save(boardElection);
+		verify(repository, times(1)).getBoardElectionByHoaId(beModel.hoaId);
+		verify(repository, times(0)).save(boardElection);
 	}
 
 	@Test
 	void createBoardElectionSuccessful() throws BoardElectionAlreadyCreated, ElectionCannotBeCreated {
-		Election boardElection = new BoardElection(beModel.getName(), beModel.getDescription(), beModel.getHoaId(),
-			beModel.getScheduledFor().createDate(), beModel.getAmountOfWinners(), beModel.getCandidates());
+		Election boardElection = new BoardElection(beModel.name, beModel.description, beModel.hoaId,
+			beModel.scheduledFor.createDate(), beModel.amountOfWinners, beModel.candidates);
 		when(repository.getBoardElectionByHoaId(1)).thenReturn(Optional.empty());
 		assertEquals(boardElection, electionService.createBoardElection(beModel));
-		Mockito.verify(repository, times(1)).getBoardElectionByHoaId(beModel.getHoaId());
-		Mockito.verify(repository, times(1)).save(boardElection);
+		verify(repository, times(1)).getBoardElectionByHoaId(beModel.hoaId);
+		verify(repository, times(1)).save(boardElection);
 	}
 
 	@Test
 	void createProposalInvalidModel() {
-		pModel.hoaId = -1;
-		assertThrows(ElectionCannotBeCreated.class, () -> electionService.createProposal(pModel));
-		Mockito.verify(repository, times(0)).getBoardElectionByHoaId(pModel.getHoaId());
+		propModel.hoaId = -1;
+		assertThrows(ElectionCannotBeCreated.class, () -> electionService.createProposal(propModel));
+		verify(repository, times(0)).getBoardElectionByHoaId(propModel.hoaId);
 	}
 
 	@Test
 	void createProposalAlreadyExisting() {
 		beModel.hoaId = 2;
-		when(repository.existsByHoaIdAndName(pModel.getHoaId(), pModel.getName())).thenReturn(true);
-		assertThrows(ProposalAlreadyCreated.class, () -> electionService.createProposal(pModel));
-		Mockito.verify(repository, times(1)).existsByHoaIdAndName(pModel.getHoaId(), pModel.getName());
+		when(repository.existsByHoaIdAndName(propModel.hoaId, propModel.name)).thenReturn(true);
+		assertThrows(ProposalAlreadyCreated.class, () -> electionService.createProposal(propModel));
+		verify(repository, times(1)).existsByHoaIdAndName(propModel.hoaId,
+				propModel.name);
 		verifyNoMoreInteractions(repository);
 	}
 
 	@Test
 	void createProposalSuccessful() throws ElectionCannotBeCreated, ProposalAlreadyCreated {
-		Election proposal = new Proposal(beModel.getName(), beModel.getDescription(), beModel.getHoaId(),
-			beModel.getScheduledFor().createDate());
+		Election proposal = new Proposal(beModel.name, beModel.description, beModel.hoaId,
+			beModel.scheduledFor.createDate());
 		when(repository.getBoardElectionByHoaId(1)).thenReturn(Optional.empty());
-		assertEquals(proposal, electionService.createProposal(pModel));
-		Mockito.verify(repository, times(1)).existsByHoaIdAndName(pModel.getHoaId(), pModel.getName());
-		Mockito.verify(repository, times(1)).save(proposal);
+		assertEquals(proposal, electionService.createProposal(propModel));
+		verify(repository, times(1)).existsByHoaIdAndName(propModel.hoaId,
+				propModel.name);
+		verify(repository, times(1)).save(proposal);
 	}
 
 	@Test
 	void voteInvalidModel() {
-		vModel.electionId = -1;
-		assertThrows(ElectionDoesNotExist.class, () -> electionService.vote(vModel, LocalDateTime.now()));
-		Mockito.verify(repository, times(0)).findByElectionId(vModel.getElectionId());
+		voteModel.electionId = -1;
+		assertThrows(ElectionDoesNotExist.class, () -> electionService.vote(voteModel, LocalDateTime.now()));
+		verify(repository, times(0)).findByElectionId(voteModel.electionId);
 	}
 
 	@Test
 	void voteNotExisting() {
-		when(repository.findByElectionId(vModel.getElectionId())).thenReturn(Optional.empty());
-		assertThrows(ElectionDoesNotExist.class, () -> electionService.vote(vModel, LocalDateTime.now()));
-		Mockito.verify(repository, times(1)).findByElectionId(vModel.getElectionId());
+		when(repository.findByElectionId(voteModel.electionId)).thenReturn(Optional.empty());
+		assertThrows(ElectionDoesNotExist.class, () -> electionService.vote(voteModel, LocalDateTime.now()));
+		verify(repository, times(1)).findByElectionId(voteModel.electionId);
 	}
 
 	@Test
 	void voteNotStarted() {
 		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
 		validTM.day = 9;
-		when(repository.findByElectionId(vModel.getElectionId())).thenReturn(Optional.of(proposal));
-		assertThrows(CannotProceedVote.class, () -> electionService.vote(vModel, validTM.createDate()));
-		Mockito.verify(repository, times(1)).findByElectionId(vModel.getElectionId());
+		when(repository.findByElectionId(voteModel.electionId)).thenReturn(Optional.of(proposal));
+		assertThrows(CannotProceedVote.class, () -> electionService.vote(voteModel, validTM.createDate()));
+		verify(repository, times(1)).findByElectionId(voteModel.electionId);
 	}
 
 	@Test
 	void voteEnded() {
 		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
 		proposal.setStatus("finished");
-		when(repository.findByElectionId(vModel.getElectionId())).thenReturn(Optional.of(proposal));
-		assertThrows(CannotProceedVote.class, () -> electionService.vote(vModel, LocalDateTime.now()));
-		Mockito.verify(repository, times(1)).findByElectionId(vModel.getElectionId());
+		when(repository.findByElectionId(voteModel.electionId)).thenReturn(Optional.of(proposal));
+		assertThrows(CannotProceedVote.class, () -> electionService.vote(voteModel, LocalDateTime.now()));
+		verify(repository, times(1)).findByElectionId(voteModel.electionId);
 	}
 
 	@Test
 	void voteNotACandidate() {
-		BoardElection boardElection = new BoardElection(beModel.getName(), beModel.getDescription(), beModel.getHoaId()
-			, beModel.getScheduledFor().createDate(), beModel.getAmountOfWinners(), new ArrayList<>(List.of(6, 7)));
-		when(repository.findByElectionId(vModel.getElectionId())).thenReturn(Optional.of(boardElection));
-		assertThrows(CannotProceedVote.class, () -> electionService.vote(vModel, validTM.createDate()));
-		Mockito.verify(repository, times(1)).findByElectionId(vModel.getElectionId());
+		BoardElection boardElection = new BoardElection(beModel.name, beModel.description, beModel.hoaId,
+				beModel.scheduledFor.createDate(), beModel.amountOfWinners, new ArrayList<>(List.of(6, 7)));
+		when(repository.findByElectionId(voteModel.getElectionId())).thenReturn(Optional.of(boardElection));
+		assertThrows(CannotProceedVote.class, () -> electionService.vote(voteModel, validTM.createDate()));
+		verify(repository, times(1)).findByElectionId(voteModel.electionId);
 	}
 
 	@Test
 	void voteSuccessfulProposal() throws ElectionDoesNotExist, CannotProceedVote {
 		Proposal proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
-		when(repository.findByElectionId(vModel.getElectionId())).thenReturn(Optional.of(proposal));
-		electionService.vote(vModel, LocalDateTime.now());
+		when(repository.findByElectionId(voteModel.electionId)).thenReturn(Optional.of(proposal));
+		electionService.vote(voteModel, LocalDateTime.now());
 		assertEquals("ongoing", proposal.getStatus());
-		assertTrue(proposal.getVotes().containsKey(vModel.getMembershipId())
-			&& (proposal.getVotes().get(vModel.getMembershipId()) == vModel.getChoice()));
-		Mockito.verify(repository, times(1)).findByElectionId(vModel.getElectionId());
-		Mockito.verify(repository, times(1)).save(proposal);
+		assertTrue(proposal.getVotes().containsKey(voteModel.membershipId)
+			&& proposal.getVotes().get(voteModel.membershipId) == voteModel.choice);
+		verify(repository, times(1)).findByElectionId(voteModel.electionId);
+		verify(repository, times(1)).save(proposal);
 	}
 
 	@Test
 	void voteSuccessfulBoard() throws ElectionDoesNotExist, CannotProceedVote {
-		BoardElection boardElection = new BoardElection(beModel.getName(), beModel.getDescription(), beModel.getHoaId()
-			, beModel.getScheduledFor().createDate(), beModel.getAmountOfWinners(), beModel.getCandidates());
-		when(repository.findByElectionId(vModel.getElectionId())).thenReturn(Optional.of(boardElection));
-		electionService.vote(vModel, LocalDateTime.now());
+		BoardElection boardElection = new BoardElection(beModel.name, beModel.description, beModel.hoaId,
+				beModel.scheduledFor.createDate(), beModel.amountOfWinners, beModel.candidates);
+		when(repository.findByElectionId(voteModel.getElectionId())).thenReturn(Optional.of(boardElection));
+		electionService.vote(voteModel, LocalDateTime.now());
 		assertEquals("ongoing", boardElection.getStatus());
-		assertTrue(boardElection.getVotes().containsKey(vModel.getMembershipId())
-			&& (boardElection.getVotes().get(vModel.getMembershipId()) == vModel.getChoice()));
-		Mockito.verify(repository, times(1)).findByElectionId(vModel.getElectionId());
-		Mockito.verify(repository, times(1)).save(boardElection);
+		assertTrue(boardElection.getVotes().containsKey(voteModel.membershipId)
+			&& boardElection.getVotes().get(voteModel.membershipId) == voteModel.choice);
+		verify(repository, times(1)).findByElectionId(voteModel.electionId);
+		verify(repository, times(1)).save(boardElection);
 	}
 
 	@Test
@@ -187,8 +193,8 @@ class ElectionServiceTest {
 
 	@Test
 	void getElectionSuccess() throws ElectionDoesNotExist {
-		Election proposal = new Proposal(pModel.getName(), pModel.getDescription(), pModel.getHoaId()
-			, pModel.getScheduledFor().createDate());
+		Election proposal = new Proposal(propModel.name, propModel.description, propModel.hoaId,
+				propModel.scheduledFor.createDate());
 		when(repository.findByElectionId(1)).thenReturn(Optional.of(proposal));
 		assertEquals(proposal, electionService.getElection(1));
 	}
@@ -201,8 +207,8 @@ class ElectionServiceTest {
 
 	@Test
 	void concludeSuccess() throws ElectionDoesNotExist {
-		Election proposal = new Proposal(pModel.getName(), pModel.getDescription(), pModel.getHoaId()
-			, pModel.getScheduledFor().createDate());
+		Election proposal = new Proposal(propModel.name, propModel.description, propModel.hoaId,
+				propModel.scheduledFor.createDate());
 		when(repository.findByElectionId(1)).thenReturn(Optional.of(proposal));
 		assertEquals(proposal.conclude(), electionService.conclude(1));
 		verify(repository, times(1)).save(proposal);

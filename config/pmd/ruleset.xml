@@ -67,7 +67,7 @@
     </rule>
     <rule ref="category/java/design.xml/TooManyMethods">
         <properties>
-            <property name="maxmethods" value="16"/>
+            <property name="maxmethods" value="24"/>
         </properties>
     </rule>
     <rule ref="category/java/design.xml/ExcessiveImports">
