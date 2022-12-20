@@ -147,7 +147,7 @@ public class MemberController {
         } catch (MemberDifferentAddressException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Different address compared to hoa.", e);
         } catch (BadJoinHoaModelException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad JoinHoaModel!.", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot join hoa.", e);
         }
     }
 
@@ -221,23 +221,6 @@ public class MemberController {
     }
 
     /**
-     * Endpoint to retrieve a membership by id.
-     *
-     * @param membershipId the membership id.
-     * @return the membership with the id provided
-     */
-    @GetMapping("/getMembershipById/{membershipId}")
-    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
-        try {
-            Membership membership = membershipService.getMembership(membershipId);
-            MembershipResponseModel model = MembershipConverter.convert(membership);
-            return ResponseEntity.ok(model);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    /**
      * Rest endpoint to get all memberships.
      *
      * @return all memberships
@@ -268,25 +251,6 @@ public class MemberController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member does not exist", e);
         }
     }
-
-    /**
-     * Endpoint to retrieve a membership by id.
-     *
-     * @param membershipId the membership id.
-     * @return the membership with the id provided
-     */
-    @GetMapping("/getMembershipById/{membershipId}")
-    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
-        try {
-            Membership membership = membershipService.getMembership(membershipId);
-            MembershipResponseModel model = MembershipConverter.convert(membership);
-
-            return ResponseEntity.ok(model);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
 
     /**
      * Checks whether a user and HOA exist.

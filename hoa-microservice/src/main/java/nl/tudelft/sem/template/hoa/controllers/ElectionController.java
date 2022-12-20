@@ -41,10 +41,9 @@ public class ElectionController {
     public ResponseEntity<Object> createProposal(@PathVariable("id") String memberId,
                     @RequestBody ProposalRequestModel model, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            List<MembershipResponseModel> memberships = MembershipUtils.getMembershipsForUser(memberId, token);
-            boolean ans = memberships.stream().filter(m -> m.getHoaId() == model.getHoaId() && m.isBoard() == true)
-                .collect(Collectors.toList()).isEmpty();
-            if (ans) throw new MemberNotInBoardException("Member should be in the board");
+            List<MembershipResponseModel> memberships = MembershipUtils.getActiveMembershipsForUser(memberId, token);
+            boolean ans = memberships.stream().noneMatch(m -> m.getHoaId() == model.getHoaId() && m.isBoard());
+            if (ans) throw new MemberNotInBoardException("Member should be in the board to create a proposal");
             return ResponseEntity.ok(ElectionUtils.createProposal(model));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create proposal", e);
