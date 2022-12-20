@@ -42,12 +42,11 @@ class ElectionServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		validTM = new TimeModel();
-		validTM.seconds = validTM.minutes = validTM.hours = validTM.day = validTM.month = validTM.year = 10;
+		validTM = new TimeModel(10, 10, 10, 10, 10, 10);
 		ArrayList<Integer> candidates = new ArrayList<>(List.of(1, 2, 3));
 		beModel = new BoardElectionModel();
 		pModel = new ProposalModel();
-		vModel = new VotingModel();
+		vModel = new VotingModel(0, 1, 2);
 		beModel.hoaId = pModel.hoaId = 1;
 		beModel.name = "BoardElection";
 		beModel.description = "TestBoardElection";
@@ -56,9 +55,6 @@ class ElectionServiceTest {
 		beModel.scheduledFor = pModel.scheduledFor = validTM;
 		pModel.name = "Proposal";
 		pModel.description = "TestProposal";
-		vModel.electionId = 0;
-		vModel.choice = 2;
-		vModel.membershipId = 1;
 		repository = mock(ElectionRepository.class);
 		electionService = new ElectionService(repository);
 	}
