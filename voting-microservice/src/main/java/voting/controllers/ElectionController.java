@@ -48,10 +48,8 @@ public class ElectionController {
         try {
             Proposal proposal = electionService.createProposal(model);
             return ResponseEntity.ok(proposal);
-        } catch (ProposalAlreadyCreated e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Proposal already created", e);
-        } catch (ElectionCannotBeCreated e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create proposal", e);
+        } catch (ProposalAlreadyCreated | ElectionCannotBeCreated e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -67,10 +65,8 @@ public class ElectionController {
         try {
             BoardElection boardElection = electionService.createBoardElection(model);
             return ResponseEntity.ok(boardElection);
-        } catch (BoardElectionAlreadyCreated e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Board election already created", e);
-        } catch (ElectionCannotBeCreated e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create board election", e);
+        } catch (BoardElectionAlreadyCreated | ElectionCannotBeCreated e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -85,10 +81,8 @@ public class ElectionController {
         try {
             electionService.vote(model, LocalDateTime.now());
             return ResponseEntity.ok().build();
-        } catch (ElectionDoesNotExist e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election with provided id was not found", e);
-        } catch (CannotProceedVote e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Voting round of election has not started yet", e);
+        } catch (ElectionDoesNotExist | CannotProceedVote e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -104,7 +98,7 @@ public class ElectionController {
             Election e = electionService.getElection(electionId);
             return ResponseEntity.ok(e);
         } catch (ElectionDoesNotExist e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election with provided id was not found", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -122,7 +116,7 @@ public class ElectionController {
             Object result = electionService.conclude(id);
             return ResponseEntity.ok(result);
         } catch (ElectionDoesNotExist e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election with provided id was not found", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 }

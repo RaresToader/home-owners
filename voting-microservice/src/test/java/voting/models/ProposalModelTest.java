@@ -25,11 +25,8 @@ class ProposalModelTest {
     }
 
     static Stream<Arguments> argGen() {
-        TimeModel validTM = new TimeModel();
-        validTM.seconds = validTM.minutes = validTM.hours = validTM.day = validTM.month = validTM.year = 10;
-        TimeModel invalidTM = new TimeModel();
-        invalidTM.minutes = invalidTM.hours = invalidTM.day = invalidTM.month = invalidTM.year = 10;
-        invalidTM.seconds = -1;
+        TimeModel validTM = new TimeModel(10, 10, 10, 10, 10, 10);
+        TimeModel invalidTM = new TimeModel(-1, 10, 10, 10, 10, 10);
         String validName = "validName";
         String validDesc = "validDescriptionThatIsLong:))";
         return Stream.of(

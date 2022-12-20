@@ -1,8 +1,10 @@
 package voting.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class VotingModel {
     public int electionId;
     public int membershipId;

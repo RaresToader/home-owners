@@ -22,13 +22,7 @@ class TimeModelTest {
     @ParameterizedTest
     @MethodSource("argGen")
     void isValidTest(int sec, int min, int hour, int day, int month, int year, boolean expected, String testdesc) {
-        TimeModel tm = new TimeModel();
-        tm.seconds = sec;
-        tm.minutes = min;
-        tm.hours = hour;
-        tm.day = day;
-        tm.month = month;
-        tm.year = year;
+        TimeModel tm = new TimeModel(sec, min, hour, day, month, year);
         LocalDateTime ldt = tm.createDate();
         assertEquals(expected, ldt != null, testdesc);
     }
