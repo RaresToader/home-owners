@@ -2,13 +2,14 @@ package voting.domain;
 
 import lombok.NoArgsConstructor;
 import voting.annotations.Generated;
-import voting.db.converters.VotesConverter;
+import voting.db.converters.ProposalVotesConverter;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -17,8 +18,8 @@ import java.util.Map;
 public class Proposal extends Election {
     private boolean winningChoice;
 
-    @Convert(converter = VotesConverter.class)
-    private Map<Integer, Integer> votes;
+    @Convert(converter = ProposalVotesConverter.class)
+    private Map<String, Boolean> votes;
 
     /**
      * Creates a proposal
@@ -28,7 +29,7 @@ public class Proposal extends Election {
      * @param hoaId        hoaID the proposal refers to
      * @param scheduledFor Time object, when the election will start
      */
-    public Proposal(String name, String description, int hoaId, LocalDateTime scheduledFor) {
+    public Proposal(String name, String description, long hoaId, LocalDateTime scheduledFor) {
         super(name, description, hoaId, scheduledFor);
         winningChoice = false;
         votes = new HashMap<>();
@@ -42,11 +43,11 @@ public class Proposal extends Election {
         this.winningChoice = winningChoice;
     }
 
-    public Map<Integer, Integer> getVotes() {
+    public Map<String, Boolean> getVotes() {
         return votes;
     }
 
-    public void setVotes(Map<Integer, Integer> votes) {
+    public void setVotes(Map<String, Boolean> votes) {
         this.votes = votes;
     }
 
@@ -54,9 +55,10 @@ public class Proposal extends Election {
      * {@inheritDoc}
      */
     @Override
-    public void vote(int membershipId, int vote) {
-        if (getStatus().equals("ongoing")) {
-            votes.put(membershipId, vote);
+    public void vote(String memberId, Object vote) {
+        if (getStatus().equals("ongoing") && (vote.getClass() == Boolean.class || vote.getClass() == String.class)) {
+            if (vote.getClass() == Boolean.class) votes.put(memberId, (Boolean) vote);
+            else votes.put(memberId, List.of("True", "true", "T").contains((String) vote));
             this.incrementVoteCount();
         }
     }
@@ -71,8 +73,7 @@ public class Proposal extends Election {
                 (acc, b) -> {
                     // PMD thinks it's smelly if boolean is not stored in a variable
                     // ?????
-                    boolean positive = b == 1;
-                    if (positive) acc[1]++;
+                    if (b) acc[1]++;
                     else acc[0]++;
                 }, this::findOutcomeAccHelper);
         return counts[0] < counts[1];

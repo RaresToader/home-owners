@@ -18,7 +18,7 @@ class ElectionTest {
 	private String description;
 	private LocalDateTime scheduledFor;
 	private int amountOfWinners;
-	private List<Integer> candidates;
+	private List<String> candidates;
 	private Election boardElection;
 	private Election proposal;
 
@@ -29,7 +29,7 @@ class ElectionTest {
 		this.description = "TestExample";
 		this.scheduledFor = LocalDateTime.now();
 		this.amountOfWinners = 2;
-		this.candidates = new ArrayList<>(List.of(1, 2, 3, 4));
+		this.candidates = new ArrayList<>(List.of("1", "2", "3", "4"));
 		this.boardElection = new BoardElection(STR_BE, description, 1, scheduledFor, amountOfWinners, candidates);
 		this.proposal = new Proposal("Proposal", description, 1, scheduledFor);
 	}

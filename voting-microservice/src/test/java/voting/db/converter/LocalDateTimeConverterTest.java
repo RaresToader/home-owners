@@ -41,7 +41,7 @@ class LocalDateTimeConverterTest {
         ldt = sut.convertToEntityAttribute(ts);
         assertEquals(15, ldt.getSecond());
         assertEquals(14, ldt.getMinute());
-        //assertEquals(13, ldt.getHour());
+        //assertEquals(14, ldt.getHour());
         assertEquals(12, ldt.getDayOfMonth());
         assertEquals(11, ldt.getMonthValue());
         assertEquals(2010, ldt.getYear());

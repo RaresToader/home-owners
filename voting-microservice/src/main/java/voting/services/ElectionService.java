@@ -17,6 +17,7 @@ import voting.models.ProposalModel;
 import voting.models.VotingModel;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -87,8 +88,11 @@ public class ElectionService {
         if (election.get().getClass() == BoardElection.class
                 && !((BoardElection) election.get()).getCandidates().contains(model.choice))
             throw new CannotProceedVote("Candidate with given id is not nominated for the election");
+        if (election.get().getClass() == Proposal.class
+                && !List.of("True", "true", "T", "False", "false", "F").contains(model.choice))
+            throw new CannotProceedVote("Invalid voting choice for proposal (must be a boolean or similar)");
         election.get().setStatus("ongoing");
-        election.get().vote(model.membershipId, model.choice);
+        election.get().vote(model.memberId, model.choice);
         this.electionRepository.save(election.get());
     }
 
@@ -103,6 +107,39 @@ public class ElectionService {
         Optional<Election> e = this.electionRepository.findByElectionId(electionId);
         if (e.isEmpty()) throw new ElectionDoesNotExist("Election with provided id does not exist");
         return e.get();
+    }
+
+    /**
+     * Returns board election for a given hoa, if one is running
+     */
+    public BoardElection getBoardElectionByHoaId(long hoaId) throws ElectionDoesNotExist {
+        Optional<Election> e = this.electionRepository.getBoardElectionByHoaId(hoaId);
+        if (e.isEmpty()) throw new ElectionDoesNotExist("This hoa does not have an election");
+        return (BoardElection) e.get();
+    }
+
+    /**
+     * Adds a participant to board election if there is an election
+     */
+    public boolean addParticipantToBoardElection(String memberId, long hoaId) throws ElectionDoesNotExist {
+        BoardElection e = getBoardElectionByHoaId(hoaId);
+        e.addParticipant(memberId);
+        electionRepository.deleteById(e.getElectionId());
+        electionRepository.save(e);
+        return true;
+    }
+
+    /**
+     * Removes participant from board election if there is a board election and the member is participating
+     */
+    public boolean removeParticipantFromBoardElection(String memberId, long hoaId) throws ElectionDoesNotExist {
+        BoardElection e = getBoardElectionByHoaId(hoaId);
+        if (e.removeParticipant(memberId)) {
+            electionRepository.deleteById(e.getElectionId());
+            electionRepository.save(e);
+            return true;
+        }
+        return false;
     }
 
     /**

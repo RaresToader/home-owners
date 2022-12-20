@@ -1,7 +1,7 @@
 package voting.domain;
 
 import lombok.NoArgsConstructor;
-import voting.db.converters.VotesConverter;
+import voting.db.converters.BoardElectionVotesConverter;
 import voting.db.converters.CandidatesConverter;
 
 import javax.persistence.Convert;
@@ -23,10 +23,10 @@ public class BoardElection extends Election {
     private int amountOfWinners;
 
     @Convert(converter = CandidatesConverter.class)
-    private List<Integer> candidates;
+    private List<String> candidates;
 
-    @Convert(converter = VotesConverter.class)
-    private Map<Integer, Integer> votes;
+    @Convert(converter = BoardElectionVotesConverter.class)
+    private Map<String, String> votes;
 
     /**
      * Create a board election
@@ -38,8 +38,8 @@ public class BoardElection extends Election {
      * @param amountOfWinners Amount of winners for this board election
      * @param candidates      List of member ids of board candidates
      */
-    public BoardElection(String name, String description, int hoaId, LocalDateTime scheduledFor, int amountOfWinners,
-                         List<Integer> candidates) {
+    public BoardElection(String name, String description, long hoaId, LocalDateTime scheduledFor, int amountOfWinners,
+                         List<String> candidates) {
         super(name, description, hoaId, scheduledFor);
         this.amountOfWinners = amountOfWinners;
         this.candidates = candidates;
@@ -54,19 +54,19 @@ public class BoardElection extends Election {
         this.amountOfWinners = amountOfWinners;
     }
 
-    public List<Integer> getCandidates() {
+    public List<String> getCandidates() {
         return candidates;
     }
 
-    public void setCandidates(List<Integer> candidates) {
+    public void setCandidates(List<String> candidates) {
         this.candidates = candidates;
     }
 
-    public Map<Integer, Integer> getVotes() {
+    public Map<String, String> getVotes() {
         return votes;
     }
 
-    public void setVotes(Map<Integer, Integer> votes) {
+    public void setVotes(Map<String, String> votes) {
         this.votes = votes;
     }
 
@@ -74,9 +74,9 @@ public class BoardElection extends Election {
      * {@inheritDoc}
      */
     @Override
-    public void vote(int membershipId, int voteChoice) {
-        if (getStatus().equals("ongoing") && candidates.contains(voteChoice)) {
-            votes.put(membershipId, voteChoice);
+    public void vote(String memberId, Object voteChoice) {
+        if (getStatus().equals("ongoing") && candidates.contains((String) voteChoice)) {
+            votes.put(memberId, (String) voteChoice);
             this.incrementVoteCount();
         }
     }
@@ -86,7 +86,7 @@ public class BoardElection extends Election {
      *
      * @return Set of winners, capped if less than amountOfWinners
      */
-    public Set<Integer> findOutcome() {
+    public Set<String> findOutcome() {
         var votesByCandidate = votes.entrySet().stream()
                 // Map candidateIds (values) to keys, and vote counts to values
                 .collect(Collectors.toMap(Map.Entry::getValue,
@@ -106,9 +106,17 @@ public class BoardElection extends Election {
      * {@inheritDoc}
      */
     @Override
-    public Set<Integer> conclude() {
-        Set<Integer> currentWinners = findOutcome();
+    public Set<String> conclude() {
+        Set<String> currentWinners = findOutcome();
         this.setStatus("finished");
         return currentWinners;
+    }
+
+    public void addParticipant(String memberId) {
+        this.candidates.add(memberId);
+    }
+
+    public boolean removeParticipant(String memberId) {
+        return this.candidates.remove(memberId);
     }
 }

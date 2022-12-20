@@ -105,18 +105,53 @@ public class ElectionController {
     /**
      * Concludes an election based on id
      *
-     * @param id Id of election to be concluded
+     * @param electionId Id of election to be concluded
      * @return Object that contains the winners
      * Boolean if it's a proposal
      * List of winning candidates otherwise
      */
     @PostMapping("/conclude/{id}")
-    public ResponseEntity<Object> concludeElection(@PathVariable("id") int id) {
+    public ResponseEntity<Object> concludeElection(@PathVariable("id") int electionId) {
         try {
-            Object result = electionService.conclude(id);
+            Object result = electionService.conclude(electionId);
             return ResponseEntity.ok(result);
         } catch (ElectionDoesNotExist e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Adds a participant to board election
+     * Doesn't conduct background checks, relies on an eligible member being provided
+     * @param memberId - member that joins the election
+     * @param hoaId - id of hoa for which the election is held
+     * @return true if member is added as participant, false if there is no election ongoing
+     */
+    @PostMapping("/joinElection/{memberId}/{hoaId}")
+    public ResponseEntity<Boolean> joinElection(@PathVariable String memberId, @PathVariable long hoaId) {
+        try {
+            boolean result = electionService.addParticipantToBoardElection(memberId, hoaId);
+            return ResponseEntity.ok(result);
+        } catch (ElectionDoesNotExist e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election for given HOA not found", e);
+        }
+    }
+
+    /**
+     * Removes a participant to board election
+     * @param memberId - member that leaves the election
+     * @param hoaId - id of hoa for which the election is held
+     * @return true if member is removes as participant,
+     * false if there is no election ongoing or the member didn't participate
+     */
+    @PostMapping("/leaveElection/{memberId}/{hoaId}")
+    public ResponseEntity<Boolean> leaveElection(@PathVariable String memberId, @PathVariable long hoaId) {
+        try {
+            boolean result = electionService.removeParticipantFromBoardElection(memberId, hoaId);
+            return ResponseEntity.ok(result);
+        } catch (ElectionDoesNotExist e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Election for given HOA not found or participant not partaking", e);
         }
     }
 }

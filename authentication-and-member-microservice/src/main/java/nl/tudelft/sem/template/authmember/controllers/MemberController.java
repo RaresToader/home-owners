@@ -6,19 +6,22 @@ import nl.tudelft.sem.template.authmember.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.template.authmember.authentication.JwtUserDetailsService;
 import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.Membership;
+import nl.tudelft.sem.template.authmember.domain.converters.MembershipConverter;
 import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
-import nl.tudelft.sem.template.authmember.models.AuthenticationRequestModel;
-import nl.tudelft.sem.template.authmember.models.AuthenticationResponseModel;
-import nl.tudelft.sem.template.authmember.models.GetHoaModel;
-import nl.tudelft.sem.template.authmember.models.HoaModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
 import nl.tudelft.sem.template.authmember.models.RegistrationModel;
+import nl.tudelft.sem.template.authmember.models.MembershipResponseModel;
+import nl.tudelft.sem.template.authmember.models.GetHoaModel;
+import nl.tudelft.sem.template.authmember.models.HoaModel;
+import nl.tudelft.sem.template.authmember.models.AuthenticationResponseModel;
+import nl.tudelft.sem.template.authmember.models.AuthenticationRequestModel;
 import nl.tudelft.sem.template.authmember.services.HoaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -121,10 +125,12 @@ public class MemberController {
      * Only succeeds if a user exists and doesn't have an active membership in the HOA.
      */
     @PostMapping("/joinHOA")
-    public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model) throws MemberDifferentAddressException {
+    public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model,
+                                              @RequestHeader(HttpHeaders.AUTHORIZATION) String token)
+            throws MemberDifferentAddressException {
         try {
             authManager.validateMember(model.getMemberId());
-            hoaService.joinHoa(model);
+            hoaService.joinHoa(model, token);
             return ResponseEntity.ok().build();
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
@@ -191,12 +197,12 @@ public class MemberController {
      * Returns all memberships for user(including inactive).
      */
     @GetMapping("/getMemberships/{memberId}")
-    public ResponseEntity<List<Membership>> getMemberships(@PathVariable String memberId) {
+    public ResponseEntity<List<MembershipResponseModel>> getMemberships(@PathVariable String memberId) {
         try {
             authManager.validateMember(memberId);
             memberService.getMember(memberId); //Validate existence
             List<Membership> memberships = membershipService.getMembershipsForMember(memberId);
-            return ResponseEntity.ok(memberships);
+            return ResponseEntity.ok(MembershipConverter.convertMany(memberships));
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
         } catch (IllegalArgumentException e) {
@@ -205,6 +211,38 @@ public class MemberController {
     }
 
     /**
+     * Endpoint to retrieve a membership by id.
+     *
+     * @param membershipId the membership id.
+     * @return the membership with the id provided
+     */
+    @GetMapping("/getMembershipById/{membershipId}")
+    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
+        try {
+            Membership membership = membershipService.getMembership(membershipId);
+            MembershipResponseModel model = MembershipConverter.convert(membership);
+            return ResponseEntity.ok(model);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Rest endpoint to get all memberships.
+     *
+     * @return all memberships
+     */
+    @GetMapping("/getAllMemberships")
+    public ResponseEntity<List<Membership>> getAllMemberships() {
+        try {
+            return ResponseEntity.ok(this.membershipService.getAll());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+>>>>>>> Draft board election
      * Returns all active memberships for user.
      */
     @GetMapping("/getActiveMemberships/{memberId}")

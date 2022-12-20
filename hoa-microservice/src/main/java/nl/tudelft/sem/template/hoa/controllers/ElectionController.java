@@ -1,18 +1,28 @@
 package nl.tudelft.sem.template.hoa.controllers;
 
+import nl.tudelft.sem.template.hoa.domain.electionchecks.NotBoardForTooLongValidator;
+import nl.tudelft.sem.template.hoa.domain.electionchecks.NotInAnyOtherBoardValidator;
+import nl.tudelft.sem.template.hoa.domain.electionchecks.TimeInCurrentHoaValidator;
+import nl.tudelft.sem.template.hoa.domain.electionchecks.Validator;
+import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
+import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
+import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;
 import nl.tudelft.sem.template.hoa.models.VotingModel;
-import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/voting")
@@ -93,5 +103,42 @@ public class ElectionController {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot vote", e);
         }
+    }
+
+    /**
+     * Endpoint for becoming a participant in board election as a user
+     */
+    @PostMapping("joinElection/{memberID}/{hoaID}")
+    public ResponseEntity<Boolean> joinElection(@PathVariable String memberID, @PathVariable long hoaID,
+                                                @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        //Fetch membership data
+        try {
+            List<MembershipResponseModel> memberships = MembershipUtils.getMembershipsForUser(memberID, token);
+            Validator handler = new TimeInCurrentHoaValidator();
+            Validator otherBoardValidator = new NotInAnyOtherBoardValidator();
+            Validator notForTooLongValidator = new NotBoardForTooLongValidator();
+            otherBoardValidator.setNext(notForTooLongValidator);
+            handler.setNext(otherBoardValidator);
+            try {
+                handler.handle(memberships, hoaID);
+                return ResponseEntity.ok(ElectionUtils.joinElection(memberID, hoaID));
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Endpoint for leaving a board election as a user
+     */
+    @PostMapping("leaveElection/{memberID}/{hoaID}")
+    public ResponseEntity<Boolean> leaveElection(@PathVariable String memberID, @PathVariable long hoaID) {
+        boolean ret = ElectionUtils.leaveElection(memberID, hoaID);
+        if (ret) {
+            return ResponseEntity.ok(true);
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member did not participate in the election");
     }
 }

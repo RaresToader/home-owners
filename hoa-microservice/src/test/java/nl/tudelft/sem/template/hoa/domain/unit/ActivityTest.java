@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Test;
 
 public class ActivityTest {
 
-    Long hoaId;
-    String activityName;
-    String activityDescription;
-    LocalDateTime activityTime;
-    LocalTime activityDuration;
-    Activity activity;
+    transient Long hoaId;
+    transient String activityName;
+    transient String activityDescription;
+    transient LocalDateTime activityTime;
+    transient LocalTime activityDuration;
+    transient Activity activity;
 
     @BeforeEach
     void setUp() {

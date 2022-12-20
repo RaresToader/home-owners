@@ -8,23 +8,23 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Converter
-public class VotesConverter implements AttributeConverter<Map<Integer, Integer>, String> {
+public class ProposalVotesConverter implements AttributeConverter<Map<String, Boolean>, String> {
 
 	@Override
-	public String convertToDatabaseColumn(Map<Integer, Integer> attribute) {
+	public String convertToDatabaseColumn(Map<String, Boolean> attribute) {
 		StringBuilder mapAsString = new StringBuilder();
-		for (Integer key : attribute.keySet()) {
-			mapAsString.append(key).append("=").append(attribute.get(key)).append(",");
+		for (String key : attribute.keySet()) {
+			mapAsString.append(key).append("=").append(attribute.get(key) ? "T" : "F").append(",");
 		}
 		if (mapAsString.length() != 0) mapAsString.deleteCharAt(mapAsString.length() - 1);
 		return mapAsString.toString();
 	}
 
 	@Override
-	public Map<Integer, Integer> convertToEntityAttribute(String dbData) {
+	public Map<String, Boolean> convertToEntityAttribute(String dbData) {
 		if (dbData.equals("")) return new HashMap<>();
 		return Arrays.stream(dbData.split(","))
 			.map(e -> e.split("="))
-			.collect(Collectors.toMap(e -> Integer.parseInt(e[0]), e -> Integer.parseInt(e[1])));
+			.collect(Collectors.toMap(e -> e[0], e -> e[1].equals("T")));
 	}
 }

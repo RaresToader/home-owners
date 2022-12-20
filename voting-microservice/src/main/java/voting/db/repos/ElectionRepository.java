@@ -12,9 +12,9 @@ public interface ElectionRepository extends JpaRepository<Election, Integer> {
 
     Optional<Election> findByElectionId(Integer electionId);
 
-    boolean existsByHoaIdAndName(int hoaId, String name);
+    boolean existsByHoaIdAndName(long hoaId, String name);
 
-    @Query("SELECT u FROM BoardElection u WHERE u.hoaId = ?1 AND u.status LIKE 'ongoing'")
-    Optional<Election> getBoardElectionByHoaId(int hoaId);
+    @Query("SELECT u FROM BoardElection u WHERE u.hoaId = ?1 AND (u.status LIKE 'ongoing' OR u.status LIKE 'scheduled')")
+    Optional<Election> getBoardElectionByHoaId(long hoaId);
 
 }
