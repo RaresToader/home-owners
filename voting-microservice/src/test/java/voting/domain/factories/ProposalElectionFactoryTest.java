@@ -51,7 +51,7 @@ class ProposalElectionFactoryTest {
         wrongModel.hoaId = 1;
         wrongModel.scheduledFor = new TimeModel(10, 10, 10, 10, 10, 10);
         wrongModel.amountOfWinners = 2;
-        wrongModel.candidates = List.of(3, 4);
+        wrongModel.candidates = List.of("test", "test2");
         Election wrongElection = sut.createElection(wrongModel);
         assertNull(wrongElection);
     }

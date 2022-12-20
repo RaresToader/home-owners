@@ -14,7 +14,7 @@ public class ProposalElectionFactory extends ElectionFactory {
     }
 
     @Override
-    public Election createElection(String name, String description, int hoaId, LocalDateTime scheduledFor) {
+    public Election createElection(String name, String description, long hoaId, LocalDateTime scheduledFor) {
         return new Proposal(name, description, hoaId, scheduledFor);
     }
 

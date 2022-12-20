@@ -15,7 +15,7 @@ public class BoardElectionFactory extends ElectionFactory {
     }
 
     @Override
-    public Election createElection(String name, String description, int hoaId, LocalDateTime scheduledFor) {
+    public Election createElection(String name, String description, long hoaId, LocalDateTime scheduledFor) {
         return new BoardElection(name, description, hoaId, scheduledFor, 0, List.of());
     }
 
@@ -30,8 +30,8 @@ public class BoardElectionFactory extends ElectionFactory {
      * @param candidates      Board candidates of the election
      * @return Created board election with provided fields
      */
-    public Election createElection(String name, String description, int hoaId, LocalDateTime scheduledFor,
-                                   int amountOfWinners, List<Integer> candidates) {
+    public Election createElection(String name, String description, long hoaId, LocalDateTime scheduledFor,
+                                   int amountOfWinners, List<String> candidates) {
         BoardElection be = (BoardElection) createElection(name, description, hoaId, scheduledFor);
         be.setAmountOfWinners(amountOfWinners);
         be.setCandidates(candidates);

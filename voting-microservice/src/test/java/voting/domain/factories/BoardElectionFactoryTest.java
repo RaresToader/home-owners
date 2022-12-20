@@ -34,10 +34,10 @@ class BoardElectionFactoryTest {
     void createElectionCompleteTest() {
         BoardElection created = (BoardElection) sut.createElection("a", "b", 1,
                 LocalDateTime.of(10, 10, 10, 10, 10, 10),
-                1, List.of(3, 4));
+                1, List.of("test", "test2"));
         BoardElection expected = new BoardElection("a", "b", 1,
                 LocalDateTime.of(10, 10, 10, 10, 10, 10), 1,
-                List.of(3, 4));
+                List.of("test", "test2"));
         assertEquals(expected, created);
     }
 
@@ -49,11 +49,11 @@ class BoardElectionFactoryTest {
         model.hoaId = 1;
         model.scheduledFor = new TimeModel(10, 10, 10, 10, 10, 10);
         model.amountOfWinners = 2;
-        model.candidates = List.of(3, 4);
+        model.candidates = List.of("test", "test2");
         BoardElection created = (BoardElection) sut.createElection(model);
         BoardElection expected = new BoardElection("a", "b", 1,
                 LocalDateTime.of(10, 10, 10, 10, 10, 10),
-                2, List.of(3, 4));
+                2, List.of("test", "test2"));
         assertEquals(created, expected);
 
         model.hoaId = -1;

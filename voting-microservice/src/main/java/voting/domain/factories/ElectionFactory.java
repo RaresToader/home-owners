@@ -12,7 +12,7 @@ public abstract class ElectionFactory {
     }
 
     public abstract Election createElection(String name, String description,
-                                            int hoaId, LocalDateTime scheduledFor);
+                                            long hoaId, LocalDateTime scheduledFor);
 
     public abstract Election createElection(ElectionModel model);
 }
