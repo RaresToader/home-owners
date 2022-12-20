@@ -1,7 +1,6 @@
 package nl.tudelft.sem.template.authmember.models;
 
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class HoaModelTest {

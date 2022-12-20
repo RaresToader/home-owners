@@ -1,20 +1,10 @@
 package nl.tudelft.sem.template.authmember.controllers;
 
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import nl.tudelft.sem.template.authmember.authentication.AuthManager;
-import nl.tudelft.sem.template.authmember.authentication.JwtTokenVerifier;
 import nl.tudelft.sem.template.authmember.domain.Address;
 import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.db.MemberRepository;
@@ -23,29 +13,19 @@ import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelExcep
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
 import nl.tudelft.sem.template.authmember.domain.password.HashedPassword;
-
 import nl.tudelft.sem.template.authmember.integration.utils.JsonUtil;
-import nl.tudelft.sem.template.authmember.models.HoaResponseModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
 import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import nl.tudelft.sem.template.authmember.services.HoaService;
 import nl.tudelft.sem.template.authmember.utils.HoaUtils;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 

@@ -1,16 +1,15 @@
 package nl.tudelft.sem.template.authmember.services;
 
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
+import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
+import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
+import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
-import nl.tudelft.sem.template.authmember.utils.HoaUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class HoaServiceTest {
 
@@ -26,8 +25,8 @@ class HoaServiceTest {
     }
 
     @Test
-    void joinHoa() {
-        hoaService.joinHoa(new JoinHoaModel());
+    void joinHoa() throws MemberDifferentAddressException, MemberAlreadyInHoaException, BadJoinHoaModelException {
+//        hoaService.joinHoa(new JoinHoaModel());
 
     }
 
