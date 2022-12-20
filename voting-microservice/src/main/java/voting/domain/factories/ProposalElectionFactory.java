@@ -28,6 +28,6 @@ public class ProposalElectionFactory extends ElectionFactory {
     public Election createElection(ElectionModel model) {
         if (model.getClass() != ProposalModel.class || !model.isValid()) return null;
         ProposalModel prop = (ProposalModel) model;
-        return createElection(prop.name, prop.description, prop.hoaId, prop.scheduledFor.createDate());
+        return createElection(prop.name, prop.description, prop.hoaId, prop.scheduledFor.createDate().plusWeeks(2));
     }
 }
