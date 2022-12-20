@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -41,7 +42,7 @@ class LocalDateTimeConverterTest {
         ldt = sut.convertToEntityAttribute(ts);
         assertEquals(15, ldt.getSecond());
         assertEquals(14, ldt.getMinute());
-        assertEquals(14, ldt.getHour());
+        assertEquals(14, ldt.atZone(ZoneId.of("Europe/Amsterdam")).getHour());
         assertEquals(12, ldt.getDayOfMonth());
         assertEquals(11, ldt.getMonthValue());
         assertEquals(2010, ldt.getYear());
