@@ -9,6 +9,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -55,8 +56,9 @@ public class Proposal extends Election {
      */
     @Override
     public void vote(String memberId, Object vote) {
-        if (getStatus().equals("ongoing")) {
-            votes.put(memberId, (Boolean) vote);
+        if (getStatus().equals("ongoing") && (vote.getClass() == Boolean.class || vote.getClass() == String.class)) {
+            if (vote.getClass() == Boolean.class) votes.put(memberId, (Boolean) vote);
+            else votes.put(memberId, List.of("True", "true", "T").contains((String) vote));
             this.incrementVoteCount();
         }
     }

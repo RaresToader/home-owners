@@ -18,25 +18,25 @@ class CandidatesConverterTest {
 
     @Test
     void convertToDatabaseColumnTest() {
-        List<Integer> candidates = new ArrayList<>();
+        List<String> candidates = new ArrayList<>();
         String result = sut.convertToDatabaseColumn(candidates);
         assertEquals("", result);
 
-        candidates.add(1);
-        candidates.add(2);
+        candidates.add("test1");
+        candidates.add("test2");
         result = sut.convertToDatabaseColumn(candidates);
-        assertEquals("1,2", result);
+        assertEquals("test1,test2", result);
     }
 
     @Test
     void convertToEntityAttributeTest() {
         String testStr = "";
-        List<Integer> candidates = sut.convertToEntityAttribute(testStr);
+        List<String> candidates = sut.convertToEntityAttribute(testStr);
         assertTrue(candidates.isEmpty());
 
-        testStr = "1,2,3,4,5";
+        testStr = "test1,test2";
         candidates = sut.convertToEntityAttribute(testStr);
-        assertEquals(5, candidates.size());
-        assertTrue(candidates.containsAll(List.of(1, 2, 3, 4, 5)));
+        assertEquals(2, candidates.size());
+        assertTrue(candidates.containsAll(List.of("test1", "test2")));
     }
 }

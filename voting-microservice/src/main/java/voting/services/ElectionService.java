@@ -91,8 +91,8 @@ public class ElectionService {
                 && !((BoardElection) election.get()).getCandidates().contains(model.choice))
             throw new CannotProceedVote("Candidate with given id is not nominated for the election");
         if (election.get().getClass() == Proposal.class
-                && (List.of("True", "true", "T", "False", "false", "F").contains(model.choice)))
-            throw new CannotProceedVote("Candidate with given id is not nominated for the election");
+                && (!List.of("True", "true", "T", "False", "false", "F").contains(model.choice)))
+            throw new CannotProceedVote("Invalid voting choice for proposal (must be a boolean or similar)");
         election.get().setStatus("ongoing");
         election.get().vote(model.memberId, model.choice);
         this.electionRepository.save(election.get());
