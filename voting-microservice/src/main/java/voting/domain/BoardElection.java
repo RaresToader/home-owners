@@ -2,7 +2,6 @@ package voting.domain;
 
 import lombok.NoArgsConstructor;
 import voting.db.converters.BoardElectionVotesConverter;
-import voting.db.converters.ProposalVotesConverter;
 import voting.db.converters.CandidatesConverter;
 
 import javax.persistence.Convert;

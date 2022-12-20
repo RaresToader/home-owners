@@ -40,16 +40,17 @@ import org.springframework.test.annotation.DirtiesContext;
 class ActivityServiceTest {
 
     @Autowired
-    private ActivityRepo actualRepo;
+    private transient ActivityRepo actualRepo;
 
     @Mock
-    private ActivityRepo activityRepo;
+    private transient ActivityRepo activityRepo;
 
-    private ActivityService activityService;
+    private transient ActivityService activityService;
 
     private static MockedStatic<MembershipUtils> membershipUtils;
 
-    private final Activity activity = new Activity(1L, "activity 1", "description 1",
+    private final transient Activity activity = new Activity(1L, "activity 1",
+            "description 1",
             LocalDateTime.of(2025, 12, 12, 5, 0, 0),
             LocalTime.of(2, 0, 0));
 
@@ -68,7 +69,7 @@ class ActivityServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         activityService = new ActivityService(activityRepo);
     }
 
@@ -81,9 +82,7 @@ class ActivityServiceTest {
     @Test
     void getActivityById_notFoundTest() {
         when(activityRepo.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(ActivityDoesntExistException.class, () -> {
-            activityService.getActivityById(2L);
-        });
+        assertThrows(ActivityDoesntExistException.class, () -> activityService.getActivityById(2L));
     }
 
     @Test
@@ -97,7 +96,7 @@ class ActivityServiceTest {
         when(activityRepo.findById(anyLong())).thenReturn(Optional.of(activity));
         Activity updatedActivity = activityService.joinActivity(1, 1);
         assertEquals(activity, updatedActivity);
-        assertTrue(activity.getParticipants().size() == 1);
+        assertEquals(1, activity.getParticipants().size());
         assertTrue(activity.getParticipants().contains(1L));
     }
 
@@ -107,11 +106,11 @@ class ActivityServiceTest {
         when(activityRepo.findById(anyLong())).thenReturn(Optional.of(activity));
         Activity updatedActivity = activityService.joinActivity(1, 1);
         assertEquals(activity, updatedActivity);
-        assertTrue(activity.getParticipants().size() == 1);
+        assertEquals(1, activity.getParticipants().size());
         assertTrue(activity.getParticipants().contains(1L));
 
-        assertTrue(activity.getParticipants().size() == 0);
-        assertTrue(!activity.getParticipants().contains(1L));
+        assertEquals(0, activity.getParticipants().size());
+        assertFalse(activity.getParticipants().contains(1L));
     }
 
     @Test

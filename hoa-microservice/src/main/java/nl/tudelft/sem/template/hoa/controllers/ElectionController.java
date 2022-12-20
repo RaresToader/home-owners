@@ -4,7 +4,6 @@ import nl.tudelft.sem.template.hoa.domain.electionchecks.NotBoardForTooLongValid
 import nl.tudelft.sem.template.hoa.domain.electionchecks.NotInAnyOtherBoardValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.TimeInCurrentHoaValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.Validator;
-import nl.tudelft.sem.template.hoa.exception.InvalidParticipantException;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;

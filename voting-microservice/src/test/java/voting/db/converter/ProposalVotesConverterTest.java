@@ -14,17 +14,19 @@ import static voting.annotations.TestSuite.TestType.UNIT;
 class ProposalVotesConverterTest {
     ProposalVotesConverter sut = new ProposalVotesConverter();
 
+    private static final String CHAD = "chad";
+
     @Test
     void convertToDatabaseColumnTest() {
         Map<String, Boolean> map = Map.of();
         String res = sut.convertToDatabaseColumn(map);
         assertEquals("", res);
 
-        map = Map.of("chad", false);
+        map = Map.of(CHAD, false);
         res = sut.convertToDatabaseColumn(map);
-        assertEquals("chad=F", res);
+        assertEquals(CHAD + "=F", res);
 
-        map = Map.of("chad", true, "chad2", false);
+        map = Map.of(CHAD, true, "chad2", false);
         String finalRes = sut.convertToDatabaseColumn(map);
         assertTrue(() -> finalRes.equals("1=1,2=0") || finalRes.equals("chad=T,chad2=F"));
     }
@@ -35,17 +37,17 @@ class ProposalVotesConverterTest {
         Map<String, Boolean> map = sut.convertToEntityAttribute(testStr);
         assertTrue(map.isEmpty());
 
-        testStr = "chad=T";
+        testStr = CHAD + "=T";
         map = sut.convertToEntityAttribute(testStr);
         assertEquals(1, map.size());
-        assertTrue(map.containsKey("chad"));
-        assertEquals(true, map.get("chad"));
+        assertTrue(map.containsKey(CHAD));
+        assertEquals(true, map.get(CHAD));
 
-        testStr = "chad=F,chad2=T";
+        testStr = CHAD + "=F,chad2=T";
         map = sut.convertToEntityAttribute(testStr);
         assertEquals(2, map.size());
-        assertTrue(map.containsKey("chad"));
-        assertEquals(false, map.get("chad"));
+        assertTrue(map.containsKey(CHAD));
+        assertEquals(false, map.get(CHAD));
         assertTrue(map.containsKey("chad2"));
         assertEquals(true, map.get("chad2"));
     }

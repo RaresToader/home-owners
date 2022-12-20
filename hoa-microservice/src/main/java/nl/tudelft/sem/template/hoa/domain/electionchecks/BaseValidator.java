@@ -6,7 +6,7 @@ import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import java.util.List;
 
 public abstract class BaseValidator implements Validator {
-    private Validator next;
+    private transient Validator next;
 
     public void setNext(Validator h) {
         this.next = h;

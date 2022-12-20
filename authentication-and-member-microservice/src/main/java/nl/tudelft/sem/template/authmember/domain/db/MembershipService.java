@@ -38,7 +38,9 @@ public class MembershipService {
         } else {
             //TODO: EDIT DURATION AND BOARD
             membershipRepository.save(new Membership(model.getMemberId(),
-                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), Instant.ofEpochSecond(31557600L * 10).atZone(ZoneId.systemDefault()).toLocalDateTime(), true));
+                    model.getHoaId(), model.getAddress(), LocalDateTime.now(),
+                    Instant.ofEpochSecond(31557600L * 10).atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                    true));
         }
     }
 

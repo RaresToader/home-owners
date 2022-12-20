@@ -10,7 +10,7 @@ import java.util.List;
 
 public class TimeInCurrentHoaValidator extends BaseValidator {
 
-    long yearsRequiredInHoa = TimeUtils.yearsToSeconds(3);
+    transient long yearsRequiredInHoa = TimeUtils.yearsToSeconds(3);
 
     @Override
     public boolean handle(List<MembershipResponseModel> memberships, long hoaID) throws InvalidParticipantException {

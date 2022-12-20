@@ -18,8 +18,10 @@ import java.util.List;
 
 public class ElectionControllerTest {
 
-    List<MembershipResponseModel> memberships;
-    ElectionController controller = new ElectionController();
+    transient List<MembershipResponseModel> memberships;
+    transient ElectionController controller = new ElectionController();
+
+    private static final String SEM = "SEM";
 
     @BeforeEach
     void setup() {
@@ -45,11 +47,11 @@ public class ElectionControllerTest {
         memberships.add(a2);
 
         try (MockedStatic<MembershipUtils> membershipUtils = Mockito.mockStatic(MembershipUtils.class)) {
-            membershipUtils.when(() -> MembershipUtils.getMembershipsForUser("sem", "a")).thenReturn(memberships);
+            membershipUtils.when(() -> MembershipUtils.getMembershipsForUser(SEM, "a")).thenReturn(memberships);
             try (MockedStatic<ElectionUtils> electionUtils = Mockito.mockStatic(ElectionUtils.class)) {
-                electionUtils.when(() -> ElectionUtils.joinElection("sem", 0)).thenReturn(true);
+                electionUtils.when(() -> ElectionUtils.joinElection(SEM, 0)).thenReturn(true);
 
-                assertTrue(controller.joinElection("sem", 0, "a").getBody());
+                assertTrue(controller.joinElection(SEM, 0, "a").getBody());
             }
         }
     }
@@ -69,11 +71,12 @@ public class ElectionControllerTest {
         memberships.add(a2);
 
         try (MockedStatic<MembershipUtils> membershipUtils = Mockito.mockStatic(MembershipUtils.class)) {
-            membershipUtils.when(() -> MembershipUtils.getMembershipsForUser("sem", "a")).thenReturn(memberships);
+            membershipUtils.when(() -> MembershipUtils.getMembershipsForUser(SEM, "a")).thenReturn(memberships);
             try (MockedStatic<ElectionUtils> electionUtils = Mockito.mockStatic(ElectionUtils.class)) {
-                electionUtils.when(() -> ElectionUtils.joinElection("sem", 0)).thenReturn(true);
+                electionUtils.when(() -> ElectionUtils.joinElection(SEM, 0)).thenReturn(true);
 
-                assertThrows(ResponseStatusException.class, () -> controller.joinElection("sem", 0, "a").getBody());
+                assertThrows(ResponseStatusException.class, () -> controller.joinElection(SEM, 0, "a")
+                        .getBody());
             }
         }
     }

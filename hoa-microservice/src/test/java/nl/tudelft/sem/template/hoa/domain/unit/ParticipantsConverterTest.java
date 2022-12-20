@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class ParticipantsConverterTest {
 
-    ParticipantsConverter participantsConverter = new ParticipantsConverter();
+    transient ParticipantsConverter participantsConverter = new ParticipantsConverter();
 
     @Test
     void convertToDatabaseColumnTest() {

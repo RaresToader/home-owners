@@ -18,16 +18,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ValidatorTests {
 
-    Validator boardTimeValidator;
-    Validator notInOtherBoardValidator;
-    Validator timeInCurrentHoaValidator;
+    transient Validator boardTimeValidator;
+    transient Validator notInOtherBoardValidator;
+    transient Validator timeInCurrentHoaValidator;
 
     //Used to check that validators filter properly
-    MembershipResponseModel wrongHOA =
+    transient  MembershipResponseModel wrongHOA =
         new MembershipResponseModel(0L, "0", 1, "a", "b",
             false, TimeUtils.getFirstEpochDate(),
             TimeUtils.dateFromYearsSinceEpoch(9));
-    List<MembershipResponseModel> memberships;
+    transient List<MembershipResponseModel> memberships;
 
     @BeforeEach
     void setup() {

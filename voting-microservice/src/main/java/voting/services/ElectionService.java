@@ -15,7 +15,6 @@ import voting.models.ProposalModel;
 import voting.models.VotingModel;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,7 +90,7 @@ public class ElectionService {
                 && !((BoardElection) election.get()).getCandidates().contains(model.choice))
             throw new CannotProceedVote("Candidate with given id is not nominated for the election");
         if (election.get().getClass() == Proposal.class
-                && (!List.of("True", "true", "T", "False", "false", "F").contains(model.choice)))
+                && !List.of("True", "true", "T", "False", "false", "F").contains(model.choice))
             throw new CannotProceedVote("Invalid voting choice for proposal (must be a boolean or similar)");
         election.get().setStatus("ongoing");
         election.get().vote(model.memberId, model.choice);
@@ -136,7 +135,7 @@ public class ElectionService {
      */
     public boolean removeParticipantFromBoardElection(String memberId, long hoaId) throws ElectionDoesNotExist {
         BoardElection e = getBoardElectionByHoaId(hoaId);
-        if(e.removeParticipant(memberId)) {
+        if (e.removeParticipant(memberId)) {
             electionRepository.deleteById(e.getElectionId());
             electionRepository.save(e);
             return true;

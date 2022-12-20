@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class NotBoardForTooLongValidator extends BaseValidator {
-    long yearsMaxInBoard = TimeUtils.yearsToSeconds(10);
+    transient long yearsMaxInBoard = TimeUtils.yearsToSeconds(10);
 
     @Override
     public boolean handle(List<MembershipResponseModel> memberships, long hoaID) throws InvalidParticipantException {
