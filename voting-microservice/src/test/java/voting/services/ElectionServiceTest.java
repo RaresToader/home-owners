@@ -188,7 +188,7 @@ class ElectionServiceTest {
 	@Test
 	void getElectionSuccess() throws ElectionDoesNotExist {
 		Election proposal = new Proposal(pModel.getName(), pModel.getDescription(), pModel.getHoaId()
-																		, pModel.getScheduledFor().createDate());
+			, pModel.getScheduledFor().createDate());
 		when(repository.findByElectionId(1)).thenReturn(Optional.of(proposal));
 		assertEquals(proposal, electionService.getElection(1));
 	}
@@ -202,7 +202,7 @@ class ElectionServiceTest {
 	@Test
 	void concludeSuccess() throws ElectionDoesNotExist {
 		Election proposal = new Proposal(pModel.getName(), pModel.getDescription(), pModel.getHoaId()
-																		, pModel.getScheduledFor().createDate());
+			, pModel.getScheduledFor().createDate());
 		when(repository.findByElectionId(1)).thenReturn(Optional.of(proposal));
 		assertEquals(proposal.conclude(), electionService.conclude(1));
 		verify(repository, times(1)).save(proposal);
