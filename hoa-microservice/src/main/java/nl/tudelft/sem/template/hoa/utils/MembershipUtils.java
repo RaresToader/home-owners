@@ -4,6 +4,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import javax.inject.Singleton;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
@@ -41,10 +42,11 @@ public class MembershipUtils {
     /**
      *
      */
-    public static List<MembershipResponseModel> getMembershipsForUser(String memberID) {
+    public static List<MembershipResponseModel> getMembershipsForUser(String memberID, String token) {
         try {
             return client.target(server).path("getMemberships/" + memberID)
                 .request(APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .accept(APPLICATION_JSON)
                 .get(new GenericType<List<MembershipResponseModel>>() {});
         } catch (Exception e) {

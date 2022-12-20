@@ -28,7 +28,7 @@ public abstract class Election {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     int electionId;
 
-    private int hoaId;
+    private long hoaId;
     private String name;
     private String description;
     private int voteCount;
@@ -45,7 +45,7 @@ public abstract class Election {
      * @param hoaId        Id of Hoa that it is a part of
      * @param scheduledFor Time object, when the election will start
      */
-    public Election(String name, String description, int hoaId, LocalDateTime scheduledFor) {
+    public Election(String name, String description, long hoaId, LocalDateTime scheduledFor) {
 
         this.name = name;
         this.description = description;
@@ -74,7 +74,7 @@ public abstract class Election {
         return electionId;
     }
 
-    public int getHoaId() {
+    public long getHoaId() {
         return hoaId;
     }
 

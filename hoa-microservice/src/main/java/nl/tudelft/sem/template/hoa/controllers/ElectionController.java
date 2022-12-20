@@ -8,10 +8,12 @@ import nl.tudelft.sem.template.hoa.exception.InvalidParticipantException;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -107,19 +109,24 @@ public class ElectionController {
     /**
      * Endpoint for becoming a participant in board election as a user
      */
-    @PostMapping("hoa/joinElection/{memberID}/{hoaID}")
-    public ResponseEntity<Boolean> joinElection(@PathVariable String memberID, @PathVariable long hoaID) {
+    @PostMapping("joinElection/{memberID}/{hoaID}")
+    public ResponseEntity<Boolean> joinElection(@PathVariable String memberID, @PathVariable long hoaID,
+                                                @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         //Fetch membership data
-        List<MembershipResponseModel> memberships = MembershipUtils.getMembershipsForUser(memberID);
-        Validator handler = new TimeInCurrentHoaValidator();
-        Validator otherBoardValidator = new NotInAnyOtherBoardValidator();
-        Validator notForTooLongValidator = new NotBoardForTooLongValidator();
-        otherBoardValidator.setNext(notForTooLongValidator);
-        handler.setNext(otherBoardValidator);
         try {
-            handler.handle(memberships, hoaID);
-            return ResponseEntity.ok(ElectionUtils.joinElection(memberID, hoaID));
-        } catch (InvalidParticipantException e) {
+            List<MembershipResponseModel> memberships = MembershipUtils.getMembershipsForUser(memberID, token);
+            Validator handler = new TimeInCurrentHoaValidator();
+            Validator otherBoardValidator = new NotInAnyOtherBoardValidator();
+            Validator notForTooLongValidator = new NotBoardForTooLongValidator();
+            otherBoardValidator.setNext(notForTooLongValidator);
+            handler.setNext(otherBoardValidator);
+            try {
+                handler.handle(memberships, hoaID);
+                return ResponseEntity.ok(ElectionUtils.joinElection(memberID, hoaID));
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            }
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
@@ -127,7 +134,7 @@ public class ElectionController {
     /**
      * Endpoint for leaving a board election as a user
      */
-    @PostMapping("hoa/leaveElection/{memberID}/{hoaID}")
+    @PostMapping("leaveElection/{memberID}/{hoaID}")
     public ResponseEntity<Boolean> leaveElection(@PathVariable String memberID, @PathVariable long hoaID) {
         boolean ret = ElectionUtils.leaveElection(memberID, hoaID);
         if (ret) {

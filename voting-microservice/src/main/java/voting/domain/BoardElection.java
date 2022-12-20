@@ -39,7 +39,7 @@ public class BoardElection extends Election {
      * @param amountOfWinners Amount of winners for this board election
      * @param candidates      List of member ids of board candidates
      */
-    public BoardElection(String name, String description, int hoaId, LocalDateTime scheduledFor, int amountOfWinners,
+    public BoardElection(String name, String description, long hoaId, LocalDateTime scheduledFor, int amountOfWinners,
                          List<String> candidates) {
         super(name, description, hoaId, scheduledFor);
         this.amountOfWinners = amountOfWinners;

@@ -1,6 +1,8 @@
 package nl.tudelft.sem.template.authmember.domain.db;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import nl.tudelft.sem.template.authmember.domain.Membership;
@@ -34,8 +36,9 @@ public class MembershipService {
                 model.getHoaId()).isPresent()) {
             throw new MemberAlreadyInHoaException(model);
         } else {
+            //TODO: EDIT DURATION AND BOARD
             membershipRepository.save(new Membership(model.getMemberId(),
-                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, true));
+                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), Instant.ofEpochSecond(31557600L * 10).atZone(ZoneId.systemDefault()).toLocalDateTime(), true));
         }
     }
 
