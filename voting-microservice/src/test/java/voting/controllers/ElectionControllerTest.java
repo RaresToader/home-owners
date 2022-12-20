@@ -65,8 +65,8 @@ class ElectionControllerTest {
             stmt.executeUpdate("DELETE FROM ELECTIONS");
             stmt.executeUpdate("ALTER SEQUENCE HIBERNATE_SEQUENCE RESTART WITH 1");
             stmt.close();
-        } catch (SQLException e) {
-           System.out.println("SQT error");
+        }  catch (SQLException e) {
+            System.out.println("SQT error");
         }
     }
 

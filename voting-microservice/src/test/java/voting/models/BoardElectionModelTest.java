@@ -10,8 +10,9 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static voting.annotations.TestSuite.TestType.BOUNDARY;
+import static voting.annotations.TestSuite.TestType.UNIT;
 
-@TestSuite(testType = {BOUNDARY})
+@TestSuite(testType = {BOUNDARY, UNIT})
 class BoardElectionModelTest {
 
     @ParameterizedTest
