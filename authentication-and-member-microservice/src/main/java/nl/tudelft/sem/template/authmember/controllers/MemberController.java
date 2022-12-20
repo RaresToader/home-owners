@@ -49,7 +49,7 @@ public class MemberController {
     private final transient JwtTokenGenerator jwtTokenGenerator;
     private final transient JwtUserDetailsService jwtUserDetailsService;
 
-    private final transient AuthManager authManager;
+    private transient AuthManager authManager;
     private final transient String unauthorizedMessage = "Access is not allowed";
 
     /**
@@ -271,4 +271,10 @@ public class MemberController {
         return ResponseEntity.ok(new AuthenticationResponseModel(jwtToken));
     }
 
+    /** Setter method used when AuthManager needs to be mocked
+     * @param a - AuthManager to be mocked
+     */
+    public void setAuthenticationManager(AuthManager a){
+        this.authManager = a;
+    }
 }
