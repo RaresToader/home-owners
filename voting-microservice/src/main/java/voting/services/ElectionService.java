@@ -2,9 +2,11 @@ package voting.services;
 
 import org.springframework.stereotype.Service;
 import voting.domain.BoardElection;
+import voting.domain.factories.BoardElectionFactory;
 import voting.domain.Election;
 import voting.domain.Proposal;
 import voting.db.repos.ElectionRepository;
+import voting.domain.factories.ProposalElectionFactory;
 import voting.exceptions.BoardElectionAlreadyCreated;
 import voting.exceptions.CannotProceedVote;
 import voting.exceptions.ElectionCannotBeCreated;
@@ -36,9 +38,7 @@ public class ElectionService {
             throws BoardElectionAlreadyCreated, ElectionCannotBeCreated {
         if (!model.isValid()) throw new ElectionCannotBeCreated("Some/all of the provided fields are invalid");
         if (electionRepository.getBoardElectionByHoaId(model.hoaId).isEmpty()) {
-            LocalDateTime d = model.scheduledFor.createDate();
-            BoardElection boardElection = new BoardElection(model.name, model.description, model.hoaId, d,
-                    model.amountOfWinners, model.candidates);
+            BoardElection boardElection = (BoardElection) new BoardElectionFactory().createElection(model);
             electionRepository.save(boardElection);
             return boardElection;
         } else throw new BoardElectionAlreadyCreated("Board election with hoaId: "
@@ -62,8 +62,7 @@ public class ElectionService {
                     + model.name
                     + "already exists.");
         else {
-            LocalDateTime d = model.scheduledFor.createDate();
-            Proposal proposal = new Proposal(model.name, model.description, model.hoaId, d);
+            Proposal proposal = (Proposal) new ProposalElectionFactory().createElection(model);
             electionRepository.save(proposal);
             return proposal;
         }
