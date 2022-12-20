@@ -65,7 +65,7 @@ public class MembershipService {
             return false;
         }
         String trimmed = name.trim();
-        if (trimmed.length() < 4 || trimmed.length() > 20) {
+        if (trimmed.length() < 4 || trimmed.length() > 50) {
             return false;
         }
         if (!Character.isUpperCase(trimmed.charAt(0))) {

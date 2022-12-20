@@ -29,7 +29,7 @@ public class MembershipServiceBoundaryTest {
 
     @Test
     public void offPointRight() {
-        Assertions.assertFalse(membershipService.validateCountryCityStreet("T".repeat(21)));
+        Assertions.assertFalse(membershipService.validateCountryCityStreet("T".repeat(51)));
     }
 
     @Test
@@ -39,6 +39,6 @@ public class MembershipServiceBoundaryTest {
 
     @Test
     public void onPointRight() {
-        Assertions.assertTrue(membershipService.validateCountryCityStreet("T".repeat(20)));
+        Assertions.assertTrue(membershipService.validateCountryCityStreet("T".repeat(50)));
     }
 }
