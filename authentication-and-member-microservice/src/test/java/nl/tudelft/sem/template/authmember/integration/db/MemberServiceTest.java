@@ -75,4 +75,10 @@ public class MemberServiceTest {
         assertThrows(BadRegistrationModelException.class, () -> memberService.registerUser(model));
     }
 
+    @Test
+    public void updateBadPassword() {
+        RegistrationModel model = new RegistrationModel("username123", "pass");
+        assertThrows(BadRegistrationModelException.class, () -> memberService.updatePassword(model));
+    }
+
 }

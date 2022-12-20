@@ -75,7 +75,7 @@ public class MemberService {
      * @return Member if password updated successfully
      */
     public Member updatePassword(RegistrationModel model) throws BadRegistrationModelException {
-        if (validatePassword(model.getPassword())) {
+        if (!validatePassword(model.getPassword())) {
             throw new BadRegistrationModelException("Bad username or password!");
         }
         Member member = new Member(model.getMemberId(), model.getPassword());
