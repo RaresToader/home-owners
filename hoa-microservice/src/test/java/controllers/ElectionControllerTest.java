@@ -5,7 +5,8 @@ import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
 import nl.tudelft.sem.template.hoa.utils.TimeUtils;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -19,6 +20,7 @@ public class ElectionControllerTest {
 
     List<MembershipResponseModel> memberships;
     ElectionController controller = new ElectionController();
+
     @BeforeEach
     void setup() {
         memberships = new ArrayList<>();

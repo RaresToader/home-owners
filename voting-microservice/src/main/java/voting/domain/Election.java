@@ -2,6 +2,7 @@ package voting.domain;
 
 import lombok.NoArgsConstructor;
 import voting.db.converters.LocalDateTimeConverter;
+import voting.exceptions.CannotProceedVote;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorColumn;
@@ -60,7 +61,7 @@ public abstract class Election {
      * @param membershipId Id of member that votes
      * @param choice       Choice of member that voted
      */
-    public abstract void vote(int membershipId, int choice);
+    public abstract void vote(String membershipId, String choice) throws CannotProceedVote;
 
     /**
      * Concludes the current election

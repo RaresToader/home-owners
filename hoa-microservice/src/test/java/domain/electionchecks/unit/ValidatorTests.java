@@ -13,7 +13,8 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ValidatorTests {
 
@@ -70,10 +71,6 @@ public class ValidatorTests {
 
     @Test
     void notAnyOtherBoardValidatorTest() throws InvalidParticipantException {
-        MembershipResponseModel otherBoard =
-            new MembershipResponseModel(0L, "0", 1, "a", "b",
-                true, TimeUtils.getFirstEpochDate(),
-                TimeUtils.dateFromYearsSinceEpoch(1));
         MembershipResponseModel currentBoard =
             new MembershipResponseModel(0L, "0", 0, "a", "b",
                 true, TimeUtils.getFirstEpochDate(),
@@ -83,6 +80,10 @@ public class ValidatorTests {
         memberships.add(currentBoard);
         //User is in a board, but it's the current HOA one -> it's fine
         assertTrue(notInOtherBoardValidator.handle(memberships, 0));
+        MembershipResponseModel otherBoard =
+            new MembershipResponseModel(0L, "0", 1, "a", "b",
+                true, TimeUtils.getFirstEpochDate(),
+                TimeUtils.dateFromYearsSinceEpoch(1));
         //User is in another board -> not fine
         memberships.add(otherBoard);
         assertThrows(InvalidParticipantException.class, () -> notInOtherBoardValidator.handle(memberships, 0));

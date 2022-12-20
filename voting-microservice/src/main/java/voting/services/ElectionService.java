@@ -89,7 +89,7 @@ public class ElectionService {
                 && !((BoardElection) election.get()).getCandidates().contains(model.choice))
             throw new CannotProceedVote("Candidate with given id is not nominated for the election");
         election.get().setStatus("ongoing");
-        election.get().vote(model.membershipId, model.choice);
+        election.get().vote(model.memberId, model.choice);
         this.electionRepository.save(election.get());
     }
 

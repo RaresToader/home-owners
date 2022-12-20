@@ -26,7 +26,7 @@ public class BoardElection extends Election {
     private List<String> candidates;
 
     @Convert(converter = VotesConverter.class)
-    private Map<Integer, Integer> votes;
+    private Map<String, String> votes;
 
     /**
      * Create a board election
@@ -62,11 +62,11 @@ public class BoardElection extends Election {
         this.candidates = candidates;
     }
 
-    public Map<Integer, Integer> getVotes() {
+    public Map<String, String> getVotes() {
         return votes;
     }
 
-    public void setVotes(Map<Integer, Integer> votes) {
+    public void setVotes(Map<String, String> votes) {
         this.votes = votes;
     }
 
@@ -74,9 +74,9 @@ public class BoardElection extends Election {
      * {@inheritDoc}
      */
     @Override
-    public void vote(int membershipId, int voteChoice) {
+    public void vote(String memberId, String voteChoice) {
         if (getStatus().equals("ongoing") && candidates.contains(voteChoice)) {
-            votes.put(membershipId, voteChoice);
+            votes.put(memberId, voteChoice);
             this.incrementVoteCount();
         }
     }
@@ -86,7 +86,7 @@ public class BoardElection extends Election {
      *
      * @return Set of winners, capped if less than amountOfWinners
      */
-    public Set<Integer> findOutcome() {
+    public Set<String> findOutcome() {
         var votesByCandidate = votes.entrySet().stream()
                 // Map candidateIds (values) to keys, and vote counts to values
                 .collect(Collectors.toMap(Map.Entry::getValue,
@@ -106,8 +106,8 @@ public class BoardElection extends Election {
      * {@inheritDoc}
      */
     @Override
-    public Set<Integer> conclude() {
-        Set<Integer> currentWinners = findOutcome();
+    public Set<String> conclude() {
+        Set<String> currentWinners = findOutcome();
         this.setStatus("finished");
         return currentWinners;
     }

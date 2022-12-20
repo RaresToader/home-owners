@@ -18,7 +18,7 @@ public class Proposal extends Election {
     private boolean winningChoice;
 
     @Convert(converter = VotesConverter.class)
-    private Map<Integer, Integer> votes;
+    private Map<String, Integer> votes;
 
     /**
      * Creates a proposal
@@ -42,11 +42,11 @@ public class Proposal extends Election {
         this.winningChoice = winningChoice;
     }
 
-    public Map<Integer, Integer> getVotes() {
+    public Map<String, Integer> getVotes() {
         return votes;
     }
 
-    public void setVotes(Map<Integer, Integer> votes) {
+    public void setVotes(Map<String, Integer> votes) {
         this.votes = votes;
     }
 
@@ -54,9 +54,9 @@ public class Proposal extends Election {
      * {@inheritDoc}
      */
     @Override
-    public void vote(int membershipId, int vote) {
+    public void vote(String memberId, String vote) {
         if (getStatus().equals("ongoing")) {
-            votes.put(membershipId, vote);
+            votes.put(memberId, Integer.valueOf(vote));
             this.incrementVoteCount();
         }
     }

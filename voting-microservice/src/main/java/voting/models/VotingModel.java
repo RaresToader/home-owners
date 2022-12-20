@@ -7,8 +7,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class VotingModel {
     public int electionId;
-    public int membershipId;
-    public int choice;
+    public String memberId;
+    public String choice;
 
     /**
      * Checks whether this model is a valid one for creating a vote
@@ -16,8 +16,6 @@ public class VotingModel {
      * @return Boolean to represent the model's validity
      */
     public boolean isValid() {
-        return electionId >= 0
-                && membershipId >= 0
-                && choice >= 0;
+        return electionId >= 0;
     }
 }

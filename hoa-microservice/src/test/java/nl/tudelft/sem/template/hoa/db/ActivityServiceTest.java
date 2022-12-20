@@ -57,7 +57,8 @@ class ActivityServiceTest {
     static void registerMocks() {
         membershipUtils = mockStatic(MembershipUtils.class);
         when(MembershipUtils.getMembershipById(1L))
-                .thenReturn(new MembershipResponseModel(1L, "test user", 1L, "country", "city", false, LocalDateTime.now(), LocalDateTime.now()));
+                .thenReturn(new MembershipResponseModel(1L, "test user",
+                    1L, "country", "city", false, LocalDateTime.now(), LocalDateTime.now()));
     }
 
     @AfterAll

@@ -41,8 +41,8 @@ class ProposalTest {
 
 	@Test
 	void setVotesTest() {
-		HashMap<Integer, Integer> map = new HashMap<>();
-		map.put(1, 1);
+		HashMap<String, Integer> map = new HashMap<>();
+		map.put("1", 1);
 		proposal.setVotes(map);
 		assertEquals(map, proposal.getVotes());
 	}
@@ -50,7 +50,7 @@ class ProposalTest {
 	@Test
 	void failedVote() {
 		assertTrue(proposal.getVotes().isEmpty());
-		proposal.vote(1, 1);
+		proposal.vote("1", "1");
 		assertTrue(proposal.getVotes().isEmpty());
 		assertEquals(0, proposal.getVoteCount());
 	}
@@ -59,9 +59,9 @@ class ProposalTest {
 	void successfulVote() {
 		assertTrue(proposal.getVotes().isEmpty());
 		proposal.setStatus("ongoing");
-		proposal.vote(1, 1);
-		HashMap<Integer, Integer> votes = new HashMap<>();
-		votes.put(1, 1);
+		proposal.vote("1", "1");
+		HashMap<String, Integer> votes = new HashMap<>();
+		votes.put("1", 1);
 		assertEquals(votes, proposal.getVotes());
 		assertEquals(1, proposal.getVoteCount());
 	}
@@ -70,19 +70,19 @@ class ProposalTest {
 	void findOutcome() {
 		proposal.setStatus("ongoing");
 		// One positive
-		proposal.vote(1, 1);
+		proposal.vote("1", "1");
 		assertTrue(proposal.findOutcome());
 
 		// Majority is no longer valid
-		proposal.vote(2, 0);
+		proposal.vote("2", "0");
 		assertFalse(proposal.findOutcome());
 
 		// Idempotence
-		proposal.vote(1, 1);
+		proposal.vote("1", "1");
 		assertFalse(proposal.findOutcome());
 
 		// Majority valid once more
-		proposal.vote(2, 1);
+		proposal.vote("2", "1");
 		assertTrue(proposal.findOutcome());
 	}
 
