@@ -10,6 +10,8 @@ import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.converters.MembershipConverter;
 import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
+import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
+import nl.tudelft.sem.template.authmember.domain.exceptions.BadRegistrationModelException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
@@ -102,7 +104,7 @@ public class MemberController {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member doesn't exist", e);
         } catch (BadRegistrationModelException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad password.", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad registration model", e);
         }
     }
 
@@ -131,22 +133,16 @@ public class MemberController {
      */
     @PostMapping("/joinHOA")
     public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model,
-                                              @RequestHeader(HttpHeaders.AUTHORIZATION) String token)
-            throws MemberDifferentAddressException {
+                                              @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
             authManager.validateMember(model.getMemberId());
             hoaService.joinHoa(model, token);
             return ResponseEntity.ok().build();
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
-        } catch (MemberAlreadyInHoaException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already in Hoa", e);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hoa or member do not exist", e);
-        } catch (MemberDifferentAddressException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Different address compared to hoa.", e);
-        } catch (BadJoinHoaModelException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad JoinHoaModel!.", e);
+        } catch (MemberAlreadyInHoaException | IllegalArgumentException | MemberDifferentAddressException
+                 | BadJoinHoaModelException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -267,27 +263,6 @@ public class MemberController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member does not exist", e);
         }
     }
-
-    /**
-     * Endpoint to retrieve a membership by id.
-     *
-     * @param membershipId the membership id.
-     * @return the membership with the id provided
-     */
-    @GetMapping("/getMembershipById/{membershipId}")
-    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
-        try {
-            Membership membership = membershipService.getMembership(membershipId);
-            MembershipResponseModel model = new MembershipResponseModel(membership.getMembershipId(),
-                    membership.getMemberId(), membership.getHoaId(),
-                    membership.getAddress().getCountry(), membership.getAddress().getCity(), membership.isInBoard());
-
-            return ResponseEntity.ok(model);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
 
     /**
      * Checks whether a user and HOA exist.
