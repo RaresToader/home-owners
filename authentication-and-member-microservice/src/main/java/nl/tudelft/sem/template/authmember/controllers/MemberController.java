@@ -4,6 +4,7 @@ import java.util.List;
 import nl.tudelft.sem.template.authmember.authentication.AuthManager;
 import nl.tudelft.sem.template.authmember.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.template.authmember.authentication.JwtUserDetailsService;
+
 import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.converters.MembershipConverter;
@@ -81,6 +82,8 @@ public class MemberController {
             return ResponseEntity.ok().build();
         } catch (MemberAlreadyExistsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already exists", e);
+        } catch (BadRegistrationModelException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad username or password!", e);
         }
     }
 
@@ -98,6 +101,8 @@ public class MemberController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member doesn't exist", e);
+        } catch (BadRegistrationModelException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad password.", e);
         }
     }
 
@@ -138,6 +143,10 @@ public class MemberController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already in Hoa", e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hoa or member do not exist", e);
+        } catch (MemberDifferentAddressException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Different address compared to hoa.", e);
+        } catch (BadJoinHoaModelException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad JoinHoaModel!.", e);
         }
     }
 
@@ -258,6 +267,27 @@ public class MemberController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member does not exist", e);
         }
     }
+
+    /**
+     * Endpoint to retrieve a membership by id.
+     *
+     * @param membershipId the membership id.
+     * @return the membership with the id provided
+     */
+    @GetMapping("/getMembershipById/{membershipId}")
+    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
+        try {
+            Membership membership = membershipService.getMembership(membershipId);
+            MembershipResponseModel model = new MembershipResponseModel(membership.getMembershipId(),
+                    membership.getMemberId(), membership.getHoaId(),
+                    membership.getAddress().getCountry(), membership.getAddress().getCity(), membership.isInBoard());
+
+            return ResponseEntity.ok(model);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 
     /**
      * Checks whether a user and HOA exist.
