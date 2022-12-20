@@ -181,7 +181,7 @@ public class ActivityService {
     public boolean validateActivity(ActivityRequestModel model, LocalDateTime now) {
         String name = model.getActivityName();
         String description = model.getActivityDescription();
-        if (!rightFormat(name) || !rightFormat(description)) {
+        if (!rightFormatTitle(name) || !rightFormatDescription(description)) {
             return false;
         }
         LocalDateTime startTime = model.getActivityTime();
@@ -195,11 +195,25 @@ public class ActivityService {
      * @param name the string
      * @return true, if the name has the right format, false otherwise;
      */
-    public boolean rightFormat(String name) {
+    public boolean rightFormatTitle(String name) {
         if (name == null || name.isBlank() || name.isEmpty()) {
             return false;
         }
-        return name.length() <= 100;
+        return name.length() <= 40;
+    }
+
+    /**
+     * Helper method to be used to determine if the name and description of an activity is valid.
+     * The name can have at most 100 characters.
+     *
+     * @param name the string
+     * @return true, if the name has the right format, false otherwise;
+     */
+    public boolean rightFormatDescription(String name) {
+        if (name == null || name.isBlank() || name.isEmpty()) {
+            return false;
+        }
+        return name.length() <= 200;
     }
 
     /**

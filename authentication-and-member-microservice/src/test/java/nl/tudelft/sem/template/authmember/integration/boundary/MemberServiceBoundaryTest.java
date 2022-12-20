@@ -48,7 +48,7 @@ public class MemberServiceBoundaryTest {
 
     @Test
     public void validatePasswordOffPointRight() {
-        Assertions.assertFalse(memberService.validatePassword("a".repeat(21)));
+        Assertions.assertFalse(memberService.validatePassword("a".repeat(33)));
     }
 
 
@@ -59,7 +59,7 @@ public class MemberServiceBoundaryTest {
 
     @Test
     public void validatePasswordOnPointRight() {
-        Assertions.assertTrue(memberService.validatePassword("a".repeat(20)));
+        Assertions.assertTrue(memberService.validatePassword("a".repeat(32)));
     }
 
 

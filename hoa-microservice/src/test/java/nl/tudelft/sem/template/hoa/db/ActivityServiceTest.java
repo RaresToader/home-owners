@@ -203,23 +203,43 @@ class ActivityServiceTest {
     }
 
     @Test
-    void rightFormatNull() {
-        assertFalse(activityService.rightFormat(null));
+    void rightFormatTitleNull() {
+        assertFalse(activityService.rightFormatTitle(null));
     }
 
     @Test
-    void rightFormatEmpty() {
-        assertFalse(activityService.rightFormat(""));
+    void rightFormatTitleEmpty() {
+        assertFalse(activityService.rightFormatTitle(""));
     }
 
     @Test
-    void rightFormatBlank() {
-        assertFalse(activityService.rightFormat("     "));
+    void rightFormatTitleBlank() {
+        assertFalse(activityService.rightFormatTitle("     "));
     }
 
     @Test
-    void rightFormatHappy() {
-        assertTrue(activityService.rightFormat("Test123"));
+    void rightFormatTitleHappy() {
+        assertTrue(activityService.rightFormatTitle("Test123"));
+    }
+
+    @Test
+    void rightFormatDescriptionNull() {
+        assertFalse(activityService.rightFormatDescription(null));
+    }
+
+    @Test
+    void rightFormatDescriptionEmpty() {
+        assertFalse(activityService.rightFormatDescription(""));
+    }
+
+    @Test
+    void rightFormatDescriptionBlank() {
+        assertFalse(activityService.rightFormatDescription("     "));
+    }
+
+    @Test
+    void rightFormatDescriptionHappy() {
+        assertTrue(activityService.rightFormatDescription("Test123"));
     }
 
     @Test

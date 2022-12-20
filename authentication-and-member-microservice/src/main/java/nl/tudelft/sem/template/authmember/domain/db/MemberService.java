@@ -65,7 +65,7 @@ public class MemberService {
         if (password == null || password.isBlank() || password.isEmpty()) {
             return false;
         }
-        return password.length() >= 10 && password.length() <= 20;
+        return password.length() >= 10 && password.length() <= 32;
     }
 
     /**

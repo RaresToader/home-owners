@@ -26,16 +26,29 @@ public class ActivityServiceBoundaryTest {
     }
 
     @Test
-    public void rightFormatOnPoint() {
-        String string = "a".repeat(100);
-        Assertions.assertTrue(activityService.rightFormat(string));
+    public void rightFormatTitleOnPoint() {
+        String string = "a".repeat(40);
+        Assertions.assertTrue(activityService.rightFormatTitle(string));
     }
 
     @Test
-    public void rightFormatOffPoint() {
-        String string = "a".repeat(101);
-        Assertions.assertFalse(activityService.rightFormat(string));
+    public void rightFormatTittleOffPoint() {
+        String string = "a".repeat(41);
+        Assertions.assertFalse(activityService.rightFormatTitle(string));
     }
+
+    @Test
+    public void rightFormatDescriptionOnPoint() {
+        String string = "a".repeat(200);
+        Assertions.assertTrue(activityService.rightFormatDescription(string));
+    }
+
+    @Test
+    public void rightFormatDescriptionOffPoint() {
+        String string = "a".repeat(201);
+        Assertions.assertFalse(activityService.rightFormatDescription(string));
+    }
+
 
     @Test
     public void validateActivityOffPoint() {
