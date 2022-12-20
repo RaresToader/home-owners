@@ -6,10 +6,7 @@ import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
-import nl.tudelft.sem.template.authmember.domain.exceptions.BadRegistrationModelException;
-import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
-import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
-import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
+import nl.tudelft.sem.template.authmember.domain.exceptions.*;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.HoaModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
@@ -109,6 +106,8 @@ public class MemberController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hoa or member do not exist", e);
         } catch (MemberDifferentAddressException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Different address compared to hoa.", e);
+        } catch (BadJoinHoaModelException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad JoinHoaModel!.", e);
         }
     }
 

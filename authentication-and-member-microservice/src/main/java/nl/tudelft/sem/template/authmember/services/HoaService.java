@@ -3,6 +3,7 @@ package nl.tudelft.sem.template.authmember.services;
 import java.util.List;
 import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
+import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
@@ -33,7 +34,8 @@ public class HoaService {
      * @throws IllegalArgumentException    thrown if hoa does not exist
      * @throws MemberAlreadyInHoaException thrown if the party requesting is already part of the hoa.
      */
-    public void joinHoa(JoinHoaModel model) throws MemberAlreadyInHoaException, MemberDifferentAddressException {
+    public void joinHoa(JoinHoaModel model) throws MemberAlreadyInHoaException,
+            MemberDifferentAddressException, BadJoinHoaModelException {
         try {
             List<Membership> activeMemberships = this.membershipService.getActiveMemberships(model.getMemberId());
             for (Membership membership : activeMemberships) {

@@ -3,8 +3,8 @@ package nl.tudelft.sem.template.authmember.domain.db;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import nl.tudelft.sem.template.authmember.domain.Membership;
+import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
@@ -32,9 +32,14 @@ public class MembershipService {
      *
      * @throws MemberAlreadyInHoaException if there is an active membership for that HOA.
      */
-    public void saveMembership(JoinHoaModel model) throws MemberAlreadyInHoaException {
-
-
+    public void saveMembership(JoinHoaModel model) throws MemberAlreadyInHoaException, BadJoinHoaModelException {
+        if (validateCountryCityStreet(model.getAddress().getCity())
+                || validateCountryCityStreet(model.getAddress().getCountry())
+                || validateCountryCityStreet(model.getAddress().getStreet())
+                || validateStreetNumber(model.getAddress().getHouseNumber())
+                || validatePostalCode(model.getAddress().getPostalCode())) {
+            throw new BadJoinHoaModelException("Bad model!");
+        }
         if (memberRepository.findByMemberId(model.getMemberId()).isEmpty()) {
             throw new IllegalArgumentException("Member not found!");
         }
@@ -60,11 +65,14 @@ public class MembershipService {
             return false;
         }
         String trimmed = name.trim();
+        if (trimmed.length() < 4 || trimmed.length() > 20) {
+            return false;
+        }
         if (!Character.isUpperCase(trimmed.charAt(0))) {
             return false;
         }
         for (int i = 1; i < trimmed.length(); i++) {
-            if (!Character.isLetter(trimmed.charAt(i)) || !Character.isWhitespace(trimmed.charAt(i))) {
+            if (!Character.isLetter(trimmed.charAt(i)) && !Character.isWhitespace(trimmed.charAt(i))) {
                 return false;
             }
         }
@@ -119,7 +127,7 @@ public class MembershipService {
             }
         }
         if (!Character.isDigit(trimmed.charAt(trimmed.length() - 1))
-                || !Character.isLetter(trimmed.charAt(trimmed.length() - 1))) {
+                && !Character.isLetter(trimmed.charAt(trimmed.length() - 1))) {
             return false;
         }
         return true;
