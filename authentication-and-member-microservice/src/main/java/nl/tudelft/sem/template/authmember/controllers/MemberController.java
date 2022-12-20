@@ -12,13 +12,8 @@ import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
-import nl.tudelft.sem.template.authmember.models.AuthenticationRequestModel;
-import nl.tudelft.sem.template.authmember.models.AuthenticationResponseModel;
+import nl.tudelft.sem.template.authmember.models.*;
 import nl.tudelft.sem.template.authmember.domain.exceptions.*;
-import nl.tudelft.sem.template.authmember.models.GetHoaModel;
-import nl.tudelft.sem.template.authmember.models.HoaModel;
-import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
-import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import nl.tudelft.sem.template.authmember.services.HoaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -230,6 +225,27 @@ public class MemberController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member does not exist", e);
         }
     }
+
+    /**
+     * Endpoint to retrieve a membership by id.
+     *
+     * @param membershipId the membership id.
+     * @return the membership with the id provided
+     */
+    @GetMapping("/getMembershipById/{membershipId}")
+    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
+        try {
+            Membership membership = membershipService.getMembership(membershipId);
+            MembershipResponseModel model = new MembershipResponseModel(membership.getMembershipId(),
+                    membership.getMemberId(), membership.getHoaId(),
+                    membership.getAddress().getCountry(), membership.getAddress().getCity(), membership.isInBoard());
+
+            return ResponseEntity.ok(model);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 
     /**
      * Checks whether a user and HOA exist.
