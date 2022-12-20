@@ -1,6 +1,6 @@
 package nl.tudelft.sem.template.hoa.exception;
 
-public class MemberNotInBoardException extends Exception{
+public class MemberNotInBoardException extends Exception {
 
 	static final long serialVersionUID = -3387576157424229948L;
 

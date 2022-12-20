@@ -25,13 +25,29 @@ public class RequirementService {
         this.requirementRepo = requirementRepo;
     }
 
-    public List<Requirement> getHOARequirements(long hoaId) throws HoaDoesntExistException {
+    /**
+     * Gets an HOA requirement
+     *
+     * @param hoaId id of HOA
+     * @return Fetched requirement, if id exists
+     * @throws HoaDoesntExistException Thrown if HOA with provided id does not exist in the database
+     */
+    public List<Requirement> getHoaRequirements(long hoaId) throws HoaDoesntExistException {
         Optional<List<Requirement>> optReqs = requirementRepo.findByHoaId(hoaId);
         if (optReqs.isEmpty()) throw new HoaDoesntExistException("Hoa with provided id does not exist");
         return optReqs.get();
     }
 
-    public Requirement addHOARequirement(long hoaId, String prompt) throws HoaDoesntExistException,
+    /**
+     * Adds an HOA requirement
+     *
+     * @param hoaId  id of HOA
+     * @param prompt String of added requirement's prompt
+     * @return Added Requirement entry
+     * @throws HoaDoesntExistException   Thrown if HOA with provided id does not exist in the database
+     * @throws RequirementAlreadyPresent Thrown if a requirement with the provided prompt exists in the HOA
+     */
+    public Requirement addHoaRequirement(long hoaId, String prompt) throws HoaDoesntExistException,
             RequirementAlreadyPresent {
         Optional<List<Requirement>> optReqs = requirementRepo.findByHoaId(hoaId);
         if (optReqs.isEmpty()) throw new HoaDoesntExistException("Hoa with provided id does not exist");
@@ -42,7 +58,14 @@ public class RequirementService {
         return newReq;
     }
 
-    public Requirement removeHOARequirement(long reqId) throws RequirementDoesNotExist {
+    /**
+     * Removes an HOA requirement
+     *
+     * @param reqId ID of requirement to remove
+     * @return Removed Requirement entry, if it exists
+     * @throws RequirementDoesNotExist Thrown if a requirement with the provided id does not exist in the database
+     */
+    public Requirement removeHoaRequirement(long reqId) throws RequirementDoesNotExist {
         Optional<Requirement> optReq = requirementRepo.findById(reqId);
         if (optReq.isEmpty()) throw new RequirementDoesNotExist("Requirement with provided id does not exist");
         requirementRepo.delete(optReq.get());

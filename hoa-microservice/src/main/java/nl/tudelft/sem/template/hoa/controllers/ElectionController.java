@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;

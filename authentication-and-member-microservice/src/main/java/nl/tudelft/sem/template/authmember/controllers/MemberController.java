@@ -7,7 +7,6 @@ import nl.tudelft.sem.template.authmember.authentication.JwtUserDetailsService;
 
 import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.Membership;
-import nl.tudelft.sem.template.authmember.domain.converters.MembershipConverter;
 import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
@@ -17,7 +16,6 @@ import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaEx
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
 import nl.tudelft.sem.template.authmember.models.RegistrationModel;
-import nl.tudelft.sem.template.authmember.models.MembershipResponseModel;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.HoaModel;
 import nl.tudelft.sem.template.authmember.models.AuthenticationResponseModel;
