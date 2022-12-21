@@ -3,12 +3,18 @@ package voting.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import voting.domain.BoardElection;
 import voting.domain.Election;
 import voting.domain.Proposal;
 import voting.exceptions.BoardElectionAlreadyCreated;
+import voting.exceptions.CannotProceedVote;
 import voting.exceptions.ElectionCannotBeCreated;
 import voting.exceptions.ElectionDoesNotExist;
 import voting.exceptions.ProposalAlreadyCreated;
@@ -16,6 +22,8 @@ import voting.models.VotingModel;
 import voting.services.ElectionService;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/voting")
@@ -40,10 +48,8 @@ public class ElectionController {
         try {
             Proposal proposal = electionService.createProposal(model);
             return ResponseEntity.ok(proposal);
-        } catch (ProposalAlreadyCreated e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Proposal already created", e);
-        } catch (ElectionCannotBeCreated e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create proposal", e);
+        } catch (ProposalAlreadyCreated | ElectionCannotBeCreated e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -59,10 +65,8 @@ public class ElectionController {
         try {
             BoardElection boardElection = electionService.createBoardElection(model);
             return ResponseEntity.ok(boardElection);
-        } catch (BoardElectionAlreadyCreated e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Board election already created", e);
-        } catch (ElectionCannotBeCreated e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create board election", e);
+        } catch (BoardElectionAlreadyCreated | ElectionCannotBeCreated e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -75,10 +79,10 @@ public class ElectionController {
     @PostMapping("/vote")
     public ResponseEntity<HttpStatus> vote(@RequestBody VotingModel model) {
         try {
-            electionService.vote(model.electionId, model.membershipId, model.choice);
+            electionService.vote(model, LocalDateTime.now());
             return ResponseEntity.ok().build();
-        } catch (ElectionDoesNotExist e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election with provided id was not found", e);
+        } catch (ElectionDoesNotExist | CannotProceedVote e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -94,25 +98,60 @@ public class ElectionController {
             Election e = electionService.getElection(electionId);
             return ResponseEntity.ok(e);
         } catch (ElectionDoesNotExist e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election with provided id was not found", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
     /**
      * Concludes an election based on id
      *
-     * @param id Id of election to be concluded
+     * @param electionId Id of election to be concluded
      * @return Object that contains the winners
      * Boolean if it's a proposal
      * List of winning candidates otherwise
      */
-    @GetMapping("/conclude/{id}")
-    public ResponseEntity<Object> concludeElection(@PathVariable("id") int id) {
+    @PostMapping("/conclude/{id}")
+    public ResponseEntity<Object> concludeElection(@PathVariable("id") int electionId) {
         try {
-            Object result = electionService.conclude(id);
+            Object result = electionService.conclude(electionId);
             return ResponseEntity.ok(result);
         } catch (ElectionDoesNotExist e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election with provided id was not found", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Adds a participant to board election
+     * Doesn't conduct background checks, relies on an eligible member being provided
+     * @param memberId - member that joins the election
+     * @param hoaId - id of hoa for which the election is held
+     * @return true if member is added as participant, false if there is no election ongoing
+     */
+    @PostMapping("/joinElection/{memberId}/{hoaId}")
+    public ResponseEntity<Boolean> joinElection(@PathVariable String memberId, @PathVariable long hoaId) {
+        try {
+            boolean result = electionService.addParticipantToBoardElection(memberId, hoaId);
+            return ResponseEntity.ok(result);
+        } catch (ElectionDoesNotExist e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election for given HOA not found", e);
+        }
+    }
+
+    /**
+     * Removes a participant to board election
+     * @param memberId - member that leaves the election
+     * @param hoaId - id of hoa for which the election is held
+     * @return true if member is removes as participant,
+     * false if there is no election ongoing or the member didn't participate
+     */
+    @PostMapping("/leaveElection/{memberId}/{hoaId}")
+    public ResponseEntity<Boolean> leaveElection(@PathVariable String memberId, @PathVariable long hoaId) {
+        try {
+            boolean result = electionService.removeParticipantFromBoardElection(memberId, hoaId);
+            return ResponseEntity.ok(result);
+        } catch (ElectionDoesNotExist e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Election for given HOA not found or participant not partaking", e);
         }
     }
 }

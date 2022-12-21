@@ -8,10 +8,11 @@ import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -20,13 +21,12 @@ import java.util.stream.Collectors;
 public class BoardElection extends Election {
 
     private int amountOfWinners;
-    private String status;
 
     @Convert(converter = CandidatesConverter.class)
-    private List<Integer> candidates;
+    private List<String> candidates;
 
     @Convert(converter = BoardElectionVotesConverter.class)
-    private HashMap<Integer, Integer> votes;
+    private Map<String, String> votes;
 
     /**
      * Create a board election
@@ -38,29 +38,45 @@ public class BoardElection extends Election {
      * @param amountOfWinners Amount of winners for this board election
      * @param candidates      List of member ids of board candidates
      */
-    public BoardElection(String name, String description, int hoaId, LocalDateTime scheduledFor, int amountOfWinners,
-                         ArrayList<Integer> candidates) {
+    public BoardElection(String name, String description, long hoaId, LocalDateTime scheduledFor, int amountOfWinners,
+                         List<String> candidates) {
         super(name, description, hoaId, scheduledFor);
         this.amountOfWinners = amountOfWinners;
         this.candidates = candidates;
-        status = "scheduled";
         votes = new HashMap<>();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    private boolean canParticipate(Integer memberId) {
-        return true;
+    public int getAmountOfWinners() {
+        return amountOfWinners;
+    }
+
+    public void setAmountOfWinners(int amountOfWinners) {
+        this.amountOfWinners = amountOfWinners;
+    }
+
+    public List<String> getCandidates() {
+        return candidates;
+    }
+
+    public void setCandidates(List<String> candidates) {
+        this.candidates = candidates;
+    }
+
+    public Map<String, String> getVotes() {
+        return votes;
+    }
+
+    public void setVotes(Map<String, String> votes) {
+        this.votes = votes;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void vote(int membershipId, int voteChoice) {
-        if (this.status.equals("ongoing") && canParticipate(membershipId)) {
-            votes.put(membershipId, voteChoice);
+    public void vote(String memberId, Object voteChoice) {
+        if (getStatus().equals("ongoing") && candidates.contains((String) voteChoice)) {
+            votes.put(memberId, (String) voteChoice);
             this.incrementVoteCount();
         }
     }
@@ -68,22 +84,39 @@ public class BoardElection extends Election {
     /**
      * Calculates the outcome of a board election
      *
-     * @return List of winners, capped if less than amountOfWinners
+     * @return Set of winners, capped if less than amountOfWinners
      */
-    public List<Integer> findOutcome() {
-        return votes.values()
+    public Set<String> findOutcome() {
+        var votesByCandidate = votes.entrySet().stream()
+                // Map candidateIds (values) to keys, and vote counts to values
+                .collect(Collectors.toMap(Map.Entry::getValue,
+                        e -> votes.values().stream().filter(ee -> ee.equals(e.getValue())).count(),
+                        Long::sum));
+        return votesByCandidate.entrySet()
                 .stream()
-                .sorted(Collections.reverseOrder())
+                // Master sort by number of votes, candidate application order as a tie-breaker
+                .sorted(Comparator.comparing(i -> candidates.indexOf(i.getKey())))
+                .sorted(Comparator.comparing(i -> -i.getValue()))
                 .limit(Math.min(amountOfWinners, candidates.size()))
-                .collect(Collectors.toList());
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     /**
      * {@inheritDoc}
      */
-    public List<Integer> conclude() {
-        List<Integer> currentWinners = findOutcome();
-        status = "finished";
+    @Override
+    public Set<String> conclude() {
+        Set<String> currentWinners = findOutcome();
+        this.setStatus("finished");
         return currentWinners;
+    }
+
+    public void addParticipant(String memberId) {
+        this.candidates.add(memberId);
+    }
+
+    public boolean removeParticipant(String memberId) {
+        return this.candidates.remove(memberId);
     }
 }

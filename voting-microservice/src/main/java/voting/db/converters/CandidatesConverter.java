@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Converter
-public class CandidatesConverter implements AttributeConverter<List<Integer>, String> {
+public class CandidatesConverter implements AttributeConverter<List<String>, String> {
 
 	@Override
-	public String convertToDatabaseColumn(List<Integer> candidates) {
+	public String convertToDatabaseColumn(List<String> candidates) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(candidates.stream().map(i -> i + ",").collect(Collectors.joining()));
 		if (sb.length() != 0) sb.deleteCharAt(sb.length() - 1);
@@ -19,9 +19,9 @@ public class CandidatesConverter implements AttributeConverter<List<Integer>, St
 	}
 
 	@Override
-	public List<Integer> convertToEntityAttribute(String dbData) {
+	public List<String> convertToEntityAttribute(String dbData) {
 		if (dbData.equals("")) return new ArrayList<>();
 		if (dbData.isEmpty()) return new ArrayList<>();
-		return Arrays.stream(dbData.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+		return Arrays.stream(dbData.split(",")).collect(Collectors.toList());
 	}
 }
