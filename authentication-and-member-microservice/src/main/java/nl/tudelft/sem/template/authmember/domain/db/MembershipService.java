@@ -33,11 +33,11 @@ public class MembershipService {
      * @throws MemberAlreadyInHoaException if there is an active membership for that HOA.
      */
     public void saveMembership(JoinHoaModel model) throws MemberAlreadyInHoaException, BadJoinHoaModelException {
-        if (validateCountryCityStreet(model.getAddress().getCity())
-                || validateCountryCityStreet(model.getAddress().getCountry())
-                || validateCountryCityStreet(model.getAddress().getStreet())
-                || validateStreetNumber(model.getAddress().getHouseNumber())
-                || validatePostalCode(model.getAddress().getPostalCode())) {
+        if (!validateCountryCityStreet(model.getAddress().getCity())
+                || !validateCountryCityStreet(model.getAddress().getCountry())
+                || !validateCountryCityStreet(model.getAddress().getStreet())
+                || !validateStreetNumber(model.getAddress().getHouseNumber())
+                || !validatePostalCode(model.getAddress().getPostalCode())) {
             throw new BadJoinHoaModelException("Bad model!");
         }
         if (memberRepository.findByMemberId(model.getMemberId()).isEmpty()) {

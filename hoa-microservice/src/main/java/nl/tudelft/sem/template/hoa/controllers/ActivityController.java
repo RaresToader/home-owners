@@ -82,14 +82,10 @@ public class ActivityController {
     @GetMapping("/activity/publicBoard/{hoaId}/{membershipId}")
     public ResponseEntity<List<Activity>> getPublicBoard(@PathVariable long hoaId,
                                                          @PathVariable long membershipId) {
-        try {
-            if (this.activityService.isInThisHoa(membershipId, hoaId)) {
-                return ResponseEntity.ok(this.activityService.updateAndRetrieveActivities(hoaId));
-            } else {
-                return ResponseEntity.badRequest().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+        if (this.activityService.isInThisHoa(membershipId, hoaId)) {
+            return ResponseEntity.ok(this.activityService.updateAndRetrieveActivities(hoaId));
+        } else {
+            return ResponseEntity.badRequest().build();
         }
     }
 
