@@ -1,5 +1,8 @@
 package nl.tudelft.sem.template.hoa.controllers;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
@@ -10,7 +13,9 @@ import nl.tudelft.sem.template.hoa.domain.Requirement;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.RequirementAlreadyPresent;
 import nl.tudelft.sem.template.hoa.exception.RequirementDoesNotExist;
+import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
+import nl.tudelft.sem.template.hoa.models.TimeModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 
 /**
  * The controller for the association.
@@ -56,9 +62,18 @@ public class HoaController {
     public ResponseEntity<Hoa> register(@RequestBody HoaRequestModel request) {
         try {
             Hoa newHoa = this.hoaService.registerHoa(request);
-            return ResponseEntity.ok(newHoa);
+            Integer[] nums = Arrays.stream(LocalDateTime.now().plusWeeks(2)
+                    .format(DateTimeFormatter.ISO_DATE_TIME)
+                    .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new);
+            // start automatic annual board election
+            Object e = ElectionUtils.cyclicCreateBoardElection(new BoardElectionRequestModel(newHoa.getId(),
+                    1, List.of(), "Annual board election",
+                    "This is the auto-generated annual board eletion", new TimeModel(nums)));
+            if (e != null) return ResponseEntity.ok(newHoa);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not create a board election");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+
         }
     }
 

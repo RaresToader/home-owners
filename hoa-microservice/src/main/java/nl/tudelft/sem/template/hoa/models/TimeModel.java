@@ -16,6 +16,15 @@ public class TimeModel {
     public int month;
     public int year;
 
+    public TimeModel (Integer[] nums) {
+        this.year = nums[0];
+        this.month = nums[1];
+        this.day = nums[2];
+        this.hours = nums[3];
+        this.minutes = nums[4];
+        this.seconds = nums[5];
+    }
+
     public boolean isValid() {
         return createDate() != null;
     }

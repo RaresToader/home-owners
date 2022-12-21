@@ -6,6 +6,7 @@ import nl.tudelft.sem.template.hoa.domain.electionchecks.NotInAnyOtherBoardValid
 import nl.tudelft.sem.template.hoa.domain.electionchecks.TimeInCurrentHoaValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.Validator;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
+import nl.tudelft.sem.template.hoa.models.TimeModel;
 import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
@@ -84,9 +88,8 @@ public class ElectionController {
         try {
             if (!model.memberId.equals(authManager.getMemberId()))
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
-            ResponseEntity<Object> e = getObjectResponseEntity(model.electionId, true, token);
-            if (e != null) return ResponseEntity.ok(ElectionUtils.vote(model));
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vote is unsuccessful.");
+            fetchElectionAsEntity(model.electionId, true, token);
+            return ResponseEntity.ok(ElectionUtils.vote(model));
         } catch (ResponseStatusException e) {
             throw new ResponseStatusException(e.getStatus(), e.getMessage(), e);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -104,9 +107,7 @@ public class ElectionController {
     public ResponseEntity<Object> getElectionById(@PathVariable("id") int electionId,
                                                   @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            ResponseEntity<Object> e = getObjectResponseEntity(electionId, false, token);
-            if (e != null) return e;
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election fetch was not successful.");
+            return fetchElectionAsEntity(electionId, false, token);
         } catch (ResponseStatusException e) {
             throw new ResponseStatusException(e.getStatus(), e.getMessage(), e);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -126,8 +127,16 @@ public class ElectionController {
     public ResponseEntity<Object> concludeElection(@PathVariable("id") int electionId,
                                                    @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            ResponseEntity<Object> e1 = getObjectResponseEntity(electionId, true, token);
-            if (e1 != null) return e1;
+            ResponseEntity<Object> e = fetchElectionAsEntity(electionId, true, token);
+            // start automatic annual board election
+            LocalDateTime scheduledFor = (LocalDateTime) e.getClass().getDeclaredField("scheduledFor").get(e);
+            long hoaId = (Long) e.getClass().getDeclaredField("hoaId").get(e);
+            Integer[] nums = Arrays.stream(scheduledFor.plusYears(1)
+                    .format(DateTimeFormatter.ISO_DATE_TIME)
+                    .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new);
+            ElectionUtils.cyclicCreateBoardElection(new BoardElectionRequestModel(hoaId, 1,
+                    List.of(), "Annual board election",
+                    "This is the auto-generated annual board eletion", new TimeModel(nums)));
             return ResponseEntity.ok(ElectionUtils.concludeElection(electionId));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot vote", e);
@@ -200,21 +209,24 @@ public class ElectionController {
      * @param electionId Id of election to fetch
      * @param token      Authorization token used for validation
      * @return A response entity containing the fetched Election as an Object, if it exists
-     * @throws IllegalAccessException Thrown if fetched object does not have required fields
      */
-    private ResponseEntity<Object> getObjectResponseEntity(@PathVariable("id") int electionId, boolean boardCheck,
-                                                           @RequestHeader(HttpHeaders.AUTHORIZATION) String token)
+    private ResponseEntity<Object> fetchElectionAsEntity(@PathVariable("id") int electionId, boolean boardCheck,
+                                                         @RequestHeader(HttpHeaders.AUTHORIZATION) String token)
             throws IllegalAccessException, InvocationTargetException {
         Object e = ElectionUtils.getElectionById(electionId);
-        for (Method method : e.getClass().getDeclaredMethods()) {
-            if (method.getName().equals("getHoaId")) {
-                Object value = method.invoke(e);
-                if (value == null) throw new IllegalArgumentException("Election fetch was not successful.");
-                validateMemberInHOA((long) value, authManager.getMemberId(),
-                        !boardCheck || e.getClass().getName().equals("Proposal"), token);
-                return ResponseEntity.ok(e);
+        try {
+            for (Method method : e.getClass().getDeclaredMethods()) {
+                if (method.getName().equals("getHoaId")) {
+                    Object value = method.invoke(e);
+                    if (value == null) continue;
+                    validateMemberInHOA((long) value, authManager.getMemberId(),
+                            !boardCheck || e.getClass().getName().equals("Proposal"), token);
+                    return ResponseEntity.ok(e);
+                }
             }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election fetch was not successful");
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
         }
-        return null;
     }
 }

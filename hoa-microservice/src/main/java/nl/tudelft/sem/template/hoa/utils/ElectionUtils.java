@@ -6,6 +6,7 @@ import nl.tudelft.sem.template.hoa.models.VotingModel;
 import org.springframework.http.HttpStatus;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+
 import javax.inject.Singleton;
 import javax.ws.rs.client.Entity;
 
@@ -38,6 +39,20 @@ public class ElectionUtils {
      */
     public static Object createBoardElection(BoardElectionRequestModel model) {
         return client.target(server).path("boardElection/")
+                .request(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .post(Entity.entity(model, APPLICATION_JSON), Object.class);
+    }
+
+    /**
+     * Creates a board election request that is cyclically gated to this microservice's controller
+     * Used for automatic board election creation
+     *
+     * @param model the model for the board election
+     * @return the created board election
+     */
+    public static Object cyclicCreateBoardElection(BoardElectionRequestModel model) {
+        return client.target("http://localhost:8084/voting/").path("boardElection/")
                 .request(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .post(Entity.entity(model, APPLICATION_JSON), Object.class);
@@ -88,9 +103,9 @@ public class ElectionUtils {
     public static boolean joinElection(String memberID, long hoaID) {
         try {
             return client.target(server).path("joinElection/" + memberID + "/" + hoaID)
-                .request(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .post(null, Boolean.class);
+                    .request(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .post(null, Boolean.class);
         } catch (Exception e) {
             throw new IllegalArgumentException("The HOA has no running election.");
 
@@ -102,10 +117,10 @@ public class ElectionUtils {
      */
     public static boolean leaveElection(String memberID, long hoaID) {
         try {
-            return client.target(server).path("leaveElection/" + memberID + "/" +  hoaID)
-                .request(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .post(null, Boolean.class);
+            return client.target(server).path("leaveElection/" + memberID + "/" + hoaID)
+                    .request(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .post(null, Boolean.class);
         } catch (Exception e) {
             throw new IllegalArgumentException("The HOA has no running election or the member did not participate.");
 
