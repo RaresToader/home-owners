@@ -17,6 +17,7 @@ import voting.models.ProposalModel;
 import voting.models.VotingModel;
 
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +65,29 @@ public class ElectionService {
                     + "already exists.");
         else {
             Proposal proposal = (Proposal) new ProposalElectionFactory().createElection(model);
+            electionRepository.save(proposal);
+            return proposal;
+        }
+    }
+
+
+    /**
+     * Creates a proposal
+     *
+     * @param model Model from which to create the proposal
+     * @return New proposal, if one does not exist with same hoaID and name
+     * @throws ProposalAlreadyCreated If proposal for the given HoaID and name already exists
+     */
+    public Proposal createProposal(ProposalModel model, TemporalAmount startAfter) throws ProposalAlreadyCreated, ElectionCannotBeCreated {
+        if (!model.isValid()) throw new ElectionCannotBeCreated("Some/all of the provided fields are invalid");
+        if (electionRepository.existsByHoaIdAndName(model.hoaId, model.name))
+            throw new ProposalAlreadyCreated("Proposal with hoaId: "
+                + model.hoaId
+                + "and name: "
+                + model.name
+                + "already exists.");
+        else {
+            Proposal proposal = (Proposal) new ProposalElectionFactory().createElection(model, startAfter);
             electionRepository.save(proposal);
             return proposal;
         }
