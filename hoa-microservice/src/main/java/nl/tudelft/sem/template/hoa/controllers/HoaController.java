@@ -15,14 +15,19 @@ import nl.tudelft.sem.template.hoa.exception.RequirementAlreadyPresent;
 import nl.tudelft.sem.template.hoa.exception.RequirementDoesNotExist;
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
+import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import nl.tudelft.sem.template.hoa.models.TimeModel;
+import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
@@ -31,6 +36,7 @@ import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
  * The controller for the association.
  */
 @RestController
+@RequestMapping("/hoa")
 public class HoaController {
 
     private final transient HoaService hoaService;
@@ -58,7 +64,7 @@ public class HoaController {
      * @param request the possible new Hoa
      * @return 200 OK if the registration is successful
      */
-    @PostMapping("/hoa/create")
+    @PostMapping("/create")
     public ResponseEntity<Hoa> register(@RequestBody HoaRequestModel request) {
         try {
             Hoa newHoa = this.hoaService.registerHoa(request);
@@ -73,7 +79,6 @@ public class HoaController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not create a board election");
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-
         }
     }
 
@@ -83,7 +88,7 @@ public class HoaController {
      *
      * @return all HOAs in the database
      */
-    @GetMapping("/hoa/getAll")
+    @GetMapping("/getAll")
     public ResponseEntity<List<Hoa>> getAll() {
         try {
             return ResponseEntity.ok(hoaService.getAllHoa());
@@ -98,7 +103,7 @@ public class HoaController {
      * @param id the id of the HOA to be retrieved
      * @return the HOA
      */
-    @GetMapping("/hoa/getById/{id}")
+    @GetMapping("/getById/{id}")
     public ResponseEntity<Hoa> getById(@PathVariable long id) {
         try {
             return ResponseEntity.ok(hoaService.getHoaById(id));
@@ -113,7 +118,7 @@ public class HoaController {
      * @param hoaId id of HOA to fetch requirements from
      * @return List of requirements of an HOA, if it exists
      */
-    @GetMapping("/hoa/getRequirements/{id}")
+    @GetMapping("/getRequirements/{hoaId}")
     public ResponseEntity<List<Requirement>> getRequirements(@PathVariable long hoaId) {
         try {
             if (hoaRepo.findById(hoaId).isEmpty())
@@ -131,7 +136,7 @@ public class HoaController {
      * @param prompt String to represent the requirement added
      * @return Added requirement object
      */
-    @PostMapping("/hoa/addRequirement/{id}")
+    @PostMapping("/addRequirement/{id}")
     public ResponseEntity<Requirement> addRequirement(@PathVariable long hoaId,
                                                       @RequestBody String prompt) {
         try {
@@ -148,11 +153,27 @@ public class HoaController {
      * @param reqId ID of requirement to remove
      * @return Removed requirement, if one with the provided id exists
      */
-    @PostMapping("/hoa/removeRequirement/{id}")
+    @PostMapping("/removeRequirement/{id}")
     public ResponseEntity<Requirement> removeRequirements(@PathVariable long reqId) {
         try {
             Requirement req = requirementService.removeHoaRequirement(reqId);
             return ResponseEntity.ok(req);
+        } catch (RequirementDoesNotExist e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+    @PostMapping("/report/{memberId}/{reqId}")
+    public ResponseEntity<Boolean> reportUser(@PathVariable String memberId, @PathVariable long reqId,
+                                              @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        try {
+            List<MembershipResponseModel> memberships =
+                    MembershipUtils.getActiveMembershipsForUser(memberId, token);
+            Requirement req = requirementService.getHoaRequirement(reqId);
+            if (memberships.stream().noneMatch(m -> m.getHoaId() == req.getHoaId()))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
+            hoaService.report(memberId, reqId);
+            return ResponseEntity.ok(true);
         } catch (RequirementDoesNotExist e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }

@@ -1,13 +1,18 @@
 package nl.tudelft.sem.template.hoa.domain;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.hoa.db.ReportsConverter;
 
 
 /**
@@ -35,6 +40,10 @@ public class Hoa {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
+    @Column(name = "reports", nullable = false)
+    @Convert(converter = ReportsConverter.class)
+    private Map<String, List<Long>> reports;
+
 
     public long getId() {
         return id;
@@ -52,6 +61,8 @@ public class Hoa {
         return name;
     }
 
+    public Map<String, List<Long>> getReports() { return reports; }
+
     /**
      * Private constructor for the HOA class.
      *
@@ -63,6 +74,7 @@ public class Hoa {
         this.country = country;
         this.city = city;
         this.name = name;
+        this.reports = new HashMap<>();
     }
 
     /**
@@ -77,6 +89,9 @@ public class Hoa {
         return new Hoa(country, city, name);
     }
 
+    public void report(String memberId, Long report) {
+        reports.get(memberId).add(report);
+    }
     /**
      * Equals method for HOA class.
      *

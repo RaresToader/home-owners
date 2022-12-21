@@ -5,11 +5,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import nl.tudelft.sem.template.hoa.domain.Hoa;
+import nl.tudelft.sem.template.hoa.domain.Requirement;
 import nl.tudelft.sem.template.hoa.exception.BadFormatHoaException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.HoaNameAlreadyTakenException;
 import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * A DDD service for hoa-related queries.
@@ -17,14 +20,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class HoaService {
     private final transient HoaRepo hoaRepo;
+    private final RequirementRepo requirementRepo;
 
     /**
      * Constructor for the HoaService.
      *
      * @param hoaRepo the hoa repository
      */
-    public HoaService(HoaRepo hoaRepo) {
+    public HoaService(HoaRepo hoaRepo,
+                      RequirementRepo requirementRepo) {
         this.hoaRepo = hoaRepo;
+        this.requirementRepo = requirementRepo;
     }
 
     /**
@@ -85,6 +91,15 @@ public class HoaService {
         return newHoa;
     }
 
+    public void report(String memberId, long reqId) {
+        Optional<Requirement> req = requirementRepo.findById(reqId);
+        if (req.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requirement has no associated HOA");
+        Optional<Hoa> hoa = hoaRepo.findById(req.get().getHoaId());
+        if (hoa.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Associated HOA does not exist");
+        hoa.get().report(memberId, reqId);
+    }
     /**
      * This method checks that a country/city has the correct format.
      * This means that it must have maximum 50 characters, only letters (only ASCII), whitespaces are admissible,
