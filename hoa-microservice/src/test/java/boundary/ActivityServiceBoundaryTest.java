@@ -19,7 +19,7 @@ public class ActivityServiceBoundaryTest {
 
     private transient ActivityService activityService;
 
-    private final transient String TEST = "Test";
+    private final transient String test = "Test";
 
     @BeforeEach
     void setUp() {
@@ -55,7 +55,7 @@ public class ActivityServiceBoundaryTest {
     @Test
     public void validateActivityOffPoint() {
         LocalDateTime time = LocalDateTime.now();
-        ActivityRequestModel model = new ActivityRequestModel(TEST, TEST, 1L, time,
+        ActivityRequestModel model = new ActivityRequestModel(test, test, 1L, time,
                 LocalTime.of(2, 10));
         Assertions.assertFalse(activityService.validateActivity(model, time));
     }
@@ -63,7 +63,7 @@ public class ActivityServiceBoundaryTest {
     @Test
     public void validateActivityOnPoint() {
         LocalDateTime time = LocalDateTime.now();
-        ActivityRequestModel model = new ActivityRequestModel(TEST, TEST, 1L, time,
+        ActivityRequestModel model = new ActivityRequestModel(test, test, 1L, time,
                 LocalTime.of(2, 10));
         Assertions.assertTrue(activityService.validateActivity(model, time.minusNanos(1L)));
     }
