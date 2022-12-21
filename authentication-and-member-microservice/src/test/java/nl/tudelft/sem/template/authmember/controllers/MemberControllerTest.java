@@ -18,7 +18,9 @@ import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
 import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import nl.tudelft.sem.template.authmember.services.HoaService;
 import nl.tudelft.sem.template.authmember.utils.HoaUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,18 +37,20 @@ import org.springframework.test.web.servlet.ResultActions;
 public class MemberControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private transient MockMvc mockMvc;
 
     @Autowired
-    private MemberRepository memberRepository;
+    private transient MemberRepository memberRepository;
 
     @Autowired
-    private MembershipRepository membershipRepository;
+    private transient MembershipRepository membershipRepository;
 
     @Autowired
-    private HoaService hoaService;
+    private transient HoaService hoaService;
 
-
+    private final transient String m_id = "john_doe";
+    private final transient String secret = "password123";
+    private final transient String API = "/member/register";
 
     @Autowired
     private transient MemberController memberController;
@@ -58,22 +62,24 @@ public class MemberControllerTest {
     @BeforeEach
     void setup() {
         Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn("ExampleUser");
-//        Mockito.when(this.hoaUtils.getHoaById(1)).thenReturn(new HoaResponseModel());
+        // Mockito.when(this.hoaUtils.getHoaById(1)).thenReturn(new HoaResponseModel());
         memberController.setAuthenticationManager(mockAuthenticationManager);
     }
 
-//    @BeforeEach
-//    public void setup() throws IllegalAccessException {
-//
-//    }
+    //    @BeforeEach
+    //    public void setup() throws IllegalAccessException {
+    //
+    //    }
 
     void insertMember() {
-        Member member = new Member("john_doe", new HashedPassword("password123"));
+        Member member = new Member(m_id, new HashedPassword(secret));
         memberRepository.save(member);
     }
 
-    void insertHoa(JoinHoaModel member) throws MemberDifferentAddressException, MemberAlreadyInHoaException, BadJoinHoaModelException {
-        hoaService.joinHoa(member);
+    void insertHoa(JoinHoaModel member)
+            throws MemberDifferentAddressException,
+            MemberAlreadyInHoaException, BadJoinHoaModelException {
+    //        hoaService.joinHoa(member);
     }
 
     @AfterEach
@@ -84,36 +90,37 @@ public class MemberControllerTest {
 
     @Test
     public void getAllEmpty() throws Exception {
-//        ResultActions resultActions = mockMvc.perform(get("/member/get/1")
-//                .contentType(MediaType.APPLICATION_JSON));
-//        resultActions.andExpect(status().isOk());
+    //        ResultActions resultActions = mockMvc.perform(get("/member/get/1")
+    //                .contentType(MediaType.APPLICATION_JSON));
+    //        resultActions.andExpect(status().isOk());
     }
+
     @Test
     void register() throws Exception {
-        RegistrationModel request = new RegistrationModel("john_doe", "password123");
-        ResultActions resultActions = mockMvc.perform(post("/member/register")
+        RegistrationModel request = new RegistrationModel(m_id, secret);
+        ResultActions resultActions = mockMvc.perform(post(API)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(request)));
 
         resultActions.andExpect(status().isOk()); // this asserts that we get a 200 ok response
 
-//        Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn("john_doe");
-//
-//        resultActions = mockMvc.perform(get("/member/get/john_doe")
-//                .contentType(MediaType.APPLICATION_JSON));
-//
-//        MvcResult result = resultActions.andExpect(jsonPath("$.memberId").isString()).andReturn();
-//        Member expected = JsonUtil.deserialize(result.getResponse().getContentAsString(), Member.class);
-//        Assertions.assertTrue(memberRepository.findByMemberId("john_doe").isPresent());
-//        Member actual = memberRepository.findById("john_doe").get();
-//        Assertions.assertEquals(expected, actual);
-//        Assertions.assertEquals(JsonUtil.serialize(expected), JsonUtil.serialize(actual));
+        //        Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn(m_id);
+        //
+        //        resultActions = mockMvc.perform(get("/member/get/john_doe")
+        //                .contentType(MediaType.APPLICATION_JSON));
+        //
+        //        MvcResult result = resultActions.andExpect(jsonPath("$.memberId").isString()).andReturn();
+        //        Member expected = JsonUtil.deserialize(result.getResponse().getContentAsString(), Member.class);
+        //        Assertions.assertTrue(memberRepository.findByMemberId(m_id).isPresent());
+        //        Member actual = memberRepository.findById(m_id).get();
+        //        Assertions.assertEquals(expected, actual);
+        //        Assertions.assertEquals(JsonUtil.serialize(expected), JsonUtil.serialize(actual));
     }
 
     @Test
     void registerShortName() throws Exception {
-        RegistrationModel request = new RegistrationModel("john", "password123");
-        ResultActions resultActions = mockMvc.perform(post("/member/register")
+        RegistrationModel request = new RegistrationModel("john", secret);
+        ResultActions resultActions = mockMvc.perform(post(API)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(request)));
 
@@ -122,8 +129,8 @@ public class MemberControllerTest {
 
     @Test
     void registerShortPassword() throws Exception {
-        RegistrationModel request = new RegistrationModel("john_doe", "pass");
-        ResultActions resultActions = mockMvc.perform(post("/member/register")
+        RegistrationModel request = new RegistrationModel(m_id, "pass");
+        ResultActions resultActions = mockMvc.perform(post(API)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(request)));
 
@@ -132,13 +139,13 @@ public class MemberControllerTest {
 
     @Test
     void registerTwiceSameName() throws Exception {
-        RegistrationModel request = new RegistrationModel("john_doe", "password123");
-        ResultActions resultActions = mockMvc.perform(post("/member/register")
+        RegistrationModel request = new RegistrationModel(m_id, secret);
+        ResultActions resultActions = mockMvc.perform(post(API)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(request)));
 
         resultActions.andExpect(status().isOk()); // this asserts that we get a 200 ok response
-        resultActions = mockMvc.perform(post("/member/register")
+        resultActions = mockMvc.perform(post(API)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(request)));
 
@@ -147,19 +154,19 @@ public class MemberControllerTest {
 
     @Test
     void updatePassword() throws Exception {
-//        insertMember();
-//        RegistrationModel request = new RegistrationModel("john_doe", "password123_new");
-//        ResultActions resultActions = mockMvc.perform(post("/member/updatePassword")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(JsonUtil.serialize(request)));
-//
-//        resultActions.andExpect(status().isOk()); // this asserts that we get a 400 BadRequest response
+        //        insertMember();
+        //        RegistrationModel request = new RegistrationModel(m_id, "password123_new");
+        //        ResultActions resultActions = mockMvc.perform(post("/member/updatePassword")
+        //                .contentType(MediaType.APPLICATION_JSON)
+        //                .content(JsonUtil.serialize(request)));
+        //
+        //        resultActions.andExpect(status().isOk()); // this asserts that we get a 400 BadRequest response
     }
 
     @Test
     void updatePasswordShort() throws Exception {
         insertMember();
-        RegistrationModel request = new RegistrationModel("john_doe", "pass");
+        RegistrationModel request = new RegistrationModel(m_id, "pass");
         ResultActions resultActions = mockMvc.perform(post("/member/updatePassword")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(request)));
@@ -169,7 +176,7 @@ public class MemberControllerTest {
 
     @Test
     void updatePasswordNoRegistration() throws Exception {
-        RegistrationModel request = new RegistrationModel("john_doe", "password123");
+        RegistrationModel request = new RegistrationModel(m_id, secret);
         ResultActions resultActions = mockMvc.perform(post("/member/updatePassword")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(request)));
@@ -179,11 +186,11 @@ public class MemberControllerTest {
 
     @Test
     public void getMember() throws Exception {
-//        insertMember();
-//        ResultActions resultActions = mockMvc.perform(get("/member/get/john_doe")
-//                .contentType(MediaType.APPLICATION_JSON));
-//
-//        resultActions.andExpect(status().isBadRequest()); // this asserts that we get a 400 BadRequest response
+        //        insertMember();
+        //        ResultActions resultActions = mockMvc.perform(get("/member/get/john_doe")
+        //                .contentType(MediaType.APPLICATION_JSON));
+        //
+        //        resultActions.andExpect(status().isBadRequest()); // this asserts that we get a 400 BadRequest response
     }
 
     @Test
@@ -198,8 +205,8 @@ public class MemberControllerTest {
     void joinHoa() throws Exception {
         insertMember();
         JoinHoaModel request = new JoinHoaModel();
-        request.setMemberId("john_doe");
-        request.setHoaId(1l);
+        request.setMemberId(m_id);
+        request.setHoaId(1L);
         request.setAddress(new Address("Netherlands", "Delft", "Drebelweg", "14", "1111AA"));
         ResultActions resultActions = mockMvc.perform(post("/member/joinHOA")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -212,8 +219,8 @@ public class MemberControllerTest {
     void joinHoaNoHoa() throws Exception {
         insertMember();
         JoinHoaModel request = new JoinHoaModel();
-        request.setMemberId("john_doe");
-        request.setHoaId(1l);
+        request.setMemberId(m_id);
+        request.setHoaId(1L);
         request.setAddress(new Address("Netherlands", "Delft", "Drebelweg", "14", "1111AA"));
         ResultActions resultActions = mockMvc.perform(post("/member/joinHOA")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -248,7 +255,7 @@ public class MemberControllerTest {
 
     @Test
     void authenticate() throws Exception {
-        RegistrationModel request = new RegistrationModel("john_doe", "password123");
+        RegistrationModel request = new RegistrationModel(m_id, secret);
         ResultActions resultActions = mockMvc.perform(post("/member/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(request)));

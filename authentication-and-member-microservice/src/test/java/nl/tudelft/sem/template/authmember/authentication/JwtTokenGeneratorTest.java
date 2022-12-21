@@ -24,16 +24,19 @@ public class JwtTokenGeneratorTest {
     private transient TimeProvider timeProvider;
     private transient Instant mockedTime = Instant.parse("2021-12-31T13:25:34.00Z");
     private final String secret = "testSecret123";
-    private String netId = "andy";
-    private UserDetails user;
+    private transient String memberId = "andy";
+    private transient UserDetails user;
 
+    /**
+     * Test setup.
+     */
     @BeforeEach
     public void setup() throws NoSuchFieldException, IllegalAccessException {
-        this.timeProvider = (TimeProvider)Mockito.mock(TimeProvider.class);
+        this.timeProvider = (TimeProvider) Mockito.mock(TimeProvider.class);
         Mockito.when(this.timeProvider.getCurrentTime()).thenReturn(this.mockedTime);
         this.jwtTokenGenerator = new JwtTokenGenerator(this.timeProvider);
         this.injectSecret("testSecret123");
-        this.user = new User(this.netId, "someHash", new ArrayList());
+        this.user = new User(this.memberId, "someHash", new ArrayList());
     }
 
     @Test
@@ -51,14 +54,15 @@ public class JwtTokenGeneratorTest {
     }
 
     @Test
-    public void generatedTokenHasCorrectNetId() {
+    public void generatedTokenHasCorrectmemberId() {
         String token = this.jwtTokenGenerator.generateToken(this.user);
         Claims claims = this.getClaims(token);
-        Assertions.assertThat(claims.getSubject()).isEqualTo(this.netId);
+        Assertions.assertThat(claims.getSubject()).isEqualTo(this.memberId);
     }
 
     private Claims getClaims(String token) {
-        return (Claims)Jwts.parser().setAllowedClockSkewSeconds(2147483647L).setSigningKey("testSecret123").parseClaimsJws(token).getBody();
+        return (Claims) Jwts.parser().setAllowedClockSkewSeconds(2147483647L)
+                .setSigningKey("testSecret123").parseClaimsJws(token).getBody();
     }
 
     private void injectSecret(String secret) throws NoSuchFieldException, IllegalAccessException {

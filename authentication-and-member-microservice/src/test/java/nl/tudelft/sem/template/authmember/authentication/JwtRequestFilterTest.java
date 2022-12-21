@@ -30,31 +30,31 @@ public class JwtRequestFilterTest {
     private transient HttpServletResponse mockResponse;
     private transient FilterChain mockFilterChain;
     private transient JwtTokenVerifier mockJwtTokenVerifier;
-
-    public JwtRequestFilterTest() {
-    }
-
+    private transient String token = "randomtoken123";
+    private transient String user = "user123";
+    private transient String auth = "Authorization";
+    /**
+     * Setup method
+     */
     @BeforeEach
     public void setup() {
-        this.mockRequest = (HttpServletRequest)Mockito.mock(HttpServletRequest.class);
-        this.mockResponse = (HttpServletResponse)Mockito.mock(HttpServletResponse.class);
-        this.mockFilterChain = (FilterChain)Mockito.mock(FilterChain.class);
-        this.mockJwtTokenVerifier = (JwtTokenVerifier)Mockito.mock(JwtTokenVerifier.class);
+        this.mockRequest = (HttpServletRequest) Mockito.mock(HttpServletRequest.class);
+        this.mockResponse = (HttpServletResponse) Mockito.mock(HttpServletResponse.class);
+        this.mockFilterChain = (FilterChain) Mockito.mock(FilterChain.class);
+        this.mockJwtTokenVerifier = (JwtTokenVerifier) Mockito.mock(JwtTokenVerifier.class);
         this.jwtRequestFilter = new JwtRequestFilter(this.mockJwtTokenVerifier);
-        SecurityContextHolder.getContext().setAuthentication((Authentication)null);
+        SecurityContextHolder.getContext().setAuthentication((Authentication) null);
     }
 
     @AfterEach
     public void assertChainContinues() throws ServletException, IOException {
-        ((FilterChain)Mockito.verify(this.mockFilterChain)).doFilter(this.mockRequest, this.mockResponse);
-        Mockito.verifyNoMoreInteractions(new Object[]{this.mockFilterChain});
+        ((FilterChain) Mockito.verify(this.mockFilterChain)).doFilter(this.mockRequest, this.mockResponse);
+        Mockito.verifyNoMoreInteractions(new Object[]{ this.mockFilterChain });
     }
 
     @Test
     public void correctToken() throws ServletException, IOException {
-        String token = "randomtoken123";
-        String user = "user123";
-        Mockito.when(this.mockRequest.getHeader("Authorization")).thenReturn("Bearer " + token);
+        Mockito.when(this.mockRequest.getHeader(auth)).thenReturn("Bearer " + token);
         Mockito.when(this.mockJwtTokenVerifier.validateToken(token)).thenReturn(true);
         Mockito.when(this.mockJwtTokenVerifier.getMemberIdFromToken(token)).thenReturn(user);
         this.jwtRequestFilter.doFilterInternal(this.mockRequest, this.mockResponse, this.mockFilterChain);
@@ -63,21 +63,20 @@ public class JwtRequestFilterTest {
 
     @Test
     public void invalidToken() throws ServletException, IOException {
-        String token = "randomtoken123";
-        String user = "user123";
-        Mockito.when(this.mockRequest.getHeader("Authorization")).thenReturn("Bearer " + token);
+        Mockito.when(this.mockRequest.getHeader(auth)).thenReturn("Bearer " + token);
         Mockito.when(this.mockJwtTokenVerifier.validateToken(token)).thenReturn(false);
         Mockito.when(this.mockJwtTokenVerifier.getMemberIdFromToken(token)).thenReturn(user);
         this.jwtRequestFilter.doFilterInternal(this.mockRequest, this.mockResponse, this.mockFilterChain);
         Assertions.assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 
+    /**
+     * Parametrized test.
+     */
     @ParameterizedTest
     @MethodSource({"tokenVerificationExceptionGenerator"})
     public void tokenVerificationException(Class<? extends Throwable> throwable) throws ServletException, IOException {
-        String token = "randomtoken123";
-        String user = "user123";
-        Mockito.when(this.mockRequest.getHeader("Authorization")).thenReturn("Bearer " + token);
+        Mockito.when(this.mockRequest.getHeader(auth)).thenReturn("Bearer " + token);
         Mockito.when(this.mockJwtTokenVerifier.validateToken(token)).thenThrow(throwable);
         Mockito.when(this.mockJwtTokenVerifier.getMemberIdFromToken(token)).thenReturn(user);
         this.jwtRequestFilter.doFilterInternal(this.mockRequest, this.mockResponse, this.mockFilterChain);
@@ -85,21 +84,20 @@ public class JwtRequestFilterTest {
     }
 
     private static Stream<Arguments> tokenVerificationExceptionGenerator() {
-        return Stream.of(Arguments.of(new Object[]{ExpiredJwtException.class}), Arguments.of(new Object[]{IllegalArgumentException.class}), Arguments.of(new Object[]{JwtException.class}));
+        return Stream.of(Arguments.of(new Object[]{ExpiredJwtException.class}),
+                Arguments.of(new Object[]{IllegalArgumentException.class}), Arguments.of(new Object[]{JwtException.class}));
     }
 
     @Test
     public void nullToken() throws ServletException, IOException {
-        Mockito.when(this.mockRequest.getHeader("Authorization")).thenReturn((String) null);
+        Mockito.when(this.mockRequest.getHeader(auth)).thenReturn((String) null);
         this.jwtRequestFilter.doFilterInternal(this.mockRequest, this.mockResponse, this.mockFilterChain);
         Assertions.assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 
     @Test
     public void invalidPrefix() throws ServletException, IOException {
-        String token = "randomtoken123";
-        String user = "user123";
-        Mockito.when(this.mockRequest.getHeader("Authorization")).thenReturn("Bearer1 " + token);
+        Mockito.when(this.mockRequest.getHeader(auth)).thenReturn("Bearer1 " + token);
         Mockito.when(this.mockJwtTokenVerifier.validateToken(token)).thenReturn(true);
         Mockito.when(this.mockJwtTokenVerifier.getMemberIdFromToken(token)).thenReturn(user);
         this.jwtRequestFilter.doFilterInternal(this.mockRequest, this.mockResponse, this.mockFilterChain);
@@ -108,9 +106,7 @@ public class JwtRequestFilterTest {
 
     @Test
     public void noPrefix() throws ServletException, IOException {
-        String token = "randomtoken123";
-        String user = "user123";
-        Mockito.when(this.mockRequest.getHeader("Authorization")).thenReturn(token);
+        Mockito.when(this.mockRequest.getHeader(auth)).thenReturn(token);
         Mockito.when(this.mockJwtTokenVerifier.validateToken(token)).thenReturn(true);
         Mockito.when(this.mockJwtTokenVerifier.getMemberIdFromToken(token)).thenReturn(user);
         this.jwtRequestFilter.doFilterInternal(this.mockRequest, this.mockResponse, this.mockFilterChain);

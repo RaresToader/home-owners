@@ -94,7 +94,7 @@ public class HoaService {
      *
      * @param m the mock of MembershipService
      */
-    public void setMembershipService(MembershipService m){
+    public void setMembershipService(MembershipService m) {
         this.membershipService = m;
     }
 }

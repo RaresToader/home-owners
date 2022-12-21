@@ -31,20 +31,22 @@ public class JwtUserDetailsServiceTest {
     @Autowired
     private transient MemberRepository userRepository;
 
+    private final transient String secret = "password123Hash";
+    private final transient String member = "member1";
 
     @Test
     public void loadUserByUsername_withValidUser_returnsCorrectUser() {
-        HashedPassword testHashedPassword = new HashedPassword("password123Hash");
-        Member appUser = new Member("member1", testHashedPassword);
+        HashedPassword testHashedPassword = new HashedPassword(secret);
+        Member appUser = new Member(member, testHashedPassword);
         this.userRepository.save(appUser);
-        UserDetails actual = this.jwtUserDetailsService.loadUserByUsername("member1");
-        Assertions.assertThat(actual.getUsername()).isEqualTo("member1");
+        UserDetails actual = this.jwtUserDetailsService.loadUserByUsername(member);
+        Assertions.assertThat(actual.getUsername()).isEqualTo(member);
         Assertions.assertThat(actual.getPassword()).isEqualTo(testHashedPassword.toString());
     }
 
     @Test
     public void loadUserByUsername_withNonexistentUser_throwsException() {
-        Member appUser = new Member("member1", new HashedPassword("password123Hash"));
+        Member appUser = new Member(member, new HashedPassword(secret));
         this.userRepository.save(appUser);
         ThrowingCallable action = () -> {
             this.jwtUserDetailsService.loadUserByUsername("member2");

@@ -307,7 +307,7 @@ public class MemberController {
     /** Setter method used when AuthManager needs to be mocked
      * @param a - AuthManager to be mocked
      */
-    public void setAuthenticationManager(AuthManager a){
+    public void setAuthenticationManager(AuthManager a) {
         this.authManager = a;
     }
 }

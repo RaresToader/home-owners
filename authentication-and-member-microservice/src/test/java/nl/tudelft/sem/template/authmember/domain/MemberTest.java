@@ -5,47 +5,49 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class MemberTest {
 
-    private HashedPassword p = new HashedPassword("MAMA_password_123");
-    private Member m = new Member("Joe_Mama", p);
+    private HashedPassword password = new HashedPassword("MAMA_password_123");
+    private Member member = new Member("Joe_Mama", password);
 
     @Test
     void getMemberId() {
-        assertEquals("Joe_Mama", m.getMemberId());
+        assertEquals("Joe_Mama", member.getMemberId());
     }
 
     @Test
     void getPassword() {
-        assertEquals(p, m.getPassword());
+        assertEquals(password, member.getPassword());
     }
 
     @Test
     void testEquals() {
         Member b = new Member("Joe_Mama", new HashedPassword("Mama_different"));
-        assertTrue(m.equals(b));
+        assertTrue(member.equals(b));
     }
 
     @Test
     void testEqualsSame() {
-        assertTrue(m.equals(m));
+        assertTrue(member.equals(member));
     }
 
     @Test
     void testEqualsDiff() {
         Member b = new Member("Joe_Papa", new HashedPassword("Mama_different"));
-        assertFalse(m.equals(b));
+        assertFalse(member.equals(b));
     }
 
     @Test
     void testEqualsDiffClass() {
-        assertFalse(m.equals(p));
+        assertFalse(member.equals(password));
     }
 
     @Test
     void testHashCode() {
-        assertEquals(Objects.hash(m.getMemberId()), m.hashCode());
+        assertEquals(Objects.hash(member.getMemberId()), member.hashCode());
     }
 }

@@ -3,7 +3,8 @@ package nl.tudelft.sem.template.authmember.domain.converters;
 import nl.tudelft.sem.template.authmember.domain.Address;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 class AddressConverterTest {
 
