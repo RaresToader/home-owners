@@ -29,6 +29,17 @@ class MemberTest {
     }
 
     @Test
+    void testEqualsSame() {
+        assertTrue(m.equals(m));
+    }
+
+    @Test
+    void testEqualsDiff() {
+        Member b = new Member("Joe_Papa", new HashedPassword("Mama_different"));
+        assertTrue(m.equals(b));
+    }
+
+    @Test
     void testHashCode() {
         assertEquals(Objects.hash(m.getMemberId()), m.hashCode());
     }

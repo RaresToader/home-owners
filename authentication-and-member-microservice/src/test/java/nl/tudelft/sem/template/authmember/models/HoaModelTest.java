@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HoaModelTest {
-
+    
     @Test
-    void getMemberId() {
+    void testGetMemberId() {
         GetHoaModel h = new GetHoaModel();
         String id = "memberFirst";
         h.setMemberId(id);
@@ -14,7 +14,7 @@ class HoaModelTest {
     }
 
     @Test
-    void getHoaId() {
+    void testGetHoaId() {
         GetHoaModel h = new GetHoaModel();
         long id = 123l;
         h.setHoaId(id);
