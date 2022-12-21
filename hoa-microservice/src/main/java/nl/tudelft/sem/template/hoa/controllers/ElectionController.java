@@ -215,16 +215,12 @@ public class ElectionController {
             throws IllegalAccessException, InvocationTargetException {
         Object e = ElectionUtils.getElectionById(electionId);
         try {
-            for (Method method : e.getClass().getDeclaredMethods()) {
-                if (method.getName().equals("getHoaId")) {
-                    Object value = method.invoke(e);
-                    if (value == null) continue;
-                    validateMemberInHOA((long) value, authManager.getMemberId(),
-                            !boardCheck || e.getClass().getName().equals("Proposal"), token);
-                    return ResponseEntity.ok(e);
-                }
+            if (!e.getClass().getDeclaredMethod("getStatus").invoke(e).equals("finished")) {
+                Object val = e.getClass().getDeclaredMethod("getHoaId").invoke(e);
+                validateMemberInHOA((long) val, authManager.getMemberId(),
+                        !boardCheck || e.getClass().getName().equals("Proposal"), token);
             }
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election fetch was not successful");
+            return ResponseEntity.ok(e);
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
         }
