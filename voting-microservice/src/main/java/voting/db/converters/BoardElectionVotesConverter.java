@@ -4,15 +4,16 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Converter
-public class BoardElectionVotesConverter implements AttributeConverter<HashMap<Integer, Integer>, String> {
+public class BoardElectionVotesConverter implements AttributeConverter<Map<String, String>, String> {
 
 	@Override
-	public String convertToDatabaseColumn(HashMap<Integer, Integer> attribute) {
+	public String convertToDatabaseColumn(Map<String, String> attribute) {
 		StringBuilder mapAsString = new StringBuilder();
-		for (Integer key : attribute.keySet()) {
+		for (String key : attribute.keySet()) {
 			mapAsString.append(key).append("=").append(attribute.get(key)).append(",");
 		}
 		if (mapAsString.length() != 0) mapAsString.deleteCharAt(mapAsString.length() - 1);
@@ -20,10 +21,10 @@ public class BoardElectionVotesConverter implements AttributeConverter<HashMap<I
 	}
 
 	@Override
-	public HashMap<Integer, Integer> convertToEntityAttribute(String dbData) {
+	public Map<String, String> convertToEntityAttribute(String dbData) {
 		if (dbData.equals("")) return new HashMap<>();
-		return (HashMap<Integer, Integer>) Arrays.stream(dbData.split(","))
+		return Arrays.stream(dbData.split(","))
 			.map(e -> e.split("="))
-			.collect(Collectors.toMap(e -> Integer.parseInt(e[0]), e -> Integer.parseInt(e[1])));
+			.collect(Collectors.toMap(e -> e[0], e -> e[1]));
 	}
 }
