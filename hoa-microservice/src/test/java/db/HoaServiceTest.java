@@ -25,10 +25,10 @@ import org.mockito.MockitoAnnotations;
 public class HoaServiceTest {
 
     @Mock
-    private HoaRepo hoaRepo;
+    private transient HoaRepo hoaRepo;
 
-    private HoaService hoaService;
-    private final Hoa hoa = Hoa.createHoa("Test country", "Test city", "Test");
+    private transient HoaService hoaService;
+    private final transient Hoa hoa = Hoa.createHoa("Test country", "Test city", "Test");
 
     @BeforeEach
     void setUp() {
@@ -80,9 +80,9 @@ public class HoaServiceTest {
     void saveHoaTestFail() {
         List<Hoa> list = new ArrayList<>();
         list.add(hoa);
-        Hoa fail = Hoa.createHoa("Test2", "Test2", "Test");
         when(hoaRepo.findAll()).thenReturn(list);
-        assertThrows(HoaNameAlreadyTakenException.class, () -> hoaService.saveHoa(fail));
+        assertThrows(HoaNameAlreadyTakenException.class, () ->
+                hoaService.saveHoa(Hoa.createHoa("Test2", "Test2", "Test")));
     }
 
     @Test

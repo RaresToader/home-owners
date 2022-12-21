@@ -1,8 +1,10 @@
 package nl.tudelft.sem.template.hoa.controllers;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,11 +42,11 @@ import org.springframework.test.web.servlet.ResultActions;
 class ActivityControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private transient MockMvc mockMvc;
     @Autowired
-    private ActivityRepo activityRepo;
+    private transient ActivityRepo activityRepo;
     @Autowired
-    private HoaRepo hoaRepo;
+    private transient HoaRepo hoaRepo;
 
     private static MockedStatic<MembershipUtils> membershipUtils;
 
@@ -52,19 +54,13 @@ class ActivityControllerTest {
     static void registerMocks() {
         membershipUtils = mockStatic(MembershipUtils.class);
         when(MembershipUtils.getMembershipById(1L))
-                .thenReturn(new MembershipResponseModel(1L, "test user", 1L, "country", "city", false));
+                .thenReturn(new MembershipResponseModel(1L, "test user", 1L,
+                    "country", "city", false, LocalDateTime.now(), LocalDateTime.now()));
     }
 
     @AfterAll
     static void deregisterMocks() {
         membershipUtils.close();
-    }
-
-    void insertActivityInDatabase() {
-        LocalDateTime activityTime = LocalDateTime.of(2025, 9, 26, 20, 30, 0);
-        LocalTime activityDuration = LocalTime.of(1, 30, 0);
-        Activity activity = new Activity(1L, "BBQ", "We are having a BBQ", activityTime, activityDuration);
-        activityRepo.save(activity);
     }
 
     @BeforeEach
@@ -97,7 +93,7 @@ class ActivityControllerTest {
         Activity responseActivity = activityRepo.findById(2L).orElseThrow();
 
         // Assert that the response body contains the expected activity object
-        assertTrue(expectedActivity.equals(responseActivity));
+        assertEquals(expectedActivity, responseActivity);
     }
 
 
@@ -140,7 +136,7 @@ class ActivityControllerTest {
 
         Activity updatedActivity = activityRepo.findById(activityId).orElseThrow();
 
-        assertTrue(!updatedActivity.getParticipants().contains(membershipId));
+        assertFalse(updatedActivity.getParticipants().contains(membershipId));
     }
 
     @Test
@@ -161,6 +157,18 @@ class ActivityControllerTest {
         List<Activity> actualActivities = activityRepo.findByHoaId(hoaId).orElseThrow();
 
         assertEquals(resultActivities, actualActivities);
+    }
+
+    public boolean insertActivityInDatabase() {
+        LocalDateTime activityTime = LocalDateTime.of(2025, 9, 26, 20, 30, 0);
+        LocalTime activityDuration = LocalTime.of(1, 30, 0);
+        Activity activity = new Activity(1L, "BBQ", "We are having a BBQ", activityTime, activityDuration);
+        try {
+            activityRepo.save(activity);
+        } catch (IllegalAccessError e) {
+            return false;
+        }
+        return true;
     }
 
 }

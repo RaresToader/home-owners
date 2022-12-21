@@ -2,8 +2,18 @@ package voting.domain;
 
 import lombok.NoArgsConstructor;
 import voting.db.converters.LocalDateTimeConverter;
+import voting.exceptions.CannotProceedVote;
 
-import javax.persistence.*;
+import javax.persistence.Convert;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,12 +25,14 @@ import java.time.LocalDateTime;
 public abstract class Election {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     int electionId;
 
-    private int hoaId;
+    private long hoaId;
     private String name;
     private String description;
     private int voteCount;
+    private String status;
 
     @Convert(converter = LocalDateTimeConverter.class)
     private LocalDateTime scheduledFor;
@@ -33,22 +45,14 @@ public abstract class Election {
      * @param hoaId        Id of Hoa that it is a part of
      * @param scheduledFor Time object, when the election will start
      */
-    public Election(String name, String description, int hoaId, LocalDateTime scheduledFor) {
+    public Election(String name, String description, long hoaId, LocalDateTime scheduledFor) {
+
         this.name = name;
         this.description = description;
         this.hoaId = hoaId;
         this.scheduledFor = scheduledFor;
         this.voteCount = 0;
-    }
-
-    /**
-     * Checks if the member with the provided id can participate in the election
-     *
-     * @param memberId Id of member to consider
-     * @return Whether the member can vote
-     */
-    private boolean canParticipate(Integer memberId) {
-        return false;
+        this.status = "scheduled";
     }
 
     /**
@@ -57,23 +61,20 @@ public abstract class Election {
      * @param membershipId Id of member that votes
      * @param choice       Choice of member that voted
      */
-    public void vote(int membershipId, int choice) {
-    }
+    public abstract void vote(String membershipId, Object choice) throws CannotProceedVote;
 
     /**
      * Concludes the current election
      *
      * @return Result of election
      */
-    public Object conclude() {
-        return null;
-    }
+    public abstract Object conclude();
 
     public int getElectionId() {
         return electionId;
     }
 
-    public int getHoaId() {
+    public long getHoaId() {
         return hoaId;
     }
 
@@ -93,6 +94,15 @@ public abstract class Election {
         return scheduledFor;
     }
 
+    // Use this method only for testing purposes!
+    public void  setElectionId(int electionId) {
+        this.electionId = electionId;
+    }
+
+    public void setHoaId(int hoaId) {
+        this.hoaId = hoaId;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -105,6 +115,14 @@ public abstract class Election {
         this.scheduledFor = scheduledFor;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -115,13 +133,16 @@ public abstract class Election {
 
     @Override
     public int hashCode() {
-        return (this.electionId + this.hoaId + this.name.hashCode() + "").hashCode();
+        if (this.getClass() != BoardElection.class)
+            return ("prop:" + this.electionId + ":" + this.hoaId + ":" + this.name.hashCode()).hashCode();
+        return ("be:" + this.electionId + ":" + this.hoaId + ":" + this.name.hashCode()).hashCode();
     }
 
     public void incrementVoteCount() {
         this.voteCount++;
     }
 
+    @Override
     public String toString() {
         return "Election{"
                 + "electionID='" + electionId
