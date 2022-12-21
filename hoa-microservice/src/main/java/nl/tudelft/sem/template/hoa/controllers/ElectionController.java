@@ -83,6 +83,8 @@ public class ElectionController {
     public ResponseEntity<HttpStatus> vote(@RequestBody VotingModel model,
                                            @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
+            if (!model.memberId.equals(authManager.getMemberId()))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
             ResponseEntity<Object> e = getObjectResponseEntity(model.electionId, token);
             if (e != null) return ResponseEntity.ok(ElectionUtils.vote(model));
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vote is unsuccessful.");
