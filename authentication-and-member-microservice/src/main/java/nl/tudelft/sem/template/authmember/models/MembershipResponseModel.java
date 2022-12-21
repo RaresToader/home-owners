@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 
 @Data
@@ -18,5 +19,5 @@ public class MembershipResponseModel {
     private String city;
     private boolean isBoard;
     private LocalDateTime startTime;
-    private LocalDateTime duration;
+    private LocalTime duration;
 }

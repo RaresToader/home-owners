@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.authmember.authentication;
 
-
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import java.io.IOException;
@@ -84,10 +83,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 } catch (IllegalArgumentException | JwtException e) {
                     System.err.println("Unable to parse JWT token");
                 }
+            } else {
+                System.err.println("Invalid authorization header");
             }
-            System.err.println("Invalid authorization header");
         }
-
         filterChain.doFilter(request, response);
     }
 }
