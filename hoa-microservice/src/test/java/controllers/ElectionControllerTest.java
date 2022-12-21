@@ -1,21 +1,5 @@
 package controllers;
 
-import nl.tudelft.sem.template.hoa.controllers.ElectionController;
-import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
-import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
-import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
-import nl.tudelft.sem.template.hoa.utils.TimeUtils;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class ElectionControllerTest {
 
 //    transient List<MembershipResponseModel> memberships;
