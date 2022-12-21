@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.authmember.authentication;
 
-
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import java.io.IOException;
