@@ -1,7 +1,9 @@
 package nl.tudelft.sem.template.authmember.domain;
 
+import nl.tudelft.sem.template.authmember.utils.TimeUtils;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -10,12 +12,12 @@ class MembershipTest {
     private transient Address address = new Address("Netherlands", "Delft", "Drebelweg", "14", "1111AA");
     private transient LocalDateTime start = LocalDateTime.now();
     private transient LocalDateTime end = start.plusHours(12);
-    private transient Membership membership = new Membership("joe_member", 1L, address, start, end, true);
+    private transient Membership membership = new Membership("joe_member", 1L, address, start, TimeUtils.absoluteDifference(start, end), true);
 
     @Test
     void testToString() {
         assertEquals("Membership{membershipID=0, memberID='joe_member', hoaID=1, address="
-                + address.toString() + ", startTime=" + start.toString() + ", duration=" + end.toString()
+                + address.toString() + ", startTime=" + start.toString() + ", duration=" + TimeUtils.absoluteDifference(start, end).toString()
                 + ", isBoard=true}", membership.toString());
     }
 
@@ -46,7 +48,7 @@ class MembershipTest {
 
     @Test
     void getDuration() {
-        assertEquals(end, membership.getDuration());
+        assertEquals(LocalTime.of(12, 0, 0), membership.getDuration());
     }
 
     @Test
@@ -56,7 +58,7 @@ class MembershipTest {
 
     @Test
     void setDuration() {
-        membership.setDuration(start.plusHours(24));
-        assertEquals(start.plusHours(24), membership.getDuration());
+        membership.setDuration(TimeUtils.absoluteDifference(start, start.plusHours(16)));
+        assertEquals(LocalTime.of(16, 0, 0), membership.getDuration());
     }
 }
