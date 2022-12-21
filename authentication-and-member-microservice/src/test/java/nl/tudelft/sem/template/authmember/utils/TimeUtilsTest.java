@@ -17,4 +17,9 @@ class TimeUtilsTest {
         assertEquals(LocalDateTime.ofEpochSecond(2*3600,0, ZoneOffset.UTC),
                 TimeUtils.absoluteDifference(start, start.plusHours(1)));
     }
+
+    @Test
+    void constructorTest() {
+        TimeUtils t = new TimeUtils();
+    }
 }

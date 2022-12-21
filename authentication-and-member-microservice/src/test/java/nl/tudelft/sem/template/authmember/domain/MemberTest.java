@@ -36,7 +36,12 @@ class MemberTest {
     @Test
     void testEqualsDiff() {
         Member b = new Member("Joe_Papa", new HashedPassword("Mama_different"));
-        assertTrue(m.equals(b));
+        assertFalse(m.equals(b));
+    }
+
+    @Test
+    void testEqualsDiffClass() {
+        assertFalse(m.equals(p));
     }
 
     @Test

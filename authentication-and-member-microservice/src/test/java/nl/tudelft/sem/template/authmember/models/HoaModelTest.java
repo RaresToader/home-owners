@@ -4,13 +4,19 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HoaModelTest {
-    
+
     @Test
     void testGetMemberId() {
         GetHoaModel h = new GetHoaModel();
         String id = "memberFirst";
         h.setMemberId(id);
-        assertEquals(h.getMemberId(), id);
+        assertEquals(id, h.getMemberId());
+    }
+
+    @Test
+    void testGetMemberIdEmpty() {
+        HoaModel h = new GetHoaModel();
+        assertNull(h.getMemberId());
     }
 
     @Test
@@ -18,6 +24,12 @@ class HoaModelTest {
         GetHoaModel h = new GetHoaModel();
         long id = 123l;
         h.setHoaId(id);
-        assertEquals(h.getHoaId(), id);
+        assertEquals(id, h.getHoaId());
+    }
+
+    @Test
+    void testGetHoaIdEmpty() {
+        HoaModel h = new GetHoaModel();
+        assertEquals(0, h.getHoaId());
     }
 }
