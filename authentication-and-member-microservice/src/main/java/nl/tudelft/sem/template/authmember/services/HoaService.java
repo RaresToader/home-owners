@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class HoaService {
 
-    private final transient MembershipService membershipService;
+    private transient MembershipService membershipService;
 
     @Autowired
     public HoaService(MembershipService membershipService) {
@@ -85,5 +85,14 @@ public class HoaService {
      */
     public List<Membership> getMembershipsForHoa(String memberId, long hoaId) {
         return membershipService.getMembershipsByMemberAndHoa(memberId, hoaId);
+    }
+
+    /**
+     * Setter for MembershipService which enables mocking.
+     *
+     * @param m the mock of MembershipService
+     */
+    public void setMembershipService(MembershipService m){
+        this.membershipService = m;
     }
 }
