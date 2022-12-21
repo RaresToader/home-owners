@@ -1,47 +1,52 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
 package nl.tudelft.sem.template.authmember.authentication;
 
+import java.util.List;
 
+import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyExistsException;
+import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
-class AuthManagerTest {
+public class AuthManagerTest {
     private transient AuthManager authManager;
-    private transient SecurityContextHolder mockSecurityContextHolder;
-    private transient SecurityContext mockSecurityContext;
-    private transient Authentication mockAuthentication;
-
-    private String memberId = "john_doe";
 
     @BeforeEach
     public void setup() {
-//        this.mockSecurityContextHolder = (SecurityContextHolder)Mockito.mock(SecurityContextHolder.class);
-//        this.mockSecurityContext = (SecurityContext)Mockito.mock(SecurityContext.class);
-//        this.mockAuthentication = (Authentication)Mockito.mock(Authentication.class);
-//        Mockito.when(this.mockSecurityContextHolder.getContext()).thenReturn(this.mockSecurityContext);
-//        Mockito.when(this.mockSecurityContext.getAuthentication()).thenReturn(this.mockAuthentication);
-//        Mockito.when(this.mockAuthentication.getName()).thenReturn(this.memberId);
-
-
         this.authManager = new AuthManager();
     }
 
     @Test
-    void getMemberId() {
-//        Assertions.assertThat(authManager.getMemberId()).isEqualTo(this.memberId);
+    public void getMemberIdTest() {
+        String expected = "user123";
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(expected, (Object)null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        String actual = this.authManager.getMemberId();
+        Assertions.assertThat(actual).isEqualTo(expected);
     }
 
     @Test
-    void validateMember() {
-//        assertThrows(IllegalAccessException.class, () -> {
-//            authManager.validateMember("not_" + this.memberId);
-//        });
+    public void validateMemberTest() throws IllegalAccessException {
+        String expected = "user123";
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(expected, (Object)null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        Assertions.assertThat(this.authManager.validateMember(expected)).isTrue();
+    }
+
+    @Test
+    public void validateMemberTestFalse() throws IllegalAccessException {
+        String expected = "user123";
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(expected, (Object)null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        assertThrows(IllegalAccessException.class, () -> {this.authManager.validateMember("user_not_123");});
     }
 }
