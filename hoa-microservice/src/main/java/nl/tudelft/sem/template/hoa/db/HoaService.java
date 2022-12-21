@@ -97,7 +97,7 @@ public class HoaService {
         if (country == null || country.isEmpty() || country.isBlank()) {
             return true;
         }
-        if (!Character.isUpperCase(country.charAt(0)) || country.length() > 50) {
+        if (!Character.isUpperCase(country.charAt(0)) || country.length() < 4 || country.length() > 50) {
             return true;
         }
         for (int i = 1; i < country.length(); i++) {
