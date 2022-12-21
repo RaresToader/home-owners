@@ -41,7 +41,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class ActivityControllerTest {
 
-    private final transient String ACTIVITY_CREATE = "activity/create/";
+    private final transient String ACTIVITY_CREATE = "/activity/create/";
 
     private final transient String TESTACTIVITY = "This is a test activity";
     @Autowired
