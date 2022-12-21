@@ -31,7 +31,7 @@ import nl.tudelft.sem.template.hoa.models.VotingModel;
 public class ElectionController {
 
     /**
-     *  Endpoint for creating a proposal
+     * Endpoint for creating a proposal
      *
      * @param model the proposal
      * @return The created proposal or bad request
@@ -50,7 +50,7 @@ public class ElectionController {
     }
 
     /**
-     *  Endpoint for creating a board election
+     * Endpoint for creating a board election
      *
      * @param model the board election
      * @return The created board election or bad request
@@ -65,7 +65,7 @@ public class ElectionController {
     }
 
     /**
-     *  Endpoint for voting on an election
+     * Endpoint for voting on an election
      *
      * @param model the vote
      * @return the status of the vote
@@ -112,7 +112,12 @@ public class ElectionController {
     }
 
     /**
-     * Endpoint for becoming a participant in board election as a user
+     * Endpoint for joining an election
+     *
+     * @param memberID ID of member that wants to join
+     * @param hoaID    Id of HOA that one wants to join
+     * @param token    auth token for verification, passed in header
+     * @return Returns a boolean that represents the operation's success
      */
     @PostMapping("joinElection/{memberID}/{hoaID}")
     public ResponseEntity<Boolean> joinElection(@PathVariable String memberID, @PathVariable long hoaID,
@@ -137,7 +142,11 @@ public class ElectionController {
     }
 
     /**
-     * Endpoint for leaving a board election as a user
+     * Endpoint for leaving an election
+     *
+     * @param memberID ID of member that wants to join
+     * @param hoaID    Id of HOA that one wants to join
+     * @return Returns a boolean that represents the operation's success
      */
     @PostMapping("leaveElection/{memberID}/{hoaID}")
     public ResponseEntity<Boolean> leaveElection(@PathVariable String memberID, @PathVariable long hoaID) {

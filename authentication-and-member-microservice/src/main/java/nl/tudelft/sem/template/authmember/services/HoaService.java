@@ -53,7 +53,7 @@ public class HoaService {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Hoa does not exist!");
         } catch (BadJoinHoaModelException e) {
-            throw new BadJoinHoaModelException("Cannot join hoa!");
+            throw new BadJoinHoaModelException("Bad join hoa model!");
         }
     }
 
