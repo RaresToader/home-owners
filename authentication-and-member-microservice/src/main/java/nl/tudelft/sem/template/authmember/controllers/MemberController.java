@@ -46,9 +46,9 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/member")
 public class MemberController {
 
-    private final transient MemberService memberService;
+    private transient MemberService memberService;
     private final transient HoaService hoaService;
-    private final transient MembershipService membershipService;
+    private transient MembershipService membershipService;
 
     private final transient AuthenticationManager authenticationManager;
     private final transient JwtTokenGenerator jwtTokenGenerator;
@@ -309,5 +309,11 @@ public class MemberController {
      */
     public void setAuthenticationManager(AuthManager a) {
         this.authManager = a;
+    }
+    public void setMemberService(MemberService m) {
+        this.memberService = m;
+    }
+    public void setMembershipService(MembershipService m) {
+        this.membershipService = m;
     }
 }
