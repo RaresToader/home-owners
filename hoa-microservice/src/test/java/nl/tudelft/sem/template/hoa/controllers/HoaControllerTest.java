@@ -31,11 +31,11 @@ import org.springframework.test.web.servlet.ResultActions;
 public class HoaControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private transient MockMvc mockMvc;
     @Autowired
-    private RequirementRepo requirementRepo;
+    private transient RequirementRepo requirementRepo;
     @Autowired
-    private HoaRepo hoaRepo;
+    private transient HoaRepo hoaRepo;
 
     void insertHoa() {
         Hoa hoa = Hoa.createHoa("Country", "City", "Test");

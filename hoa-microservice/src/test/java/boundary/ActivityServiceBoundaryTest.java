@@ -15,9 +15,11 @@ import org.mockito.MockitoAnnotations;
 public class ActivityServiceBoundaryTest {
 
     @Mock
-    private ActivityRepo activityRepo;
+    private transient ActivityRepo activityRepo;
 
-    private ActivityService activityService;
+    private transient ActivityService activityService;
+
+    private final transient String TEST = "Test";
 
     @BeforeEach
     void setUp() {
@@ -53,14 +55,16 @@ public class ActivityServiceBoundaryTest {
     @Test
     public void validateActivityOffPoint() {
         LocalDateTime time = LocalDateTime.now();
-        ActivityRequestModel model = new ActivityRequestModel("Test", "Test", 1L, time, LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(TEST, TEST, 1L, time,
+                LocalTime.of(2, 10));
         Assertions.assertFalse(activityService.validateActivity(model, time));
     }
 
     @Test
     public void validateActivityOnPoint() {
         LocalDateTime time = LocalDateTime.now();
-        ActivityRequestModel model = new ActivityRequestModel("Test", "Test", 1L, time, LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(TEST, TEST, 1L, time,
+                LocalTime.of(2, 10));
         Assertions.assertTrue(activityService.validateActivity(model, time.minusNanos(1L)));
     }
 
