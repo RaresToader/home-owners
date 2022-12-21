@@ -81,9 +81,15 @@ public class MemberService {
         if (!validatePassword(model.getPassword())) {
             throw new BadRegistrationModelException("Bad username or password!");
         }
+
         Member member = new Member(model.getMemberId(), passwordHashingService.hash(model.getPassword()));
+        member.setPassword(passwordHashingService.hash(model.getPassword()));
 
         if (memberRepository.existsByMemberId(member.getMemberId())) {
+
+            // Delete the member with old password
+            memberRepository.delete(memberRepository.findByMemberId(member.getMemberId()).get());
+            // Save the member with updated password
             memberRepository.save(member);
             return member;
         }
