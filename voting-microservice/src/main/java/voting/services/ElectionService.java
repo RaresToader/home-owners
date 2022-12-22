@@ -80,7 +80,8 @@ public class ElectionService {
      * @return New proposal, if one does not exist with same hoaID and name
      * @throws ProposalAlreadyCreated If proposal for the given HoaID and name already exists
      */
-    public Proposal createProposal(ProposalModel model, TemporalAmount startAfter) throws ProposalAlreadyCreated, ElectionCannotBeCreated {
+    public Proposal createProposal(ProposalModel model, TemporalAmount startAfter)
+                                                throws ProposalAlreadyCreated, ElectionCannotBeCreated {
         if (!model.isValid()) throw new ElectionCannotBeCreated("Some/all of the provided fields are invalid");
         if (electionRepository.existsByHoaIdAndName(model.hoaId, model.name))
             throw new ProposalAlreadyCreated("Proposal with hoaId: "
@@ -130,7 +131,8 @@ public class ElectionService {
      * @throws ThereIsNoVote If the member has not voted yet
      * @throws CannotProceedVote If the request has been made before the beginning or after the end of the voting process
      */
-    public void removeVote(RemoveVoteModel model, LocalDateTime currTime) throws ElectionDoesNotExist, ThereIsNoVote, CannotProceedVote {
+    public void removeVote(RemoveVoteModel model, LocalDateTime currTime)
+                            throws ElectionDoesNotExist, ThereIsNoVote, CannotProceedVote {
         if (!model.isValid())
             throw new ElectionDoesNotExist("Ids not valid");
         Optional<Election> election = this.electionRepository.findByElectionId(model.electionId);

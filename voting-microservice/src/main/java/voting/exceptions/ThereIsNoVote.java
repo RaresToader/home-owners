@@ -1,6 +1,6 @@
 package voting.exceptions;
 
-public class ThereIsNoVote extends Exception{
+public class ThereIsNoVote extends Exception {
 
 	static final long serialVersionUID = -3521454513612556248L;
 

@@ -111,11 +111,17 @@ public class ElectionController {
      * @return the status of the removal of the vote
      */
     @PostMapping("/removeVote")
-    public ResponseEntity<HttpStatus> removeVote(@RequestBody RemoveVoteModel model) {
+    public ResponseEntity<HttpStatus> removeVote(@RequestBody RemoveVoteModel model,
+                                                 @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
+            if (!model.memberId.equals(authManager.getMemberId()))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
+            fetchElectionAsEntity(model.electionId, true, token);
             return ResponseEntity.ok(ElectionUtils.removeVote(model));
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot remove vote", e);
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(e.getStatus(), e.getMessage(), e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
         }
     }
 
