@@ -18,12 +18,15 @@ import voting.exceptions.CannotProceedVote;
 import voting.exceptions.ElectionCannotBeCreated;
 import voting.exceptions.ElectionDoesNotExist;
 import voting.exceptions.ProposalAlreadyCreated;
+import voting.exceptions.ThereIsNoVote;
+import voting.models.RemoveVoteModel;
 import voting.models.VotingModel;
 import voting.services.ElectionService;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
 
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 
 @RestController
 @RequestMapping("/voting")
@@ -37,7 +40,7 @@ public class ElectionController {
     }
 
     /**
-     * Creates a new Proposal
+     * Creates a new Proposal with default time of 2 weeks to start the voting
      *
      * @param model ProposalModel needed to instantiate a proposal
      * @return ResponseEntity containing new Proposal if creation was successful,
@@ -47,6 +50,23 @@ public class ElectionController {
     public ResponseEntity<Proposal> createProposal(@RequestBody ProposalModel model) {
         try {
             Proposal proposal = electionService.createProposal(model);
+            return ResponseEntity.ok(proposal);
+        } catch (ProposalAlreadyCreated | ElectionCannotBeCreated e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Creates a new Proposal with a specified time to start the voting
+     *
+     * @param model ProposalModel needed to instantiate a proposal
+     * @return ResponseEntity containing new Proposal if creation was successful,
+     * Bad request otherwise
+     */
+    @PostMapping("/specifiedProposal")
+    public ResponseEntity<Proposal> createProposal(@RequestBody ProposalModel model, @RequestBody TemporalAmount startAfter) {
+        try {
+            Proposal proposal = electionService.createProposal(model, startAfter);
             return ResponseEntity.ok(proposal);
         } catch (ProposalAlreadyCreated | ElectionCannotBeCreated e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
@@ -86,6 +106,21 @@ public class ElectionController {
         }
     }
 
+    /**
+     * Handles removing vote requests by members of an HOA
+     *
+     * @param model RemoveVoteModel containing the required fields
+     * @return Response entity to note whether the removing of the vote was successful
+     */
+    @PostMapping("/removeVote")
+    public ResponseEntity<HttpStatus> removeVote(@RequestBody RemoveVoteModel model) {
+        try {
+            electionService.removeVote(model, LocalDateTime.now());
+            return ResponseEntity.ok().build();
+        } catch (ElectionDoesNotExist | ThereIsNoVote | CannotProceedVote e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
     /**
      * Getter for an election by id
      *

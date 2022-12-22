@@ -3,6 +3,7 @@ package voting.domain;
 import lombok.NoArgsConstructor;
 import voting.db.converters.LocalDateTimeConverter;
 import voting.exceptions.CannotProceedVote;
+import voting.exceptions.ThereIsNoVote;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorColumn;
@@ -58,10 +59,17 @@ public abstract class Election {
     /**
      * Allows for a member to vote on this election
      *
-     * @param membershipId Id of member that votes
+     * @param memberId Id of member that votes
      * @param choice       Choice of member that voted
      */
-    public abstract void vote(String membershipId, Object choice) throws CannotProceedVote;
+    public abstract void vote(String memberId, Object choice) throws CannotProceedVote;
+
+    /**
+     * Removes member's vote
+     * @param memberId Id of member that wants to remove his vote
+     * @throws ThereIsNoVote - member has not yet voted
+     */
+    public abstract void removeVote(String memberId) throws ThereIsNoVote;
 
     /**
      * Concludes the current election

@@ -3,12 +3,14 @@ package voting.domain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import voting.annotations.TestSuite;
+import voting.exceptions.ThereIsNoVote;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static voting.annotations.TestSuite.TestType.UNIT;
 
@@ -65,6 +67,21 @@ class ProposalTest {
 		votes.put("1", true);
 		assertEquals(votes, proposal.getVotes());
 		assertEquals(1, proposal.getVoteCount());
+	}
+
+	@Test
+	void removeVoteFail() {
+		proposal.setStatus("ongoing");
+		proposal.vote("1", true);
+		assertThrows(ThereIsNoVote.class, () -> proposal.removeVote("0"));
+	}
+
+	@Test
+	void removeVoteSuccess() throws ThereIsNoVote {
+		proposal.setStatus("ongoing");
+		proposal.vote("1", true);
+		proposal.removeVote("1");
+		assertTrue(proposal.getVotes().isEmpty());
 	}
 
 	@Test
