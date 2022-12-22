@@ -42,11 +42,11 @@ public class Hoa {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name = "reports", nullable = false)
+    @Column(name = "reports")
     @Convert(converter = ReportsConverter.class)
     private Map<String, List<Long>> reports;
 
-    @Column(name = "notifications", nullable = false)
+    @Column(name = "notifications")
     @Convert(converter = NotificationsConverter.class)
     private Map<String, List<String>> notifications;
 
