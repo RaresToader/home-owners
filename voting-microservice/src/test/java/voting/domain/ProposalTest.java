@@ -22,7 +22,8 @@ class ProposalTest {
 
 	@BeforeEach
 	void setUp() {
-		this.proposal = new Proposal("Proposal", "TestExample", 1, LocalDateTime.now());
+		this.proposal = new Proposal("Proposal", "TestExample", 1,
+				LocalDateTime.now());
 	}
 
 	@Test

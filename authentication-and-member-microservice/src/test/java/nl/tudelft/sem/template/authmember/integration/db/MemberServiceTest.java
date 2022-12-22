@@ -15,12 +15,12 @@ import org.mockito.Mock;
 public class MemberServiceTest {
 
     @Mock
-    private MemberRepository memberRepository;
+    private transient MemberRepository memberRepository;
 
     @Mock
-    private PasswordHashingService passwordHashingService;
+    private transient PasswordHashingService passwordHashingService;
 
-    private MemberService memberService;
+    private transient MemberService memberService;
 
     @BeforeEach
     public void setUp() {
@@ -69,20 +69,20 @@ public class MemberServiceTest {
 
     @Test
     public void registerUserBadUsername() {
-        RegistrationModel model = new RegistrationModel("use", "password");
-        assertThrows(BadRegistrationModelException.class, () -> memberService.registerUser(model));
+        assertThrows(BadRegistrationModelException.class,
+                () -> memberService.registerUser(new RegistrationModel("use", "password")));
     }
 
     @Test
     public void registerUserBadPassword() {
-        RegistrationModel model = new RegistrationModel("username123", "pass");
-        assertThrows(BadRegistrationModelException.class, () -> memberService.registerUser(model));
+        assertThrows(BadRegistrationModelException.class,
+                () -> memberService.registerUser(new RegistrationModel("username123", "pass")));
     }
 
     @Test
     public void updateBadPassword() {
-        RegistrationModel model = new RegistrationModel("username123", "pass");
-        assertThrows(BadRegistrationModelException.class, () -> memberService.updatePassword(model));
+        assertThrows(BadRegistrationModelException.class,
+                () -> memberService.updatePassword(new RegistrationModel("username123", "pass")));
     }
 
 }

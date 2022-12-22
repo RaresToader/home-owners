@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.db.HoaService;
+import nl.tudelft.sem.template.hoa.db.RequirementRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -12,14 +13,17 @@ import org.mockito.MockitoAnnotations;
 
 public class HoaServiceBoundaryTest {
     @Mock
-    private HoaRepo hoaRepo;
+    private transient HoaRepo hoaRepo;
 
-    private HoaService hoaService;
+    @Mock
+    private transient RequirementRepo reqRepo;
+
+    private transient HoaService hoaService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        hoaService = new HoaService(hoaRepo);
+        hoaService = new HoaService(hoaRepo, reqRepo);
     }
 
     @Test

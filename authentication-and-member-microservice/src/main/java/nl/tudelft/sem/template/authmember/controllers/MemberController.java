@@ -1,12 +1,14 @@
 package nl.tudelft.sem.template.authmember.controllers;
 
 import java.util.List;
+
 import nl.tudelft.sem.template.authmember.authentication.AuthManager;
 import nl.tudelft.sem.template.authmember.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.template.authmember.authentication.JwtUserDetailsService;
 
 import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.Membership;
+import nl.tudelft.sem.template.authmember.domain.converters.MembershipConverter;
 import nl.tudelft.sem.template.authmember.domain.db.MemberService;
 import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
@@ -16,6 +18,7 @@ import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaEx
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
 import nl.tudelft.sem.template.authmember.models.RegistrationModel;
+import nl.tudelft.sem.template.authmember.models.MembershipResponseModel;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.HoaModel;
 import nl.tudelft.sem.template.authmember.models.AuthenticationResponseModel;
@@ -44,16 +47,20 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/member")
 public class MemberController {
 
-    private final transient MemberService memberService;
-    private final transient HoaService hoaService;
-    private final transient MembershipService membershipService;
+    private transient MemberService memberService;
+    private transient HoaService hoaService;
+    private transient MembershipService membershipService;
 
     private final transient AuthenticationManager authenticationManager;
     private final transient JwtTokenGenerator jwtTokenGenerator;
     private final transient JwtUserDetailsService jwtUserDetailsService;
 
-    private final transient AuthManager authManager;
+    private transient AuthManager authManager;
     private final transient String unauthorizedMessage = "Access is not allowed";
+
+    private static final String secretClearBoardKey = "Thisisacustomseckeyforclear";
+
+    private static final String secretPromotionKey = "Thisisacustomseckeyforpromotion";
 
     /**
      * Instantiates a new MemberController.
@@ -102,7 +109,7 @@ public class MemberController {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member doesn't exist", e);
         } catch (BadRegistrationModelException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad password.", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad registration model", e);
         }
     }
 
@@ -138,14 +145,9 @@ public class MemberController {
             return ResponseEntity.ok().build();
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
-        } catch (MemberAlreadyInHoaException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member already in Hoa", e);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hoa or member do not exist", e);
-        } catch (MemberDifferentAddressException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Different address compared to hoa.", e);
-        } catch (BadJoinHoaModelException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot join hoa.", e);
+        } catch (MemberAlreadyInHoaException | IllegalArgumentException | MemberDifferentAddressException
+                 | BadJoinHoaModelException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -185,6 +187,23 @@ public class MemberController {
     }
 
     /**
+     * Endpoint to retrieve a membership by id.
+     *
+     * @param membershipId the membership id.
+     * @return the membership with the id provided
+     */
+    @GetMapping("/getMembershipById/{membershipId}")
+    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
+        try {
+            Membership membership = membershipService.getMembership(membershipId);
+            MembershipResponseModel model = MembershipConverter.convert(membership);
+            return ResponseEntity.ok(model);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
      * Returns all memberships for a given HOA (including inactive).
      */
     @GetMapping("/getMembershipsForHOA")
@@ -202,15 +221,15 @@ public class MemberController {
     }
 
     /**
-     * Returns all memberships for user(including inactive).
+     * Returns all memberships for user (including inactive).
      */
     @GetMapping("/getMemberships/{memberId}")
-    public ResponseEntity<List<Membership>> getMemberships(@PathVariable String memberId) {
+    public ResponseEntity<List<MembershipResponseModel>> getMemberships(@PathVariable String memberId) {
         try {
             authManager.validateMember(memberId);
             memberService.getMember(memberId); //Validate existence
             List<Membership> memberships = membershipService.getMembershipsForMember(memberId);
-            return ResponseEntity.ok(memberships);
+            return ResponseEntity.ok(MembershipConverter.convertMany(memberships));
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
         } catch (IllegalArgumentException e) {
@@ -233,7 +252,22 @@ public class MemberController {
     }
 
     /**
->>>>>>> Draft board election
+     * Rest endpoint to get all active memberships of an HOA
+     *
+     * @param hoaId id of HOA
+     * @return List of all members
+     */
+    @GetMapping("/getAllMemberships/{hoaId}")
+    public ResponseEntity<List<Membership>> getAllMemberships(@PathVariable Long hoaId) {
+        try {
+            return ResponseEntity.ok(this.membershipService.getActiveMembershipsByHoaId(hoaId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * >>>>>>> Draft board election
      * Returns all active memberships for user.
      */
     @GetMapping("/getActiveMemberships/{memberId}")
@@ -245,7 +279,7 @@ public class MemberController {
             return ResponseEntity.ok(memberships);
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
-        }  catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member does not exist", e);
         }
     }
@@ -260,7 +294,7 @@ public class MemberController {
             memberService.getMember(model.getMemberId());
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "HOA or member are not stored", e);
         }
     }
@@ -290,4 +324,82 @@ public class MemberController {
         return ResponseEntity.ok(new AuthenticationResponseModel(jwtToken));
     }
 
+    /**
+     * Endpoint for demoting board members into regular members (effective clearing the board of the HOA)
+     *
+     * @param hoaId id of Hoa to consider
+     * @param key   Semi-secure validation key to ensure that only other ms could have called this endpoint, not a user
+     * @return Boolean to represent the success of the operation
+     */
+    @PostMapping("/resetBoard/{hoaId}")
+    public ResponseEntity<Boolean> demote(@PathVariable long hoaId, @RequestBody String key) {
+        if (!secretClearBoardKey.equals(key)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Unauthorized to clear board");
+        ResponseEntity<List<Membership>> memberships = this.getAllMemberships(hoaId);
+        if (memberships.getBody() == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Given hoa either does not exist, or no members are in it");
+        memberships.getBody().stream().filter(Membership::isInBoard).forEach(m -> {
+            try {
+                membershipService.changeBoard(m, false);
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            }
+        });
+        return ResponseEntity.ok(true);
+    }
+
+    /**
+     * Endpoint for promoting a regular member into a board member
+     * Always called after clearing a board, hence no check if the member is already a board member
+     *
+     * @param hoaId id of Hoa to consider
+     * @param mem   list of all members (by memberId) that should be promoted
+     * @param key   Semi-secure validation key to ensure that only other ms could have called this endpoint, not a user
+     * @return Boolean to represent the success of the operation
+     */
+    @PostMapping("/promoteWinners/{hoaId}/{key}")
+    public ResponseEntity<Boolean> promote(@PathVariable long hoaId, @RequestBody List<String> mem,
+                                           @PathVariable String key) {
+        if (!secretPromotionKey.equals(key)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Unauthorized to clear board");
+        ResponseEntity<List<Membership>> memberships = this.getAllMemberships(hoaId);
+        if (memberships.getBody() == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Given hoa either does not exist, or no members are in it");
+        memberships.getBody().stream().filter(m -> mem.contains(m.getMemberId())).forEach(m -> {
+            try {
+                membershipService.changeBoard(m, true);
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            }
+        });
+        return ResponseEntity.ok(true);
+    }
+
+    /** Setter method used when AuthManager needs to be mocked
+     * @param a - AuthManager to be mocked
+     */
+    public void setAuthenticationManager(AuthManager a) {
+        this.authManager = a;
+    }
+
+    /** Setter method used when MemberService needs to be mocked
+     * @param m - MemberService to be mocked
+     */
+    public void setMemberService(MemberService m) {
+        this.memberService = m;
+    }
+
+    /** Setter method used when MembershipService needs to be mocked
+     * @param m - MembershipService to be mocked
+     */
+    public void setMembershipService(MembershipService m) {
+        this.membershipService = m;
+    }
+
+    /** Setter method used when HoaService needs to be mocked
+     * @param h - HoaService to be mocked
+     */
+    public void setHoaService(HoaService h) {
+        this.hoaService = h;
+    }
 }

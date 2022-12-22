@@ -77,8 +77,8 @@ public class BoardElection extends Election {
     @Override
     public void vote(String memberId, Object voteChoice) {
         if (getStatus().equals("ongoing") && candidates.contains((String) voteChoice)) {
+            if (!votes.containsKey(memberId)) this.incrementVoteCount();
             votes.put(memberId, (String) voteChoice);
-            this.incrementVoteCount();
         }
     }
 

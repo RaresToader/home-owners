@@ -64,7 +64,8 @@ public class ElectionController {
      * Bad request otherwise
      */
     @PostMapping("/specifiedProposal")
-    public ResponseEntity<Proposal> createProposal(@RequestBody ProposalModel model, @RequestBody TemporalAmount startAfter) {
+    public ResponseEntity<Proposal> createProposal(@RequestBody ProposalModel model,
+                                                   @RequestBody TemporalAmount startAfter) {
         try {
             Proposal proposal = electionService.createProposal(model, startAfter);
             return ResponseEntity.ok(proposal);
@@ -121,6 +122,7 @@ public class ElectionController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
+
     /**
      * Getter for an election by id
      *

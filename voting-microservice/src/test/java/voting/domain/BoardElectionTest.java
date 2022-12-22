@@ -90,14 +90,14 @@ class BoardElectionTest {
 	@Test
 	void removeVoteFail() {
 		boardElection.setStatus("ongoing");
-		boardElection.vote("1", true);
+		boardElection.vote("1", "2");
 		assertThrows(ThereIsNoVote.class, () -> boardElection.removeVote("0"));
 	}
 
 	@Test
 	void removeVoteSuccess() throws ThereIsNoVote {
 		boardElection.setStatus("ongoing");
-		boardElection.vote("1", true);
+		boardElection.vote("1", "2");
 		boardElection.removeVote("1");
 		assertTrue(boardElection.getVotes().isEmpty());
 	}

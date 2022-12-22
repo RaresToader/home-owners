@@ -9,7 +9,7 @@ import voting.annotations.Generated;
  */
 @EqualsAndHashCode
 @Data
-@Generated
+@Generated // Address model checks are done in HOA, hence this microservice assumes a clean/validated model
 public class Address {
     private final String country;
     private final String city;

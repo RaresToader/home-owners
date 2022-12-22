@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.db.HoaService;
+import nl.tudelft.sem.template.hoa.db.RequirementRepo;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
 import nl.tudelft.sem.template.hoa.exception.BadFormatHoaException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
@@ -24,16 +25,25 @@ import org.mockito.MockitoAnnotations;
 
 public class HoaServiceTest {
 
+    private final transient String testCity = "Test country";
+
+    private final transient String testCountry = "Test city";
+
+    private final transient String test = "Test";
+
     @Mock
     private transient HoaRepo hoaRepo;
 
+    @Mock
+    private transient RequirementRepo reqRepo;
+
     private transient HoaService hoaService;
-    private final transient Hoa hoa = Hoa.createHoa("Test country", "Test city", "Test");
+    private final transient Hoa hoa = Hoa.createHoa(testCountry, testCity, test);
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        hoaService = new HoaService(hoaRepo);
+        hoaService = new HoaService(hoaRepo, reqRepo);
     }
 
     @Test
@@ -82,12 +92,12 @@ public class HoaServiceTest {
         list.add(hoa);
         when(hoaRepo.findAll()).thenReturn(list);
         assertThrows(HoaNameAlreadyTakenException.class, () ->
-                hoaService.saveHoa(Hoa.createHoa("Test2", "Test2", "Test")));
+                hoaService.saveHoa(Hoa.createHoa("Test2", "Test2", test)));
     }
 
     @Test
     void registerHoa() throws HoaNameAlreadyTakenException, BadFormatHoaException {
-        HoaRequestModel model = new HoaRequestModel("Test country", "Test city", "Test");
+        HoaRequestModel model = new HoaRequestModel(testCountry, testCity, test);
         Assertions.assertEquals(hoaService.registerHoa(model), hoa);
     }
 
@@ -184,20 +194,20 @@ public class HoaServiceTest {
 
     @Test
     void registerHoaInvalidCountry() {
-        HoaRequestModel model = new HoaRequestModel("Tes$t country", "Test city", "Test");
-        assertThrows(BadFormatHoaException.class, () -> hoaService.registerHoa(model));
+        assertThrows(BadFormatHoaException.class,
+                () -> hoaService.registerHoa(new HoaRequestModel("Tes$t country", testCity, test)));
     }
 
     @Test
     void registerHoaInvalidCity() {
-        HoaRequestModel model = new HoaRequestModel("Test country", "Test ci$ty", "Test");
-        assertThrows(BadFormatHoaException.class, () -> hoaService.registerHoa(model));
+        assertThrows(BadFormatHoaException.class,
+                () -> hoaService.registerHoa(new HoaRequestModel(testCountry, "Test ci$ty", test)));
     }
 
     @Test
     void registerHoaInvalidName() {
-        HoaRequestModel model = new HoaRequestModel("Test country", "Test city", "Tst");
-        assertThrows(BadFormatHoaException.class, () -> hoaService.registerHoa(model));
+        assertThrows(BadFormatHoaException.class,
+                () -> hoaService.registerHoa(new HoaRequestModel("Test country", testCity, "Tst")));
     }
 
 

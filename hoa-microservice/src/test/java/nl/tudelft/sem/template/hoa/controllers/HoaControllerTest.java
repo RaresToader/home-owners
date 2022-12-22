@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
-import nl.tudelft.sem.template.hoa.db.RequirementRepo;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
 import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
 import nl.tudelft.sem.template.hoa.utils.JsonUtil;
@@ -31,15 +30,13 @@ import org.springframework.test.web.servlet.ResultActions;
 public class HoaControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private transient MockMvc mockMvc;
     @Autowired
-    private RequirementRepo requirementRepo;
-    @Autowired
-    private HoaRepo hoaRepo;
+    private transient HoaRepo hoaRepo;
 
-    void insertHoa() {
+    Hoa insertHoa() {
         Hoa hoa = Hoa.createHoa("Country", "City", "Test");
-        hoaRepo.save(hoa);
+        return hoaRepo.save(hoa);
     }
 
     @AfterEach

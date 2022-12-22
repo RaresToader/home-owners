@@ -42,6 +42,10 @@ public class Member {
         return password;
     }
 
+    public void setPassword(HashedPassword password) {
+        this.password = password;
+    }
+
     /**
      * Equality is only based on the identifier.
      */
