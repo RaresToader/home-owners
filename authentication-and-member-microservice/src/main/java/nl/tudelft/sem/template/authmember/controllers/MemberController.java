@@ -135,7 +135,6 @@ public class MemberController {
     public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model,
                                               @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            System.out.println("token:" + token);
             authManager.validateMember(model.getMemberId());
             hoaService.joinHoa(model, token);
             return ResponseEntity.ok().build();

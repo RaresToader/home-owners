@@ -80,7 +80,7 @@ public class MemberControllerTest {
 
     private final transient String apiRegister = "/member/register";
     private final transient String apiUpdate = "/member/updatePassword";
-    private final transient String apiJoinHoa = "/member/joinHoa";
+    private final transient String apiJoinHoa = "/member/joinHOA";
     private final transient String membershipCheck = "\"membershipId\":";
     private final transient String apiMemberships = "/member/getMembershipsForHOA";
 
