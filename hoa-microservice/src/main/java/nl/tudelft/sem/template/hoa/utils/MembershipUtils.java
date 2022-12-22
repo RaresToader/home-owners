@@ -68,6 +68,18 @@ public class MembershipUtils {
             throw new IllegalArgumentException("Membership id invalid.");
         }
     }
+    public static List<MembershipResponseModel> getActiveMembershipsOfHoa(Long hoaId, String token) {
+        try {
+            return client.target(server).path("getAllMemberships/" + hoaId)
+                    .request(APPLICATION_JSON)
+                    .header(HttpHeaders.AUTHORIZATION, token)
+                    .accept(APPLICATION_JSON)
+                    .get(new GenericType<>() {});
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Membership id invalid.");
+        }
+    }
+
 
 }
 

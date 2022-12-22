@@ -1,6 +1,8 @@
 package nl.tudelft.sem.template.hoa.controllers;
 
 import nl.tudelft.sem.template.hoa.authentication.AuthManager;
+import nl.tudelft.sem.template.hoa.db.HoaRepo;
+import nl.tudelft.sem.template.hoa.domain.Hoa;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.NotBoardForTooLongValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.NotInAnyOtherBoardValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.TimeInCurrentHoaValidator;
@@ -27,6 +29,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;
@@ -37,10 +41,13 @@ import nl.tudelft.sem.template.hoa.models.VotingModel;
 public class ElectionController {
 
     private transient AuthManager authManager;
+    private final HoaRepo hoaRepo;
 
     @Autowired
-    public ElectionController(AuthManager authManager) {
+    public ElectionController(AuthManager authManager,
+                              HoaRepo hoaRepo) {
         this.authManager = authManager;
+        this.hoaRepo = hoaRepo;
     }
 
     /**
@@ -127,16 +134,30 @@ public class ElectionController {
                                                    @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
             ResponseEntity<Object> e = fetchElectionAsEntity(electionId, true, token);
+            Object result = ElectionUtils.concludeElection(electionId);
             // start automatic annual board election
-            LocalDateTime scheduledFor = (LocalDateTime) e.getClass().getDeclaredField("scheduledFor").get(e);
-            long hoaId = (Long) e.getClass().getDeclaredField("hoaId").get(e);
-            Integer[] nums = Arrays.stream(scheduledFor.plusYears(1)
-                    .format(DateTimeFormatter.ISO_DATE_TIME)
-                    .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new);
-            ElectionUtils.cyclicCreateBoardElection(new BoardElectionRequestModel(hoaId, 1,
-                    List.of(), "Annual board election",
-                    "This is the auto-generated annual board eletion", new TimeModel(nums)));
-            return ResponseEntity.ok(ElectionUtils.concludeElection(electionId));
+            if (e.getClass().getName().equals("BoardElection")) {
+                LocalDateTime scheduledFor = (LocalDateTime) e.getClass().getDeclaredField("scheduledFor").get(e);
+                long hoaId = (Long) e.getClass().getDeclaredField("hoaId").get(e);
+                Integer[] nums = Arrays.stream(scheduledFor.plusYears(1)
+                        .format(DateTimeFormatter.ISO_DATE_TIME)
+                        .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new);
+                ElectionUtils.cyclicCreateBoardElection(new BoardElectionRequestModel(hoaId, 1,
+                        List.of(), "Annual board election",
+                        "This is the auto-generated annual board election", new TimeModel(nums)));
+            }
+            else if (e.getClass().getName().equals("Proposal") && (Boolean) result) {
+                long hoaId = (Long) e.getClass().getDeclaredField("hoaId").get(e);
+                String rule = (String) e.getClass().getDeclaredField("description").get(e);
+                Optional<Hoa> hoa = hoaRepo.findById(hoaId);
+                if (hoa.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Hoa with given id does not exists?");
+                // for each member in the HOA, add an entry in notification mapper
+                for (String memberId : MembershipUtils.getActiveMembershipsOfHoa(hoaId, token)
+                        .stream().map(MembershipResponseModel::getMemberId).collect(Collectors.toList()))
+                    hoa.get().notify(memberId, rule);
+            }
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot vote", e);
         }

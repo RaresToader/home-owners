@@ -11,7 +11,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.hoa.db.NotificationsConverter;
 import nl.tudelft.sem.template.hoa.db.ReportsConverter;
 
 
@@ -44,6 +46,9 @@ public class Hoa {
     @Convert(converter = ReportsConverter.class)
     private Map<String, List<Long>> reports;
 
+    @Column(name = "notifications", nullable = false)
+    @Convert(converter = NotificationsConverter.class)
+    private Map<String, List<String>> notifications;
 
     public long getId() {
         return id;
@@ -61,7 +66,13 @@ public class Hoa {
         return name;
     }
 
-    public Map<String, List<Long>> getReports() { return reports; }
+    public Map<String, List<Long>> getReports() {
+        return reports;
+    }
+
+    public Map<String, List<String>> getNotifications() {
+        return notifications;
+    }
 
     /**
      * Private constructor for the HOA class.
@@ -92,6 +103,17 @@ public class Hoa {
     public void report(String memberId, Long report) {
         reports.get(memberId).add(report);
     }
+
+    public void notify(String memberId, String rulesChange) {
+        notifications.get(memberId).add(rulesChange);
+    }
+
+    public List<String> resetNotifications(String memberId) {
+        List<String> res = notifications.get(memberId);
+        notifications.get(memberId).clear();
+        return res;
+    }
+
     /**
      * Equals method for HOA class.
      *

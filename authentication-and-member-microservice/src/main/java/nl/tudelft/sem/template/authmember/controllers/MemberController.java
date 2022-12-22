@@ -1,6 +1,7 @@
 package nl.tudelft.sem.template.authmember.controllers;
 
 import java.util.List;
+
 import nl.tudelft.sem.template.authmember.authentication.AuthManager;
 import nl.tudelft.sem.template.authmember.authentication.JwtTokenGenerator;
 import nl.tudelft.sem.template.authmember.authentication.JwtUserDetailsService;
@@ -230,7 +231,22 @@ public class MemberController {
     }
 
     /**
->>>>>>> Draft board election
+     * Rest endpoint to get all memberships of an HOA
+     *
+     * @param hoaId id of HOA
+     * @return List of all members
+     */
+    @GetMapping("/getAllMemberships/{hoaId}")
+    public ResponseEntity<List<Membership>> getAllMemberships(@PathVariable Long hoaId) {
+        try {
+            return ResponseEntity.ok(this.membershipService.getActiveMembershipsByHoaId(hoaId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * >>>>>>> Draft board election
      * Returns all active memberships for user.
      */
     @GetMapping("/getActiveMemberships/{memberId}")
@@ -242,7 +258,7 @@ public class MemberController {
             return ResponseEntity.ok(memberships);
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
-        }  catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member does not exist", e);
         }
     }
@@ -257,7 +273,7 @@ public class MemberController {
             memberService.getMember(model.getMemberId());
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "HOA or member are not stored", e);
         }
     }

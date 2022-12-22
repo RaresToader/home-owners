@@ -91,7 +91,13 @@ public class HoaService {
         return newHoa;
     }
 
-    public void report(String memberId, long reqId) {
+    /**
+     * Method to report another member that violates one of the HOA rules
+     *
+     * @param memberId Id of member that violated an HOA rule
+     * @param reqId    Id of requirement that was broken
+     */
+    public void report(String memberId, long reqId) throws ResponseStatusException {
         Optional<Requirement> req = requirementRepo.findById(reqId);
         if (req.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requirement has no associated HOA");
@@ -99,7 +105,41 @@ public class HoaService {
         if (hoa.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Associated HOA does not exist");
         hoa.get().report(memberId, reqId);
+        hoaRepo.save(hoa.get());
     }
+
+    /**
+     * Method to notify a member of a rule change/addition
+     *
+     * @param hoaId       id of HOA to consider
+     * @param memberId    id of member to be notified
+     * @param rulesChange String representing the rule that was changed/added
+     */
+    public void notify(long hoaId, String memberId, String rulesChange) throws
+            ResponseStatusException {
+        Optional<Hoa> hoa = hoaRepo.findById(hoaId);
+        if (hoa.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Associated HOA does not exist");
+        hoa.get().notify(memberId, rulesChange);
+        hoaRepo.save(hoa.get());
+    }
+
+    /**
+     * Method to clear notifications of a member
+     *
+     * @param hoaId    id of HOA to consider
+     * @param memberId id of member to be notified
+     */
+    public List<String> clearNotifications(long hoaId, String memberId) throws
+            ResponseStatusException {
+        Optional<Hoa> hoa = hoaRepo.findById(hoaId);
+        if (hoa.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Associated HOA does not exist");
+        List<String> res = hoa.get().resetNotifications(memberId);
+        hoaRepo.save(hoa.get());
+        return res;
+    }
+
     /**
      * This method checks that a country/city has the correct format.
      * This means that it must have maximum 50 characters, only letters (only ASCII), whitespaces are admissible,

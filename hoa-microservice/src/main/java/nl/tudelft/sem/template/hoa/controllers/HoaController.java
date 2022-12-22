@@ -163,6 +163,14 @@ public class HoaController {
         }
     }
 
+    /**
+     * Endpoint for reporting a member of an HOA for violating a rule/requirement
+     *
+     * @param memberId id of member to report
+     * @param reqId    id of requirement that was broken
+     * @param token    Authorization token used for validation
+     * @return ResponseEntity that contains the operation's success
+     */
     @PostMapping("/report/{memberId}/{reqId}")
     public ResponseEntity<Boolean> reportUser(@PathVariable String memberId, @PathVariable long reqId,
                                               @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
@@ -175,6 +183,21 @@ public class HoaController {
             hoaService.report(memberId, reqId);
             return ResponseEntity.ok(true);
         } catch (RequirementDoesNotExist e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+    @PostMapping("/getNotifications/{memberId}/{hoaId}")
+    public ResponseEntity<List<String>> getNotifications(@PathVariable String memberId,
+                                                         @PathVariable long hoaId,
+                                                         @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        try {
+            List<MembershipResponseModel> memberships =
+                    MembershipUtils.getActiveMembershipsForUser(memberId, token);
+            if (memberships.stream().noneMatch(m -> m.getHoaId() == hoaId))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
+            return ResponseEntity.ok(hoaService.clearNotifications(hoaId, memberId));
+        } catch (ResponseStatusException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }

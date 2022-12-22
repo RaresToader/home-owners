@@ -16,8 +16,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
      */
     Optional<Membership> findByMembershipId(long membershipId);
 
-
-
     /**
      * Check if a membership exists.
      */
@@ -31,6 +29,8 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
      * Finds active memberships.
      */
     List<Membership> findAllByMemberIdAndDurationIsNull(String memberId);
+
+    List<Membership> findAllByDurationIsNull();
 
     Optional<Membership> findByMemberIdAndHoaIdAndDurationIsNull(String memberId, long hoaId);
 

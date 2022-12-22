@@ -3,6 +3,8 @@ package nl.tudelft.sem.template.authmember.domain.db;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
@@ -168,6 +170,11 @@ public class MembershipService {
 
     public List<Membership> getActiveMemberships(String memberId) {
         return membershipRepository.findAllByMemberIdAndDurationIsNull(memberId);
+    }
+
+    public List<Membership> getActiveMembershipsByHoaId(long hoaId) {
+        return membershipRepository.findAllByDurationIsNull().stream()
+                .filter(m -> m.getHoaId() == hoaId).collect(Collectors.toList());
     }
 
     /**
