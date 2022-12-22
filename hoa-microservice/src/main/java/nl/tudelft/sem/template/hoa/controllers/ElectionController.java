@@ -40,8 +40,8 @@ import nl.tudelft.sem.template.hoa.models.VotingModel;
 @RequestMapping("/voting")
 public class ElectionController {
 
-    private transient AuthManager authManager;
-    private final HoaRepo hoaRepo;
+    private final transient AuthManager authManager;
+    private final transient HoaRepo hoaRepo;
 
     @Autowired
     public ElectionController(AuthManager authManager,
@@ -135,27 +135,30 @@ public class ElectionController {
         try {
             ResponseEntity<Object> e = fetchElectionAsEntity(electionId, true, token);
             Object result = ElectionUtils.concludeElection(electionId);
-            // start automatic annual board election
             if (e.getClass().getName().equals("BoardElection")) {
                 LocalDateTime scheduledFor = (LocalDateTime) e.getClass().getDeclaredField("scheduledFor").get(e);
                 long hoaId = (Long) e.getClass().getDeclaredField("hoaId").get(e);
+                // start automatic annual board election
                 Integer[] nums = Arrays.stream(scheduledFor.plusYears(1)
                         .format(DateTimeFormatter.ISO_DATE_TIME)
                         .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new);
                 ElectionUtils.cyclicCreateBoardElection(new BoardElectionRequestModel(hoaId, 1,
                         List.of(), "Annual board election",
                         "This is the auto-generated annual board election", new TimeModel(nums)));
-            }
-            else if (e.getClass().getName().equals("Proposal") && (Boolean) result) {
+            } else if (e.getClass().getName().equals("Proposal") && (Boolean) result) {
                 long hoaId = (Long) e.getClass().getDeclaredField("hoaId").get(e);
-                String rule = (String) e.getClass().getDeclaredField("description").get(e);
                 Optional<Hoa> hoa = hoaRepo.findById(hoaId);
                 if (hoa.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "Hoa with given id does not exists?");
                 // for each member in the HOA, add an entry in notification mapper
                 for (String memberId : MembershipUtils.getActiveMembershipsOfHoa(hoaId, token)
-                        .stream().map(MembershipResponseModel::getMemberId).collect(Collectors.toList()))
+                        .stream().map(MembershipResponseModel::getMemberId).collect(Collectors.toList())) {
+                    // PMD... cmon, really?
+                    String rule = (String) e.getClass().getDeclaredField("description").get(e);
                     hoa.get().notify(memberId, rule);
+                }
+                // explicit save due to lack of hoaService
+                hoaRepo.save(hoa.get());
             }
             return ResponseEntity.ok(result);
         } catch (Exception e) {

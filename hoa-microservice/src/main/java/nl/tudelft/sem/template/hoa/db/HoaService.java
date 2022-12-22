@@ -20,15 +20,14 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class HoaService {
     private final transient HoaRepo hoaRepo;
-    private final RequirementRepo requirementRepo;
+    private final transient RequirementRepo requirementRepo;
 
     /**
      * Constructor for the HoaService.
      *
      * @param hoaRepo the hoa repository
      */
-    public HoaService(HoaRepo hoaRepo,
-                      RequirementRepo requirementRepo) {
+    public HoaService(HoaRepo hoaRepo, RequirementRepo requirementRepo) {
         this.hoaRepo = hoaRepo;
         this.requirementRepo = requirementRepo;
     }

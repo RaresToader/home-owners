@@ -18,8 +18,9 @@ public class ReportsConverter implements AttributeConverter<Map<String, List<Lon
 		StringBuilder mapAsString = new StringBuilder();
 		for (String key : attribute.keySet()) {
 			mapAsString.append(key).append("=[");
-			for (Long r : attribute.get(key))
+			for (Long r : attribute.get(key)) {
 				mapAsString.append(r).append(",");
+			}
 			mapAsString.deleteCharAt(mapAsString.length() - 1).append("],");
 		}
 		if (mapAsString.length() != 0) mapAsString.deleteCharAt(mapAsString.length() - 1);

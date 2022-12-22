@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.db.HoaService;
@@ -61,20 +62,23 @@ public class HoaController {
     /**
      * Endpoint for creating an association.
      *
-     * @param request the possible new Hoa
+     * @param request             the possibly new Hoa
+     * @param scheduledAfterXDays Optional int for automatic board election creation that is scheduled for X days
      * @return 200 OK if the registration is successful
      */
-    @PostMapping("/create")
-    public ResponseEntity<Hoa> register(@RequestBody HoaRequestModel request) {
+    @PostMapping(value = {"/create", "/create/{scheduledAfterXDays}"})
+    public ResponseEntity<Hoa> register(@RequestBody HoaRequestModel request,
+                                        @PathVariable Optional<Integer> scheduledAfterXDays) {
         try {
             Hoa newHoa = this.hoaService.registerHoa(request);
-            Integer[] nums = Arrays.stream(LocalDateTime.now().plusWeeks(2)
+            if (scheduledAfterXDays.isEmpty() || scheduledAfterXDays.get() < 0) return ResponseEntity.ok(newHoa);
+            Integer[] nums = Arrays.stream(LocalDateTime.now().plusDays(scheduledAfterXDays.get())
                     .format(DateTimeFormatter.ISO_DATE_TIME)
                     .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new);
             // start automatic annual board election
             Object e = ElectionUtils.cyclicCreateBoardElection(new BoardElectionRequestModel(newHoa.getId(),
                     1, List.of(), "Annual board election",
-                    "This is the auto-generated annual board eletion", new TimeModel(nums)));
+                    "This is the auto-generated annual board election", new TimeModel(nums)));
             if (e != null) return ResponseEntity.ok(newHoa);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not create a board election");
         } catch (Exception e) {
@@ -174,19 +178,29 @@ public class HoaController {
     @PostMapping("/report/{memberId}/{reqId}")
     public ResponseEntity<Boolean> reportUser(@PathVariable String memberId, @PathVariable long reqId,
                                               @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
-        try {
-            List<MembershipResponseModel> memberships =
-                    MembershipUtils.getActiveMembershipsForUser(memberId, token);
-            Requirement req = requirementService.getHoaRequirement(reqId);
-            if (memberships.stream().noneMatch(m -> m.getHoaId() == req.getHoaId()))
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
-            hoaService.report(memberId, reqId);
-            return ResponseEntity.ok(true);
-        } catch (RequirementDoesNotExist e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
+        List<MembershipResponseModel> memberships =
+                MembershipUtils.getActiveMembershipsForUser(memberId, token);
+        if (memberships.stream().noneMatch(m -> {
+            try {
+                //PMD, this is silly :)
+                return m.getHoaId() == requirementService.getHoaRequirement(reqId).getHoaId();
+            } catch (RequirementDoesNotExist e) {
+                throw new RuntimeException(e);
+            }
+        }))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
+        hoaService.report(memberId, reqId);
+        return ResponseEntity.ok(true);
     }
 
+    /**
+     * Endpoint for notifying users of accepted proposals (rule changes)
+     *
+     * @param memberId id of member to notify
+     * @param hoaId    id of hoa that sends the notification
+     * @param token    Authorization token used for validation
+     * @return List of unread/new notifications pertaining to the member in the given hoa, if new exist
+     */
     @PostMapping("/getNotifications/{memberId}/{hoaId}")
     public ResponseEntity<List<String>> getNotifications(@PathVariable String memberId,
                                                          @PathVariable long hoaId,

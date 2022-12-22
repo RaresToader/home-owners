@@ -19,6 +19,8 @@ import java.util.List;
 @Singleton
 public class MembershipUtils {
     private static final String server = "http://localhost:8083/member/";
+
+    private static final String invalidMembership = "Membership id invalid.";
     private static final ResteasyClient client = new ResteasyClientBuilder().build();
 
     /**
@@ -27,7 +29,6 @@ public class MembershipUtils {
      * @param membershipId the membership id for the membership being queried.
      * @return the membership response model
      */
-
     public static MembershipResponseModel getMembershipById(long membershipId) {
         try {
             return client.target(server).path("getMembershipById/" + membershipId)
@@ -35,12 +36,15 @@ public class MembershipUtils {
                     .accept(APPLICATION_JSON)
                     .get(MembershipResponseModel.class);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Membership id invalid.");
+            throw new IllegalArgumentException(invalidMembership);
         }
     }
 
     /**
-     *
+     * Client for fetching all memberships (including history) of a user
+     * @param memberID id of member to consider
+     * @param token Authorization token used for validation
+     * @return List of memberships, if any exists
      */
     public static List<MembershipResponseModel> getMembershipsForUser(String memberID, String token) {
         try {
@@ -50,12 +54,15 @@ public class MembershipUtils {
                 .accept(APPLICATION_JSON)
                 .get(new GenericType<>() {});
         } catch (Exception e) {
-            throw new IllegalArgumentException("Membership id invalid.");
+            throw new IllegalArgumentException(invalidMembership);
         }
     }
 
     /**
-     *
+     * Client for fetching all active memberships of a user
+     * @param memberID id of member to consider
+     * @param token Authorization token used for validation
+     * @return List of memberships, if any exists
      */
     public static List<MembershipResponseModel> getActiveMembershipsForUser(String memberID, String token) {
         try {
@@ -65,9 +72,16 @@ public class MembershipUtils {
                     .accept(APPLICATION_JSON)
                     .get(new GenericType<>() {});
         } catch (Exception e) {
-            throw new IllegalArgumentException("Membership id invalid.");
+            throw new IllegalArgumentException(invalidMembership);
         }
     }
+
+    /**
+     * Client for fetching all active memberships of an HOA
+     * @param hoaId id of hoa to consider
+     * @param token Authorization token used for validation
+     * @return List of memberships, if any exists
+     */
     public static List<MembershipResponseModel> getActiveMembershipsOfHoa(Long hoaId, String token) {
         try {
             return client.target(server).path("getAllMemberships/" + hoaId)
@@ -76,7 +90,7 @@ public class MembershipUtils {
                     .accept(APPLICATION_JSON)
                     .get(new GenericType<>() {});
         } catch (Exception e) {
-            throw new IllegalArgumentException("Membership id invalid.");
+            throw new IllegalArgumentException(invalidMembership);
         }
     }
 

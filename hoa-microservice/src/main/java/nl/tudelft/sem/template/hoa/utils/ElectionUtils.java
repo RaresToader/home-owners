@@ -52,7 +52,7 @@ public class ElectionUtils {
      * @return the created board election
      */
     public static Object cyclicCreateBoardElection(BoardElectionRequestModel model) {
-        return client.target("http://localhost:8084/voting/").path("boardElection/")
+        return client.target("http://localhost:8084/voting/").path("boardElection")
                 .request(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .post(Entity.entity(model, APPLICATION_JSON), Object.class);
