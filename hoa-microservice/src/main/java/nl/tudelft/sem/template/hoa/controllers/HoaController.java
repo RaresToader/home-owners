@@ -140,7 +140,7 @@ public class HoaController {
      * @param prompt String to represent the requirement added
      * @return Added requirement object
      */
-    @PostMapping("/addRequirement/{id}")
+    @PostMapping("/addRequirement/{hoaId}")
     public ResponseEntity<Requirement> addRequirement(@PathVariable long hoaId,
                                                       @RequestBody String prompt) {
         try {
@@ -157,7 +157,7 @@ public class HoaController {
      * @param reqId ID of requirement to remove
      * @return Removed requirement, if one with the provided id exists
      */
-    @PostMapping("/removeRequirement/{id}")
+    @PostMapping("/removeRequirement/{reqId}")
     public ResponseEntity<Requirement> removeRequirements(@PathVariable long reqId) {
         try {
             Requirement req = requirementService.removeHoaRequirement(reqId);
