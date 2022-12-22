@@ -20,5 +20,6 @@ class HashedPasswordSerializerTest {
         new HashedPasswordSerializer().serialize(new HashedPassword("password"), jsonGenerator, serializerProvider);
         jsonGenerator.flush();
         assertThat(jsonWriter.toString()).isEqualTo(("\"password\""));
+        jsonGenerator.close();
     }
 }

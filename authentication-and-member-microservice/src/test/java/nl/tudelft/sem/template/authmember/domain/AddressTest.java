@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AddressTest {
 
-    private Address address = new Address("Netherlands", "Delft", "Drebelweg", "14", "1111AA");
+    private transient Address address = new Address("Netherlands", "Delft", "Drebelweg", "14", "1111AA");
 
     @Test
     void testToString() {

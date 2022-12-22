@@ -12,8 +12,10 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -24,16 +26,17 @@ class MemberServiceTest {
     private transient PasswordHashingService passwordHashingService;
     private transient MemberService memberService;
     private transient String id = "member1";
+    private transient String id2 = "member2";
     private transient Member member = new Member(id, new HashedPassword("pass1"));
 
     @BeforeEach
-    void setup(){
+    void setup() {
         memberRepository = Mockito.mock(MemberRepository.class);
         passwordHashingService = Mockito.mock(PasswordHashingService.class);
         memberService = new MemberService(memberRepository, passwordHashingService);
         Mockito.when(this.memberRepository.existsByMemberId(id)).thenReturn(true);
         Mockito.when(this.memberRepository.findByMemberId(id)).thenReturn(java.util.Optional.ofNullable(member));
-        Mockito.when(this.memberRepository.existsByMemberId("member2")).thenReturn(false);
+        Mockito.when(this.memberRepository.existsByMemberId(id2)).thenReturn(false);
         Mockito.when(this.memberRepository.existsByMemberId("member3")).thenReturn(true);
         Mockito.when(this.memberRepository.findByMemberId("member3")).thenReturn(java.util.Optional.ofNullable(null));
     }
@@ -61,7 +64,8 @@ class MemberServiceTest {
 
     @Test
     void registerUser() throws MemberAlreadyExistsException, BadRegistrationModelException {
-        assertEquals("member2", memberService.registerUser(new RegistrationModel("member2", "ok_password_123")).getMemberId());
+        assertEquals(id2, memberService.registerUser(
+                new RegistrationModel(id2, "ok_password_123")).getMemberId());
     }
 
     @Test
@@ -161,7 +165,7 @@ class MemberServiceTest {
     @Test
     void getMemberNotFound() {
         assertThrows(IllegalArgumentException.class, () -> {
-            memberService.getMember("member2");
+            memberService.getMember(id2);
         });
     }
 

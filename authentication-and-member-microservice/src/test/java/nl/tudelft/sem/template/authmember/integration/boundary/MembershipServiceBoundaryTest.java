@@ -10,12 +10,12 @@ import org.mockito.Mock;
 
 public class MembershipServiceBoundaryTest {
 
-    private MembershipService membershipService;
+    private transient MembershipService membershipService;
     @Mock
-    private MembershipRepository membershipRepository;
+    private transient MembershipRepository membershipRepository;
 
     @Mock
-    private MemberRepository memberRepository;
+    private transient MemberRepository memberRepository;
 
     @BeforeEach
     public void setUp() {

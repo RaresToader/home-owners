@@ -6,7 +6,9 @@ import nl.tudelft.sem.template.authmember.domain.db.MembershipService;
 import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberDifferentAddressException;
-import nl.tudelft.sem.template.authmember.models.*;
+import nl.tudelft.sem.template.authmember.models.GetHoaModel;
+import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
+import nl.tudelft.sem.template.authmember.models.HoaResponseModel;
 import nl.tudelft.sem.template.authmember.utils.HoaUtils;
 import nl.tudelft.sem.template.authmember.utils.TimeUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -36,17 +38,19 @@ class HoaServiceTest {
 
     private transient MembershipService membershipService;
 
-    private transient String tok = "token123";
+    private static transient String tok = "token123";
     private transient String mem1 = "member1";
     private transient String mem2 = "member2";
+    private transient String country = "Netherlands";
 
-    private transient Address address = new Address("Netherlands", "Delft", "Drebelweg", "14", "1111AA");
+    private transient Address address = new Address(country, "Delft", "Drebelweg", "14", "1111AA");
     private transient LocalDateTime start = LocalDateTime.now();
     private transient LocalDateTime end = start.plusHours(12);
     private transient Membership m1 = new Membership(mem1, 1L, address, start, null, true);
     private transient Membership m2 = new Membership(mem2, 1L, address, start, null, false);
     private transient Membership m3 = new Membership(mem2, 2L, address, start, null, true);
-    private transient Membership m4 = new Membership(mem1, 2L, address, start.minusHours(10),TimeUtils.absoluteDifference(start, start.plusHours(5)), true);
+    private transient Membership m4 = new Membership(mem1, 2L, address, start.minusHours(10),
+            TimeUtils.absoluteDifference(start, start.plusHours(5)), true);
 
     private transient JoinHoaModel bad = new JoinHoaModel();
 
@@ -60,11 +64,11 @@ class HoaServiceTest {
         hoaUtils = mockStatic(HoaUtils.class);
         HoaResponseModel h1 = new HoaResponseModel(1L, "Netherlands", "Delft", "HOA1");
         HoaResponseModel h2 = new HoaResponseModel(2L, "Netherlands", "Delft", "HOA2");
-        when(HoaUtils.getHoaById(1L, "token123"))
+        when(HoaUtils.getHoaById(1L, tok))
                 .thenReturn(h1);
-        when(HoaUtils.getHoaById(2L, "token123"))
+        when(HoaUtils.getHoaById(2L, tok))
                 .thenReturn(h2);
-        when(HoaUtils.getHoaById(3L, "token123"))
+        when(HoaUtils.getHoaById(3L, tok))
                 .thenThrow(new IllegalArgumentException());
     }
 
@@ -141,7 +145,7 @@ class HoaServiceTest {
     @Test
     void joinHoaWrongAddressCity() {
         JoinHoaModel m = new JoinHoaModel();
-        m.setAddress(new Address("Netherlands", "Haag", "Rijswijk", "14", "1123AB"));
+        m.setAddress(new Address(country, "Haag", "Rijswijk", "14", "1123AB"));
         m.setMemberId(mem1);
         m.setHoaId(2L);
         assertThrows(MemberDifferentAddressException.class, () -> hoaService.joinHoa(m, tok));

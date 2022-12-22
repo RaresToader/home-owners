@@ -33,6 +33,7 @@ public class JwtRequestFilterTest {
     private transient String token = "randomtoken123";
     private transient String user = "user123";
     private transient String auth = "Authorization";
+
     /**
      * Setup method
      */

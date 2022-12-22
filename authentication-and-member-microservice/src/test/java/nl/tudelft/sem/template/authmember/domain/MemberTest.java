@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class MemberTest {
 
-    private HashedPassword password = new HashedPassword("MAMA_password_123");
-    private Member member = new Member("Joe_Mama", password);
+    private transient HashedPassword password = new HashedPassword("MAMA_password_123");
+    private transient Member member = new Member("Joe_Mama", password);
 
     @Test
     void getMemberId() {

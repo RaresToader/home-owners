@@ -4,13 +4,9 @@ import nl.tudelft.sem.template.authmember.domain.Address;
 import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
-import nl.tudelft.sem.template.authmember.domain.exceptions.BadRegistrationModelException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
-import nl.tudelft.sem.template.authmember.domain.password.HashedPassword;
-import nl.tudelft.sem.template.authmember.domain.password.PasswordHashingService;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
-import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import nl.tudelft.sem.template.authmember.utils.TimeUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,15 +15,14 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.util.SerializationUtils;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -39,23 +34,31 @@ class MembershipServiceTest {
     private transient MembershipService membershipService;
 
     private transient String id = "member1";
-    private transient String new_id = "member111";
-    private transient Address address = new Address("Netherlands", "Delft", "Drebelweg", "14", "1111AA");
+    private transient String newId = "member111";
+    private transient String country = "Netherlands";
+    private transient String city = "Delft";
+    private transient String street = "Drebelweg";
+    private transient String zip = "1111AA";
+    private transient String m2 = "member2";
+    private transient Address address = new Address(country, city, street, "14", zip);
     private transient LocalDateTime start = LocalDateTime.now(ZoneOffset.UTC);
 
     private transient Membership membership = new Membership(id, 1, address, start, null, false);
     private transient Membership membership2 = new Membership(id, 2, address, start, null, true);
-    private transient Membership membership3 = new Membership(id, 2, address, start, TimeUtils.absoluteDifference(start, start.plusHours(12)), true);
+    private transient Membership membership3 = new Membership(id, 2, address, start, 
+            TimeUtils.absoluteDifference(start, start.plusHours(12)), true);
 
     @BeforeEach
-    void setup(){
+    void setup() {
         memberRepository = Mockito.mock(MemberRepository.class);
         membershipRepository = Mockito.mock(MembershipRepository.class);
         membershipService = new MembershipService(membershipRepository, memberRepository);
 
-        Mockito.when(this.membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull(id, 1l)).thenReturn(java.util.Optional.ofNullable(membership));
-        Mockito.when(this.membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull("member2", 1l)).thenReturn(java.util.Optional.ofNullable(null));
-        Mockito.when(this.membershipRepository.findByMembershipId(0l)).thenReturn(java.util.Optional.ofNullable(membership));
+        Mockito.when(this.membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull(id, 1L))
+                .thenReturn(java.util.Optional.ofNullable(membership));
+        Mockito.when(this.membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull(m2, 1L))
+                .thenReturn(java.util.Optional.ofNullable(null));
+        Mockito.when(this.membershipRepository.findByMembershipId(0L)).thenReturn(java.util.Optional.ofNullable(membership));
         Mockito.when(this.membershipRepository.findAll()).thenReturn(new ArrayList<>());
         List<Membership> list = new ArrayList<>();
         list.add(membership);
@@ -63,14 +66,14 @@ class MembershipServiceTest {
         Mockito.when(this.membershipRepository.findAllByMemberIdAndDurationIsNull(id)).thenReturn(list);
         List<Membership> list2 = new ArrayList<>();
         list2.add(membership);
-        Mockito.when(this.membershipRepository.findAllByMemberIdAndHoaId(id, 1l)).thenReturn(list2);
+        Mockito.when(this.membershipRepository.findAllByMemberIdAndHoaId(id, 1L)).thenReturn(list2);
         List<Membership> list3 = new ArrayList<>();
         list3.add(membership);
         list3.add(membership3);
         Mockito.when(this.membershipRepository.findAllByMemberId(id)).thenReturn(list2);
-        Mockito.when(this.memberRepository.findByMemberId("member2")).thenReturn(java.util.Optional.ofNullable(null));
+        Mockito.when(this.memberRepository.findByMemberId(m2)).thenReturn(java.util.Optional.ofNullable(null));
         Mockito.when(this.memberRepository.findByMemberId(id)).thenReturn(java.util.Optional.ofNullable(new Member()));
-        Mockito.when(this.memberRepository.findByMemberId(new_id)).thenReturn(java.util.Optional.ofNullable(new Member()));;
+        Mockito.when(this.memberRepository.findByMemberId(newId)).thenReturn(java.util.Optional.ofNullable(new Member()));;
     }
 
     @AfterEach
@@ -80,55 +83,60 @@ class MembershipServiceTest {
 
     @Test
     void saveMembership() throws MemberAlreadyInHoaException, BadJoinHoaModelException {
-        assertTrue(membershipService.saveMembership(new JoinHoaModel(new_id, 1l, address)));
+        assertTrue(membershipService.saveMembership(new JoinHoaModel(newId, 1L, address)));
     }
 
     @Test
     void saveMembershipCountry() {
         assertThrows(BadJoinHoaModelException.class, () -> {
-            membershipService.saveMembership(new JoinHoaModel(new_id, 1l, new Address(null, "Delft", "Drebelweg", "14", "1111AA")));
+            membershipService.saveMembership(new JoinHoaModel(newId, 1L,
+                    new Address(null, city, street, "14", zip)));
         });
     }
 
     @Test
     void saveMembershipCity() {
         assertThrows(BadJoinHoaModelException.class, () -> {
-            membershipService.saveMembership(new JoinHoaModel(new_id, 1l, new Address("Netherlands", null, "Drebelweg", "14", "1111AA")));
+            membershipService.saveMembership(new JoinHoaModel(newId, 1L,
+                    new Address(country, null, street, "14", zip)));
         });
     }
 
     @Test
     void saveMembershipStreet() {
         assertThrows(BadJoinHoaModelException.class, () -> {
-            membershipService.saveMembership(new JoinHoaModel(new_id, 1l, new Address("Netherlands", "Delft", null, "14", "1111AA")));
+            membershipService.saveMembership(new JoinHoaModel(newId, 1L,
+                    new Address(country, city, null, "14", zip)));
         });
     }
 
     @Test
     void saveMembershipNumber() {
         assertThrows(BadJoinHoaModelException.class, () -> {
-            membershipService.saveMembership(new JoinHoaModel(new_id, 1l, new Address("Netherlands", "Delft", "Drebelweg", null, "1111AA")));
+            membershipService.saveMembership(new JoinHoaModel(newId, 1L,
+                    new Address(country, city, street, null, zip)));
         });
     }
 
     @Test
     void saveMembershipPostal() {
         assertThrows(BadJoinHoaModelException.class, () -> {
-            membershipService.saveMembership(new JoinHoaModel(new_id, 1l, new Address("Netherlands", "Delft", "Drebelweg", "1", "x")));
+            membershipService.saveMembership(new JoinHoaModel(newId, 1L,
+                    new Address(country, city, street, "1", "x")));
         });
     }
 
     @Test
     void saveMembershipNoMember() {
         assertThrows(IllegalArgumentException.class, () -> {
-            membershipService.saveMembership(new JoinHoaModel("member2", 1l, address));
+            membershipService.saveMembership(new JoinHoaModel(m2, 1L, address));
         });
     }
 
     @Test
     void saveMembershipAlreadyThere() {
         assertThrows(MemberAlreadyInHoaException.class, () -> {
-            membershipService.saveMembership(new JoinHoaModel(id, 1l, address));
+            membershipService.saveMembership(new JoinHoaModel(id, 1L, address));
         });
     }
     
@@ -274,7 +282,8 @@ class MembershipServiceTest {
 
     @Test
     void stopMembership() {
-        assertEquals(TimeUtils.absoluteDifference(start, LocalDateTime.now()), membershipService.stopMembership(new GetHoaModel(id, 1L)).getDuration());
+        assertEquals(TimeUtils.absoluteDifference(start, LocalDateTime.now()),
+                membershipService.stopMembership(new GetHoaModel(id, 1L)).getDuration());
     }
 
     @Test
@@ -302,25 +311,25 @@ class MembershipServiceTest {
     @Test
     void getActiveMembershipByMemberAndHoaNull() {
         assertThrows(IllegalArgumentException.class, () -> {
-            membershipService.getActiveMembershipByMemberAndHoa("member2", 1l);
+            membershipService.getActiveMembershipByMemberAndHoa(m2, 1L);
         });
     }
 
     @Test
     void getActiveMembershipByMemberAndHoa() {
-        assertEquals(membership, membershipService.getActiveMembershipByMemberAndHoa("member1", 1l));
+        assertEquals(membership, membershipService.getActiveMembershipByMemberAndHoa("member1", 1L));
     }
 
     @Test
     void getMembershipNull() {
         assertThrows(IllegalArgumentException.class, () -> {
-            membershipService.getMembership(1l);
+            membershipService.getMembership(1L);
         });
     }
 
     @Test
     void getMembership() {
-        assertEquals(membership, membershipService.getMembership(0l));
+        assertEquals(membership, membershipService.getMembership(0L));
     }
 
     @Test
