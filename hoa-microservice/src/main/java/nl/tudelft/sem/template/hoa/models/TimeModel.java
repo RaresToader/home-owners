@@ -1,12 +1,14 @@
 package nl.tudelft.sem.template.hoa.models;
 
 import lombok.Data;
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@Generated
 @Data
 public class TimeModel {
     public int seconds;

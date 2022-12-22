@@ -8,11 +8,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 
 
 /**
  * DDD entity representing an association in our domain.
  */
+@Generated
 @Entity
 @Table(name = "Hoa")
 @NoArgsConstructor
