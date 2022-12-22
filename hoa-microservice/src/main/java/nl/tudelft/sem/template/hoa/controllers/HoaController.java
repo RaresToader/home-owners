@@ -112,7 +112,7 @@ public class HoaController {
         try {
             return ResponseEntity.ok(hoaService.getHoaById(id));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not fetch HOA", e);
         }
     }
 

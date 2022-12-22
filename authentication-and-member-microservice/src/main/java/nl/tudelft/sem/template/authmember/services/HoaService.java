@@ -11,7 +11,9 @@ import nl.tudelft.sem.template.authmember.models.HoaResponseModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
 import nl.tudelft.sem.template.authmember.utils.HoaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Service to process any HOA-related queries for Member.

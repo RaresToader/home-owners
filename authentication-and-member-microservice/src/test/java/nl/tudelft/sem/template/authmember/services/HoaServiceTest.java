@@ -24,6 +24,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,8 +63,10 @@ class HoaServiceTest {
     @BeforeAll
     static void registerMocks() {
         hoaUtils = mockStatic(HoaUtils.class);
-        HoaResponseModel h1 = new HoaResponseModel(1L, "Netherlands", "Delft", "HOA1");
-        HoaResponseModel h2 = new HoaResponseModel(2L, "Netherlands", "Delft", "HOA2");
+        HoaResponseModel h1 = new HoaResponseModel(1L, "Netherlands", "Delft", "HOA1",
+                new HashMap<>(), new HashMap<>());
+        HoaResponseModel h2 = new HoaResponseModel(2L, "Netherlands", "Delft", "HOA2",
+                new HashMap<>(), new HashMap<>());
         when(HoaUtils.getHoaById(1L, tok))
                 .thenReturn(h1);
         when(HoaUtils.getHoaById(2L, tok))

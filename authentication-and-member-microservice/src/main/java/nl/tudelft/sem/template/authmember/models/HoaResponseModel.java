@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Model representing a Hoa Response.
  */
@@ -15,4 +18,6 @@ public class HoaResponseModel {
     private String country;
     private String city;
     private String name;
+    private Map<String, List<Long>> reports;
+    private Map<String, List<String>> notifications;
 }

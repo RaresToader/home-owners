@@ -51,7 +51,7 @@ public class MembershipService {
             throw new MemberAlreadyInHoaException(model);
         } else {
             membershipRepository.save(new Membership(model.getMemberId(),
-                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, false));
+                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, asBoard));
             return true;
         }
     }
