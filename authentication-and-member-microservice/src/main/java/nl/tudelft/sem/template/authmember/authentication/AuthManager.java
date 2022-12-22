@@ -24,9 +24,10 @@ public class AuthManager {
      * @param member the member
      * @throws IllegalAccessException thrown if the two names are different.
      */
-    public void validateMember(String member) throws IllegalAccessException {
+    public boolean validateMember(String member) throws IllegalAccessException {
         if (!member.equals(getMemberId())) {
             throw new IllegalAccessException();
         }
+        return true;
     }
 }
