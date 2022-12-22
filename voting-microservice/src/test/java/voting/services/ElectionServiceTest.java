@@ -197,7 +197,7 @@ class ElectionServiceTest {
 	void removeVoteSuccessful() throws ElectionDoesNotExist, CannotProceedVote, ThereIsNoVote {
 		Proposal proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
 		proposal.setStatus("ongoing");
-		proposal.vote("chad",true);
+		proposal.vote("chad", true);
 		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		electionService.removeVote(removeVoteModel, LocalDateTime.now());
 		assertTrue(proposal.getVotes().isEmpty());
@@ -241,7 +241,7 @@ class ElectionServiceTest {
 	void removeVoteNotVoted() throws ThereIsNoVote, ElectionDoesNotExist, CannotProceedVote {
 		Proposal proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
 		proposal.setStatus("ongoing");
-		proposal.vote("notChad",true);
+		proposal.vote("notChad", true);
 		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		assertThrows(ThereIsNoVote.class, () -> electionService.removeVote(removeVoteModel, LocalDateTime.now()));
 		assertFalse(proposal.getVotes().isEmpty());
