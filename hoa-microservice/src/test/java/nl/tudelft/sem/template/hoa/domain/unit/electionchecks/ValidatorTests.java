@@ -1,4 +1,4 @@
-package domain.electionchecks.unit;
+package nl.tudelft.sem.template.hoa.domain.unit.electionchecks;
 
 import nl.tudelft.sem.template.hoa.domain.electionchecks.NotBoardForTooLongValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.NotInAnyOtherBoardValidator;

@@ -1,4 +1,4 @@
-package controllers;
+package nl.tudelft.sem.template.hoa.controllers;
 
 public class ElectionControllerTest {
 

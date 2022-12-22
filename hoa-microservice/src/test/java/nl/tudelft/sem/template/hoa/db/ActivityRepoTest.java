@@ -1,4 +1,4 @@
-package db;
+package nl.tudelft.sem.template.hoa.db;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
