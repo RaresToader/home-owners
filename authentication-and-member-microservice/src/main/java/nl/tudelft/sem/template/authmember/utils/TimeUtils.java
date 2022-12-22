@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.authmember.utils;
 
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
