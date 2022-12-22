@@ -2,6 +2,7 @@ package nl.tudelft.sem.template.hoa.utils;
 
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;
+import nl.tudelft.sem.template.hoa.models.RemoveVoteModel;
 import nl.tudelft.sem.template.hoa.models.VotingModel;
 import org.springframework.http.HttpStatus;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
@@ -54,6 +55,20 @@ public class ElectionUtils {
                 .request(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .post(Entity.entity(model, APPLICATION_JSON), HttpStatus.class);
+    }
+
+
+    /**
+     * Allows the user to remove his vote on an election using the voting microservice
+     *
+     * @param model the model for removing a vote
+     * @return the status of the removal of the vote
+     */
+    public static HttpStatus removeVote(RemoveVoteModel model) {
+        return client.target(server).path("removeVote/")
+            .request(APPLICATION_JSON)
+            .accept(APPLICATION_JSON)
+            .post(Entity.entity(model, APPLICATION_JSON), HttpStatus.class);
     }
 
     /**

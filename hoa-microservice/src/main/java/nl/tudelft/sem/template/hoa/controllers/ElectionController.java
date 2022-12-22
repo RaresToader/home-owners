@@ -6,6 +6,7 @@ import nl.tudelft.sem.template.hoa.domain.electionchecks.TimeInCurrentHoaValidat
 import nl.tudelft.sem.template.hoa.domain.electionchecks.Validator;
 import nl.tudelft.sem.template.hoa.exception.MemberNotInBoardException;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
+import nl.tudelft.sem.template.hoa.models.RemoveVoteModel;
 import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
 import org.springframework.http.HttpHeaders;
@@ -76,6 +77,21 @@ public class ElectionController {
             return ResponseEntity.ok(ElectionUtils.vote(model));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot vote", e);
+        }
+    }
+
+    /**
+     *  Endpoint for removing a vote on an election
+     *
+     * @param model the vote to be removed
+     * @return the status of the removal of the vote
+     */
+    @PostMapping("/removeVote")
+    public ResponseEntity<HttpStatus> removeVote(@RequestBody RemoveVoteModel model) {
+        try {
+            return ResponseEntity.ok(ElectionUtils.removeVote(model));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot remove vote", e);
         }
     }
 

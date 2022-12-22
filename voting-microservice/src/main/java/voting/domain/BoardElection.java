@@ -3,6 +3,7 @@ package voting.domain;
 import lombok.NoArgsConstructor;
 import voting.db.converters.BoardElectionVotesConverter;
 import voting.db.converters.CandidatesConverter;
+import voting.exceptions.ThereIsNoVote;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;
@@ -78,6 +79,20 @@ public class BoardElection extends Election {
         if (getStatus().equals("ongoing") && candidates.contains((String) voteChoice)) {
             votes.put(memberId, (String) voteChoice);
             this.incrementVoteCount();
+        }
+    }
+
+    /**
+     * Removes member's vote
+     * @param memberId Id of member that wants to remove his vote
+     * @throws ThereIsNoVote - member has not yet voted
+     */
+    @Override
+    public void removeVote(String memberId) throws ThereIsNoVote {
+        if (this.votes.containsKey(memberId)) {
+            this.votes.remove(memberId);
+        } else {
+            throw new ThereIsNoVote("This person has not voted yet");
         }
     }
 

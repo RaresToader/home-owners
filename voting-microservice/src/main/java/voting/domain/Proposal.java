@@ -3,6 +3,7 @@ package voting.domain;
 import lombok.NoArgsConstructor;
 import voting.annotations.Generated;
 import voting.db.converters.ProposalVotesConverter;
+import voting.exceptions.ThereIsNoVote;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;
@@ -60,6 +61,20 @@ public class Proposal extends Election {
             if (vote.getClass() == Boolean.class) votes.put(memberId, (Boolean) vote);
             else votes.put(memberId, List.of("True", "true", "T").contains((String) vote));
             this.incrementVoteCount();
+        }
+    }
+
+    /**
+     * Removes member's vote
+     * @param memberId Id of the member that wants to remove his vote
+     * @throws ThereIsNoVote - member has not yet voted
+     */
+    @Override
+    public void removeVote(String memberId) throws ThereIsNoVote {
+        if (this.votes.containsKey(memberId)) {
+            this.votes.remove(memberId);
+        } else {
+            throw new ThereIsNoVote("This person has not voted yet");
         }
     }
 

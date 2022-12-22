@@ -18,6 +18,8 @@ import voting.exceptions.CannotProceedVote;
 import voting.exceptions.ElectionCannotBeCreated;
 import voting.exceptions.ElectionDoesNotExist;
 import voting.exceptions.ProposalAlreadyCreated;
+import voting.exceptions.ThereIsNoVote;
+import voting.models.RemoveVoteModel;
 import voting.models.VotingModel;
 import voting.services.ElectionService;
 import voting.models.BoardElectionModel;
@@ -104,6 +106,21 @@ public class ElectionController {
         }
     }
 
+    /**
+     * Handles removing vote requests by members of an HOA
+     *
+     * @param model RemoveVoteModel containing the required fields
+     * @return Response entity to note whether the removing of the vote was successful
+     */
+    @PostMapping("/removeVote")
+    public ResponseEntity<HttpStatus> removeVote(@RequestBody RemoveVoteModel model) {
+        try {
+            electionService.removeVote(model, LocalDateTime.now());
+            return ResponseEntity.ok().build();
+        } catch (ElectionDoesNotExist | ThereIsNoVote | CannotProceedVote e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
     /**
      * Getter for an election by id
      *

@@ -12,8 +12,10 @@ import voting.exceptions.CannotProceedVote;
 import voting.exceptions.ElectionCannotBeCreated;
 import voting.exceptions.ElectionDoesNotExist;
 import voting.exceptions.ProposalAlreadyCreated;
+import voting.exceptions.ThereIsNoVote;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
+import voting.models.RemoveVoteModel;
 import voting.models.VotingModel;
 
 import java.time.LocalDateTime;
@@ -117,6 +119,28 @@ public class ElectionService {
             throw new CannotProceedVote("Invalid voting choice for proposal (must be a boolean or similar)");
         election.get().setStatus("ongoing");
         election.get().vote(model.memberId, model.choice);
+        this.electionRepository.save(election.get());
+    }
+
+    /**
+     * Method called when a member wants to remove his vote
+     *
+     * @param model RemoveVoteModel that contains electionId and memberID
+     * @throws ElectionDoesNotExist If election does not exist with provided id
+     * @throws ThereIsNoVote If the member has not voted yet
+     * @throws CannotProceedVote If the request has been made before the beginning or after the end of the voting process
+     */
+    public void removeVote(RemoveVoteModel model, LocalDateTime currTime) throws ElectionDoesNotExist, ThereIsNoVote, CannotProceedVote {
+        if (!model.isValid())
+            throw new ElectionDoesNotExist("Ids not valid");
+        Optional<Election> election = this.electionRepository.findByElectionId(model.electionId);
+        if (election.isEmpty())
+            throw new ElectionDoesNotExist("Election not found");
+        if (election.get().getScheduledFor().isAfter(currTime))
+            throw new CannotProceedVote("Election has not started");
+        if (election.get().getStatus().equals("finished"))
+            throw new CannotProceedVote("Election has been concluded");
+        election.get().removeVote(model.memberId);
         this.electionRepository.save(election.get());
     }
 
