@@ -47,7 +47,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class MemberController {
 
     private transient MemberService memberService;
-    private final transient HoaService hoaService;
+    private transient HoaService hoaService;
     private transient MembershipService membershipService;
 
     private final transient AuthenticationManager authenticationManager;
@@ -135,6 +135,7 @@ public class MemberController {
     public ResponseEntity<Membership> joinHoa(@RequestBody JoinHoaModel model,
                                               @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
+            System.out.println("token:" + token);
             authManager.validateMember(model.getMemberId());
             hoaService.joinHoa(model, token);
             return ResponseEntity.ok().build();
@@ -310,10 +311,25 @@ public class MemberController {
     public void setAuthenticationManager(AuthManager a) {
         this.authManager = a;
     }
+
+    /** Setter method used when MemberService needs to be mocked
+     * @param m - MemberService to be mocked
+     */
     public void setMemberService(MemberService m) {
         this.memberService = m;
     }
+
+    /** Setter method used when MembershipService needs to be mocked
+     * @param m - MembershipService to be mocked
+     */
     public void setMembershipService(MembershipService m) {
         this.membershipService = m;
+    }
+
+    /** Setter method used when HoaService needs to be mocked
+     * @param h - HoaService to be mocked
+     */
+    public void setHoaService(HoaService h) {
+        this.hoaService = h;
     }
 }
