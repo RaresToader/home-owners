@@ -41,6 +41,9 @@ import org.springframework.test.web.servlet.ResultActions;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class ActivityControllerTest {
 
+    private final transient String activityCreate = "/activity/create/";
+
+    private final transient String testActivity = "This is a test activity";
     @Autowired
     private transient MockMvc mockMvc;
     @Autowired
@@ -57,7 +60,8 @@ class ActivityControllerTest {
                 .thenReturn(new MembershipResponseModel(1L, "test user", 1L,
                     "country", "city", false, LocalDateTime.now(), LocalDateTime.now()));
         when(MembershipUtils.getMembershipById(2L))
-                .thenReturn(new MembershipResponseModel(2L, "test user 2", 2L, "country 2", "city 2", false,
+                .thenReturn(new MembershipResponseModel(2L, "test user 2", 2L,
+                        "country 2", "city 2", false,
                         LocalDateTime.now(), LocalDateTime.now()));
     }
 
@@ -79,15 +83,15 @@ class ActivityControllerTest {
         LocalTime activityDuration = LocalTime.of(2, 30, 30);
 
         // Set up the ActivityRequestModel to be provided in the request body
-        ActivityRequestModel requestModel = new ActivityRequestModel("Test Activity", "This is a test activity",
-                1L, activityTime, activityDuration);
+        ActivityRequestModel requestModel = new ActivityRequestModel("Test Activity",
+                testActivity, 1L, activityTime, activityDuration);
 
         // Set up the expected Activity object that the ActivityService should be called with
-        Activity expectedActivity = new Activity(1L, "Test Activity", "This is a test activity",
-                activityTime, activityDuration);
+        Activity expectedActivity = new Activity(1L, "Test Activity",
+                testActivity, activityTime, activityDuration);
 
         // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
-        ResultActions resultActions = mockMvc.perform(post("/activity/create/" + 1L)
+        ResultActions resultActions = mockMvc.perform(post(activityCreate + 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonUtil.serialize(requestModel)));
 
@@ -106,11 +110,11 @@ class ActivityControllerTest {
         LocalTime activityDuration = LocalTime.of(2, 30, 30);
 
         // Set up the ActivityRequestModel to be provided in the request body
-        ActivityRequestModel requestModel = new ActivityRequestModel("Test Activity", "This is a test activity",
+        ActivityRequestModel requestModel = new ActivityRequestModel("Test Activity", testActivity,
                 1L, activityTime, activityDuration);
 
         // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
-        ResultActions resultActions = mockMvc.perform(post("/activity/create/" + 2L)
+        ResultActions resultActions = mockMvc.perform(post(activityCreate + 2L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(requestModel)));
 
@@ -124,26 +128,26 @@ class ActivityControllerTest {
         LocalTime activityDuration = LocalTime.of(2, 30, 30);
 
         // Set up the ActivityRequestModel to be provided in the request body
-        ActivityRequestModel requestModel = new ActivityRequestModel("", "This is a test activity",
+        ActivityRequestModel requestModel = new ActivityRequestModel("", testActivity,
                 1L, activityTime, activityDuration);
 
         // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
-        ResultActions resultActions = mockMvc.perform(post("/activity/create/" + 1L)
+        ResultActions resultActions = mockMvc.perform(post(activityCreate + 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(requestModel)));
 
         resultActions.andExpect(status().isBadRequest());
 
         // Set up the ActivityRequestModel to be provided in the request body
-        ActivityRequestModel requestModel1 = new ActivityRequestModel("", "This is a test activity",
+        ActivityRequestModel requestModel1 = new ActivityRequestModel("", testActivity,
                 3L, activityTime, activityDuration);
 
         // Perform a POST request to the /activity/create endpoint with the requestModel in the request body
-        ResultActions resultActions1 = mockMvc.perform(post("/activity/create/" + 1L)
+        ResultActions resultActions1 = mockMvc.perform(post(activityCreate + 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(requestModel1)));
 
-        resultActions.andExpect(status().isBadRequest());
+        resultActions1.andExpect(status().isBadRequest());
     }
 
 

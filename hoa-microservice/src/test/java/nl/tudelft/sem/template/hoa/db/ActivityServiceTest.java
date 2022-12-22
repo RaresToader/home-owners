@@ -165,30 +165,31 @@ class ActivityServiceTest {
 
     @Test
     void addActivityNullName() {
-        ActivityRequestModel model = new ActivityRequestModel(null,
-                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
-        assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
+        assertThrows(BadActivityException.class, () ->
+                activityService.createActivity(new ActivityRequestModel(null,
+                        "Test", 1L, LocalDateTime.now().plusDays(1L),
+                        LocalTime.of(2, 10)), hoaService, 1L));
     }
 
     @Test
     void addActivityNullDescription() {
-        ActivityRequestModel model = new ActivityRequestModel(
-                "Test", null, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
-        assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
+        assertThrows(BadActivityException.class, () -> activityService.createActivity(new ActivityRequestModel(
+                "Test", null, 1L, LocalDateTime.now().plusDays(1L),
+                LocalTime.of(2, 10)), hoaService, 1L));
     }
 
     @Test
     void addActivityEmptyName() {
-        ActivityRequestModel model = new ActivityRequestModel("",
-                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
-        assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
+        assertThrows(BadActivityException.class, () -> activityService.createActivity(new ActivityRequestModel("",
+                "Test", 1L, LocalDateTime.now().plusDays(1L),
+                LocalTime.of(2, 10)), hoaService, 1L));
     }
 
     @Test
     void addActivityEmptyDescription() {
-        ActivityRequestModel model = new ActivityRequestModel(
-                "Test", "", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
-        assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
+        assertThrows(BadActivityException.class, () -> activityService.createActivity(new ActivityRequestModel(
+                "Test", "", 1L, LocalDateTime.now().plusDays(1L),
+                LocalTime.of(2, 10)), hoaService, 1L));
     }
 
     @Test

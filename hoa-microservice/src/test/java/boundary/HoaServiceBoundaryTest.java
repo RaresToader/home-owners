@@ -12,9 +12,9 @@ import org.mockito.MockitoAnnotations;
 
 public class HoaServiceBoundaryTest {
     @Mock
-    private HoaRepo hoaRepo;
+    private transient HoaRepo hoaRepo;
 
-    private HoaService hoaService;
+    private transient HoaService hoaService;
 
     @BeforeEach
     void setUp() {

@@ -48,7 +48,22 @@ public class MembershipUtils {
                 .request(APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .accept(APPLICATION_JSON)
-                .get(new GenericType<List<MembershipResponseModel>>() {});
+                .get(new GenericType<>() {});
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Membership id invalid.");
+        }
+    }
+
+    /**
+     *
+     */
+    public static List<MembershipResponseModel> getActiveMembershipsForUser(String memberID, String token) {
+        try {
+            return client.target(server).path("getActiveMemberships/" + memberID)
+                    .request(APPLICATION_JSON)
+                    .header(HttpHeaders.AUTHORIZATION, token)
+                    .accept(APPLICATION_JSON)
+                    .get(new GenericType<>() {});
         } catch (Exception e) {
             throw new IllegalArgumentException("Membership id invalid.");
         }

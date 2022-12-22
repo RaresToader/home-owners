@@ -216,23 +216,6 @@ public class MemberController {
     }
 
     /**
-     * Endpoint to retrieve a membership by id.
-     *
-     * @param membershipId the membership id.
-     * @return the membership with the id provided
-     */
-    @GetMapping("/getMembershipById/{membershipId}")
-    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
-        try {
-            Membership membership = membershipService.getMembership(membershipId);
-            MembershipResponseModel model = MembershipConverter.convert(membership);
-            return ResponseEntity.ok(model);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    /**
      * Rest endpoint to get all memberships.
      *
      * @return all memberships

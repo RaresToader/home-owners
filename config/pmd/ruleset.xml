@@ -26,6 +26,8 @@
         <exclude name="ShortVariable"/>
         <exclude name="LocalVariableCouldBeFinal"/>
         <exclude name="OnlyOneReturn"/>
+        <exclude name="UnnecessaryConstructor"/>
+        <exclude name="CallSuperInConstructor" />
     </rule>
     <rule ref="category/java/codestyle.xml/LongVariable">
         <properties>

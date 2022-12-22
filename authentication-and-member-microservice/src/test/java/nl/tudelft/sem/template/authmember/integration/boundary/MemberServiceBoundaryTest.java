@@ -11,12 +11,12 @@ import org.mockito.Mock;
 public class MemberServiceBoundaryTest {
 
     @Mock
-    private MemberRepository memberRepository;
+    private transient MemberRepository memberRepository;
 
     @Mock
-    private PasswordHashingService passwordHashingService;
+    private transient PasswordHashingService passwordHashingService;
 
-    private MemberService memberService;
+    private transient MemberService memberService;
 
     @BeforeEach
     public void setUp() {
