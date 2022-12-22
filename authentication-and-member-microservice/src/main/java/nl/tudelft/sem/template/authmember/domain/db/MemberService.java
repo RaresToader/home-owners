@@ -83,7 +83,6 @@ public class MemberService {
         }
 
         Member member = new Member(model.getMemberId(), passwordHashingService.hash(model.getPassword()));
-        member.setPassword(passwordHashingService.hash(model.getPassword()));
 
         if (memberRepository.existsByMemberId(member.getMemberId())) {
 

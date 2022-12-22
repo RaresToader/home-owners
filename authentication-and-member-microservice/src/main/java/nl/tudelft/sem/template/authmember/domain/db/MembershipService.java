@@ -34,7 +34,7 @@ public class MembershipService {
      *
      * @throws MemberAlreadyInHoaException if there is an active membership for that HOA.
      */
-    public void saveMembership(JoinHoaModel model, boolean asBoard)
+    public boolean saveMembership(JoinHoaModel model, boolean asBoard)
             throws MemberAlreadyInHoaException, BadJoinHoaModelException {
         if (!validateCountryCityStreet(model.getAddress().getCity())
                 || !validateCountryCityStreet(model.getAddress().getCountry())
@@ -51,7 +51,8 @@ public class MembershipService {
             throw new MemberAlreadyInHoaException(model);
         } else {
             membershipRepository.save(new Membership(model.getMemberId(),
-                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, asBoard));
+                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, false));
+            return true;
         }
     }
 

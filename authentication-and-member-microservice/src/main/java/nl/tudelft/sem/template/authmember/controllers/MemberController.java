@@ -47,15 +47,15 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/member")
 public class MemberController {
 
-    private final transient MemberService memberService;
-    private final transient HoaService hoaService;
-    private final transient MembershipService membershipService;
+    private transient MemberService memberService;
+    private transient HoaService hoaService;
+    private transient MembershipService membershipService;
 
     private final transient AuthenticationManager authenticationManager;
     private final transient JwtTokenGenerator jwtTokenGenerator;
     private final transient JwtUserDetailsService jwtUserDetailsService;
 
-    private final transient AuthManager authManager;
+    private transient AuthManager authManager;
     private final transient String unauthorizedMessage = "Access is not allowed";
 
     private static final String secretClearBoardKey = "Thisisacustomseckeyforclear";
@@ -183,6 +183,23 @@ public class MemberController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "HOA or member are not stored", e);
+        }
+    }
+
+    /**
+     * Endpoint to retrieve a membership by id.
+     *
+     * @param membershipId the membership id.
+     * @return the membership with the id provided
+     */
+    @GetMapping("/getMembershipById/{membershipId}")
+    public ResponseEntity<MembershipResponseModel> getMembershipById(@PathVariable long membershipId) {
+        try {
+            Membership membership = membershipService.getMembership(membershipId);
+            MembershipResponseModel model = MembershipConverter.convert(membership);
+            return ResponseEntity.ok(model);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -358,4 +375,31 @@ public class MemberController {
         return ResponseEntity.ok(true);
     }
 
+    /** Setter method used when AuthManager needs to be mocked
+     * @param a - AuthManager to be mocked
+     */
+    public void setAuthenticationManager(AuthManager a) {
+        this.authManager = a;
+    }
+
+    /** Setter method used when MemberService needs to be mocked
+     * @param m - MemberService to be mocked
+     */
+    public void setMemberService(MemberService m) {
+        this.memberService = m;
+    }
+
+    /** Setter method used when MembershipService needs to be mocked
+     * @param m - MembershipService to be mocked
+     */
+    public void setMembershipService(MembershipService m) {
+        this.membershipService = m;
+    }
+
+    /** Setter method used when HoaService needs to be mocked
+     * @param h - HoaService to be mocked
+     */
+    public void setHoaService(HoaService h) {
+        this.hoaService = h;
+    }
 }
