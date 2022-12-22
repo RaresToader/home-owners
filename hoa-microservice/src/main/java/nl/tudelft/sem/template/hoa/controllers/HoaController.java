@@ -201,7 +201,7 @@ public class HoaController {
      * @param token    Authorization token used for validation
      * @return List of unread/new notifications pertaining to the member in the given hoa, if new exist
      */
-    @PostMapping("/getNotifications/{memberId}/{hoaId}")
+    @GetMapping("/getNotifications/{memberId}/{hoaId}")
     public ResponseEntity<List<String>> getNotifications(@PathVariable String memberId,
                                                          @PathVariable long hoaId,
                                                          @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
