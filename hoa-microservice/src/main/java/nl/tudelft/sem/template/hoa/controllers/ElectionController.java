@@ -145,6 +145,10 @@ public class ElectionController {
                 ElectionUtils.cyclicCreateBoardElection(new BoardElectionRequestModel(hoaId, 1,
                         List.of(), "Annual board election",
                         "This is the auto-generated annual board election", new TimeModel(nums)));
+                // clear board
+                MembershipUtils.resetBoard(hoaId);
+                // promote winners and demote rest of board
+                MembershipUtils.promoteWinners(result, hoaId);
             } else if (e.getClass().getName().equals("Proposal") && (Boolean) result) {
                 long hoaId = (Long) e.getClass().getDeclaredField("hoaId").get(e);
                 Optional<Hoa> hoa = hoaRepo.findById(hoaId);

@@ -48,7 +48,7 @@ public class HoaService {
                     || !hoa.getCity().equals(model.getAddress().getCity())) {
                 throw new MemberDifferentAddressException(model);
             }
-            membershipService.saveMembership(model);
+            membershipService.saveMembership(model, false);
             return model.getMemberId();
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Hoa does not exist!");
