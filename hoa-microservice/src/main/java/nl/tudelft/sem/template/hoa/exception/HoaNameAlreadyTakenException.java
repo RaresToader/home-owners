@@ -1,5 +1,8 @@
 package nl.tudelft.sem.template.hoa.exception;
 
+import nl.tudelft.sem.template.hoa.annotations.Generated;
+
+@Generated
 /**
  * Exception to indicate that a name already exists.
  */

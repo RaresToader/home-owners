@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 
 /**
  * Request filter for JWT security.
@@ -24,6 +25,7 @@ import java.util.List;
  * the filter will validate it and authenticate the token.
  * </p>
  */
+@Generated
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 

@@ -1,5 +1,8 @@
 package nl.tudelft.sem.template.hoa.exception;
 
+import nl.tudelft.sem.template.hoa.annotations.Generated;
+
+@Generated
 /**
  * Exception that indicates that the Hoa to be created does not comply to the format.
  */

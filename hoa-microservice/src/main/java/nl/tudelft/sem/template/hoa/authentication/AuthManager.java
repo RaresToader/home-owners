@@ -2,10 +2,12 @@ package nl.tudelft.sem.template.hoa.authentication;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 
 /**
  * Authentication Manager.
  */
+@Generated
 @Component
 public class AuthManager {
 

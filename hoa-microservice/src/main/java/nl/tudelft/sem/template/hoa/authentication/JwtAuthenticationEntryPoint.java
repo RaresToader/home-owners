@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 
 /**
  * Authentication entry point for JWT security.
@@ -17,6 +18,7 @@ import java.io.IOException;
  * This JWT authentication entry point returns a response indicating the request was unauthorized.
  * </p>
  */
+@Generated
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
