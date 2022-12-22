@@ -39,7 +39,7 @@ import static voting.annotations.TestSuite.TestType.SYSTEM;
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)
-@TestSuite(testType =   {INTEGRATION, SYSTEM})
+@TestSuite(testType = {INTEGRATION})
 class ElectionControllerTest {
 
     @Autowired
