@@ -5,7 +5,7 @@ import voting.annotations.Generated;
 /**
  * Exception to indicate that a name already exists.
  */
-@Generated
+@Generated // Exceptions may not be tested due to triviality
 public class ProposalAlreadyCreated extends Exception {
     static final long serialVersionUID = -3331451293132725248L;
 
