@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;
 import nl.tudelft.sem.template.hoa.models.VotingModel;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/voting")
@@ -44,7 +43,7 @@ public class ElectionController {
     private final transient AuthManager authManager;
     private final transient HoaRepo hoaRepo;
 
-    private final transient String AUTOMATICKEY = "ThisIsSupposedToBeASecureKeyForAutomaticBoardCreation";
+    private static final String winC = "winningChoice";
 
     @Autowired
     public ElectionController(AuthManager authManager,
@@ -76,20 +75,14 @@ public class ElectionController {
      * @param model the board election
      * @return The created board election or bad request
      */
-    @PostMapping(value = {"/boardElection", "/boardElection/{autoKey}"})
+    @PostMapping("/boardElection")
     public ResponseEntity<Object> createBoardElection(@RequestBody BoardElectionRequestModel model,
-                                                      @PathVariable Optional<String> autoKey,
-                                                      @RequestHeader(HttpHeaders.AUTHORIZATION) Optional<String> token) {
+                                                      @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            if (autoKey.isPresent() && autoKey.get().equals(AUTOMATICKEY)) {
-                return ResponseEntity.ok(ElectionUtils.createBoardElection(model));
-            }
-            else if (token.isPresent()) {
-                validateMemberInHOA(model.hoaId, authManager.getMemberId(), false, token.get());
-                checkCandidatesinHOA(model.candidates, model.hoaId, token.get());
-                return ResponseEntity.ok(ElectionUtils.createBoardElection(model));
-            }
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed.");
+            validateMemberInHOA(model.hoaId, authManager.getMemberId(), false, token);
+            checkCandidatesinHOA(model.candidates, model.hoaId, token);
+            return ResponseEntity.ok(ElectionUtils.createBoardElection(model));
+            //throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed.");
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
@@ -170,11 +163,11 @@ public class ElectionController {
             LinkedHashMap<String, Object> e = fetchElectionAsEntity(electionId, true, token);
             Object result = ElectionUtils.concludeElection(electionId);
             // having winningChoice not null -> proposal, otherwise board election (bad class casting, but works...)
-            if (!e.containsKey("winningChoice") || e.get("winningChoice") == null) {
+            if (!e.containsKey(winC) || e.get(winC) == null) {
                 TimeModel scheduledFor = TimeModel.createModelFromArr(Arrays.stream(
                         ((String) e.get("scheduledFor"))
                         .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new));
-                long hoaId = (long)(int) e.get("hoaId");
+                long hoaId = (long) (int) e.get("hoaId");
                 // start automatic annual board election
                 scheduledFor.year += 1;
                 ElectionUtils.createBoardElection(new BoardElectionRequestModel(hoaId, 2,
@@ -184,8 +177,8 @@ public class ElectionController {
                 MembershipUtils.resetBoard(hoaId);
                 // promote winners and demote rest of board
                 MembershipUtils.promoteWinners(result, hoaId);
-            } else if (e.containsKey("winningChoice") && (Boolean) result) {
-                long hoaId = (long)(int)e.get("hoaId");
+            } else if (e.containsKey(winC) && (Boolean) result) {
+                long hoaId = (long) (int) e.get("hoaId");
                 Optional<Hoa> hoa = hoaRepo.findById(hoaId);
                 if (hoa.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Hoa with given id does not exists?");
@@ -221,18 +214,18 @@ public class ElectionController {
                     MembershipUtils.getMembershipsForUser(authManager.getMemberId(), token);
 
             // USE THIS TO TEST THE FUNCTIONALITY IN A REASONABLE AMOUNT OF TIME
-            Validator handler = new NotInAnyOtherBoardValidator();
-            Validator notForTooLongValidator = new NotBoardForTooLongValidator();
-            handler.setNext(notForTooLongValidator);
-            handler.handle(memberships, hoaID);
+            // Validator handler = new NotInAnyOtherBoardValidator();
+            // Validator notForTooLongValidator = new NotBoardForTooLongValidator();
+            // handler.setNext(notForTooLongValidator);
+            // handler.handle(memberships, hoaID);
 
-//            // PROPER IMPLEMENTATION
-//            Validator handler = new TimeInCurrentHoaValidator();
-//            Validator otherBoardValidator = new NotInAnyOtherBoardValidator();
-//            Validator notForTooLongValidator = new NotBoardForTooLongValidator();
-//            otherBoardValidator.setNext(notForTooLongValidator);
-//            handler.setNext(otherBoardValidator);
-//            handler.handle(memberships, hoaID);
+            // PROPER IMPLEMENTATION
+            Validator handler = new TimeInCurrentHoaValidator();
+            Validator otherBoardValidator = new NotInAnyOtherBoardValidator();
+            Validator notForTooLongValidator = new NotBoardForTooLongValidator();
+            otherBoardValidator.setNext(notForTooLongValidator);
+            handler.setNext(otherBoardValidator);
+            handler.handle(memberships, hoaID);
 
             return ResponseEntity.ok(ElectionUtils.joinElection(authManager.getMemberId(), hoaID));
         } catch (Exception e) {
@@ -303,9 +296,9 @@ public class ElectionController {
         LinkedHashMap<String, Object> e = (LinkedHashMap<String, Object>) ElectionUtils.getElectionById(electionId);
         try {
             if (!e.get("status").equals("finished")) {
-                long val = (long)(int)e.get("hoaId");
+                long val = (long) (int) e.get("hoaId");
                 validateMemberInHOA(val, authManager.getMemberId(),
-                        !boardCheck || e.containsKey("winningChoice"), token);
+                        !boardCheck || e.containsKey(winC), token);
             }
             return e;
         } catch (Exception ex) {

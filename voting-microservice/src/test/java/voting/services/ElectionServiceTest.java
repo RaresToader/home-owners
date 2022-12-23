@@ -1,6 +1,5 @@
 package voting.services;
 
-import org.apache.tomcat.jni.Local;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import voting.annotations.TestSuite;
@@ -48,6 +47,10 @@ class ElectionServiceTest {
 	private VotingModel beVoteModel;
 	private ElectionService electionService;
 	private ElectionRepository repository;
+
+	private static final String EL = "Election";
+
+	private static final String TESTEX = "TestExample";
 
 	@BeforeEach
 	void setUp() {
@@ -148,7 +151,7 @@ class ElectionServiceTest {
 
 	@Test
 	void voteNotStarted() {
-		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Election proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		validTM.day = 9;
 		when(repository.findByElectionId(propVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		assertThrows(CannotProceedVote.class, () -> electionService.vote(propVoteModel, validTM.createDate()));
@@ -157,7 +160,7 @@ class ElectionServiceTest {
 
 	@Test
 	void voteEnded() {
-		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Election proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		proposal.setStatus("finished");
 		when(repository.findByElectionId(propVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		assertThrows(CannotProceedVote.class, () -> electionService.vote(propVoteModel, LocalDateTime.now()));
@@ -175,7 +178,7 @@ class ElectionServiceTest {
 
 	@Test
 	void voteSuccessfulProposal() throws ElectionDoesNotExist, CannotProceedVote {
-		Proposal proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Proposal proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		when(repository.findByElectionId(propVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		electionService.vote(propVoteModel, LocalDateTime.now());
 		assertEquals("ongoing", proposal.getStatus());
@@ -200,7 +203,7 @@ class ElectionServiceTest {
 
 	@Test
 	void removeVoteSuccessful() throws ElectionDoesNotExist, CannotProceedVote, ThereIsNoVote {
-		Proposal proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Proposal proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		proposal.setStatus("ongoing");
 		proposal.vote("chad", true);
 		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
@@ -226,7 +229,7 @@ class ElectionServiceTest {
 
 	@Test
 	void removeVoteNotStarted() {
-		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Election proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		validTM.day = 9;
 		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		assertThrows(CannotProceedVote.class, () -> electionService.removeVote(removeVoteModel, validTM.createDate()));
@@ -235,7 +238,7 @@ class ElectionServiceTest {
 
 	@Test
 	void removeVoteEnded() {
-		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Election proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		proposal.setStatus("finished");
 		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		assertThrows(CannotProceedVote.class, () -> electionService.removeVote(removeVoteModel, LocalDateTime.now()));
@@ -244,7 +247,7 @@ class ElectionServiceTest {
 
 	@Test
 	void removeVoteNotVoted() throws ThereIsNoVote, ElectionDoesNotExist, CannotProceedVote {
-		Proposal proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Proposal proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		proposal.setStatus("ongoing");
 		proposal.vote("notChad", true);
 		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
