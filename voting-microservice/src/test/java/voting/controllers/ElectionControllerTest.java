@@ -17,6 +17,7 @@ import voting.domain.Election;
 import voting.domain.Proposal;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
+import voting.models.RemoveVoteModel;
 import voting.models.TimeModel;
 import voting.models.VotingModel;
 import voting.util.JsonUtil;
@@ -202,6 +203,46 @@ class ElectionControllerTest {
         BoardElection fetchedP = (BoardElection) electionRepo.findByElectionId(1).orElse(null);
         assertNotNull(fetchedP, "Make sure entry is persisted");
         assertEquals(0, fetchedP.getVotes().entrySet().size(), "Make sure votes are not changed");
+    }
+
+    @Test
+    void removeVoteSuccessTest() throws Exception {
+        Election p = new Proposal(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate());
+        p.setStatus("ongoing");
+        p.vote("1", true);
+        electionRepo.save(p);
+        RemoveVoteModel reqModel = new RemoveVoteModel(1, "1");
+
+        // Perform a POST request
+        ResultActions response = mockMvc.perform(post("/voting/removeVote")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JsonUtil.serialize(reqModel)));
+
+        // Assert that the response has a 200 OK status
+        response.andExpect(status().isOk());
+
+        Proposal fetchedP = (Proposal) electionRepo.findByElectionId(1).orElse(null);
+        assertNotNull(fetchedP, "Make sure entry is persisted");
+        assertTrue(fetchedP.getVotes().isEmpty(), "Make sure vote is persisted");
+    }
+
+    @Test
+    void removeVoteFailTest() throws Exception {
+        Election p = new Proposal(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate());
+        electionRepo.save(p);
+        RemoveVoteModel reqModel = new RemoveVoteModel(1, "1");
+
+        // Perform a POST request
+        ResultActions response = mockMvc.perform(post("/voting/removeVote")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JsonUtil.serialize(reqModel)));
+
+        // Assert that the response has a 400 BadRequest status
+        response.andExpect(status().isBadRequest());
+
+        Proposal fetchedP = (Proposal) electionRepo.findByElectionId(1).orElse(null);
+        assertNotNull(fetchedP, "Make sure entry is persisted");
+        assertTrue(fetchedP.getVotes().isEmpty(), "Make sure vote is persisted");
     }
 
     @Test

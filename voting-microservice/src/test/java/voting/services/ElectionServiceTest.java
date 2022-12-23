@@ -13,8 +13,10 @@ import voting.exceptions.CannotProceedVote;
 import voting.exceptions.ElectionCannotBeCreated;
 import voting.exceptions.ElectionDoesNotExist;
 import voting.exceptions.ProposalAlreadyCreated;
+import voting.exceptions.ThereIsNoVote;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
+import voting.models.RemoveVoteModel;
 import voting.models.TimeModel;
 import voting.models.VotingModel;
 
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,6 +43,7 @@ class ElectionServiceTest {
 	private BoardElectionModel beModel;
 	private ProposalModel propModel;
 	private VotingModel propVoteModel;
+	private RemoveVoteModel removeVoteModel;
 
 	private VotingModel beVoteModel;
 	private ElectionService electionService;
@@ -63,6 +67,7 @@ class ElectionServiceTest {
 
 		propVoteModel = new VotingModel(0, "chad", "false");
 		beVoteModel = new VotingModel(0, "chad", "1");
+		removeVoteModel = new RemoveVoteModel(0, "chad");
 		repository = mock(ElectionRepository.class);
 		electionService = new ElectionService(repository);
 	}
@@ -191,6 +196,62 @@ class ElectionServiceTest {
 			&& boardElection.getVotes().get(beVoteModel.memberId).equals(beVoteModel.choice));
 		verify(repository, times(1)).findByElectionId(beVoteModel.electionId);
 		verify(repository, times(1)).save(boardElection);
+	}
+
+	@Test
+	void removeVoteSuccessful() throws ElectionDoesNotExist, CannotProceedVote, ThereIsNoVote {
+		Proposal proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		proposal.setStatus("ongoing");
+		proposal.vote("chad", true);
+		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
+		electionService.removeVote(removeVoteModel, LocalDateTime.now());
+		assertTrue(proposal.getVotes().isEmpty());
+		verify(repository, times(1)).findByElectionId(removeVoteModel.electionId);
+		verify(repository, times(1)).save(proposal);
+	}
+
+	@Test
+	void removeVoteInvalidModel() {
+		removeVoteModel.electionId = -1;
+		assertThrows(ElectionDoesNotExist.class, () -> electionService.removeVote(removeVoteModel, LocalDateTime.now()));
+		verify(repository, times(0)).findByElectionId(removeVoteModel.electionId);
+	}
+
+	@Test
+	void removeVoteNotExisting() {
+		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.empty());
+		assertThrows(ElectionDoesNotExist.class, () -> electionService.removeVote(removeVoteModel, LocalDateTime.now()));
+		verify(repository, times(1)).findByElectionId(removeVoteModel.electionId);
+	}
+
+	@Test
+	void removeVoteNotStarted() {
+		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		validTM.day = 9;
+		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
+		assertThrows(CannotProceedVote.class, () -> electionService.removeVote(removeVoteModel, validTM.createDate()));
+		verify(repository, times(1)).findByElectionId(removeVoteModel.electionId);
+	}
+
+	@Test
+	void removeVoteEnded() {
+		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		proposal.setStatus("finished");
+		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
+		assertThrows(CannotProceedVote.class, () -> electionService.removeVote(removeVoteModel, LocalDateTime.now()));
+		verify(repository, times(1)).findByElectionId(removeVoteModel.electionId);
+	}
+
+	@Test
+	void removeVoteNotVoted() throws ThereIsNoVote, ElectionDoesNotExist, CannotProceedVote {
+		Proposal proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		proposal.setStatus("ongoing");
+		proposal.vote("notChad", true);
+		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
+		assertThrows(ThereIsNoVote.class, () -> electionService.removeVote(removeVoteModel, LocalDateTime.now()));
+		assertFalse(proposal.getVotes().isEmpty());
+		verify(repository, times(1)).findByElectionId(removeVoteModel.electionId);
+		verify(repository, times(0)).save(proposal);
 	}
 
 	@Test
