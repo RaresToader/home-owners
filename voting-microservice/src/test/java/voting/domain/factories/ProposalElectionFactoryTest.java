@@ -7,7 +7,6 @@ import voting.domain.Proposal;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
 import voting.models.TimeModel;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -55,4 +54,5 @@ class ProposalElectionFactoryTest {
         Election wrongElection = sut.createElection(wrongModel);
         assertNull(wrongElection);
     }
+
 }

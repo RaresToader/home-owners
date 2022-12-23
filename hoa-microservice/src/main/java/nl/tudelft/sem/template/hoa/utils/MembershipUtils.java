@@ -7,6 +7,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -20,6 +21,8 @@ import java.util.List;
  * Utils class that makes API requests to the membership microservice.
  */
 @Singleton
+@Generated // solely contains endpoints, instead of mock-testing for cov, test other microservice's response instead
+// + the endpoints are being used for other tests to pass anyway
 public class MembershipUtils {
     private static final String server = "http://localhost:8083/member/";
 

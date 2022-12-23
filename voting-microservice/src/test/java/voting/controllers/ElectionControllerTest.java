@@ -21,7 +21,6 @@ import voting.models.RemoveVoteModel;
 import voting.models.TimeModel;
 import voting.models.VotingModel;
 import voting.util.JsonUtil;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -115,6 +114,7 @@ class ElectionControllerTest {
         // Assert that the response has a 400 BadRequest status
         response.andExpect(status().isBadRequest());
     }
+
 
     @Test
     void createBoardElectionSuccessTest() throws Exception {

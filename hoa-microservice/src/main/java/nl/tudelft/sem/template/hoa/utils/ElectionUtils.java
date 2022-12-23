@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.hoa.utils;
 
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;
 import nl.tudelft.sem.template.hoa.models.RemoveVoteModel;
@@ -15,6 +16,8 @@ import javax.ws.rs.client.Entity;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 @Singleton
+@Generated // solely contains endpoints, instead of mock-testing for cov, test other microservice's response instead
+// + the endpoints are being used for other tests to pass anyway
 public class ElectionUtils {
     private static final String server = "http://localhost:8085/voting/";
     private static final ResteasyClient client = new ResteasyClientBuilder().build();

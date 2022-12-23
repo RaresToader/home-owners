@@ -30,7 +30,7 @@ public class NotificationsConverter implements AttributeConverter<Map<String, Li
 	@Override
 	public Map<String, List<String>> convertToEntityAttribute(String dbData) {
 		if (dbData.equals("")) return new HashMap<>();
-		Pattern p = Pattern.compile("(\\w+=\\[[0-9,]+])");
+		Pattern p = Pattern.compile("(\\w+=\\[[\\w,]+])");
 		Matcher m = p.matcher(dbData);
 		Map<String, List<String>> res = new HashMap<>();
 		while (m.find()) {
