@@ -41,7 +41,7 @@ import nl.tudelft.sem.template.hoa.models.VotingModel;
 @RequestMapping("/voting")
 public class ElectionController {
 
-    private final transient AuthManager authManager;
+    private transient AuthManager authManager;
     private final transient HoaRepo hoaRepo;
 
     @Autowired

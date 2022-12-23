@@ -56,7 +56,7 @@ public class HoaControllerTest {
 
     void insertHoa() {
         Hoa hoa = Hoa.createHoa("Country", "City", "Test");
-        return hoaRepo.save(hoa);
+        hoaRepo.save(hoa);
     }
 
     @AfterEach
@@ -193,7 +193,8 @@ public class HoaControllerTest {
                 .contentType(MediaType.APPLICATION_JSON));
         resultActions.andExpect(status().isOk());
         MvcResult result = resultActions.andReturn();
-        final List<Requirement> actual = Arrays.asList(JsonUtil.deserialize(result.getResponse().getContentAsString(), Requirement[].class));
+        final List<Requirement> actual = Arrays.asList(JsonUtil.deserialize(
+                result.getResponse().getContentAsString(), Requirement[].class));
         assertEquals(expected, actual);
     }
 
@@ -249,7 +250,8 @@ public class HoaControllerTest {
 
     @Test
     void removeRequirementsRequirementDoesNotExist() throws Exception {
-        Mockito.when(this.requirementService.removeHoaRequirement(l2)).thenThrow(new RequirementDoesNotExist(l2 + " does not exist"));
+        Mockito.when(this.requirementService.removeHoaRequirement(l2)).thenThrow(
+                new RequirementDoesNotExist(l2 + " does not exist"));
         hoaController.setRequirementService(requirementService);
 
         ResultActions resultActions = mockMvc.perform(post("/hoa/removeRequirement/" + l2)

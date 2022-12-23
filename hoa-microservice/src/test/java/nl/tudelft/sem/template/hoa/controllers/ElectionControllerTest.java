@@ -1,7 +1,12 @@
 package nl.tudelft.sem.template.hoa.controllers;
 
 import nl.tudelft.sem.template.hoa.authentication.AuthManager;
-import nl.tudelft.sem.template.hoa.models.*;
+import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
+import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
+import nl.tudelft.sem.template.hoa.models.TimeModel;
+import nl.tudelft.sem.template.hoa.models.Address;
+import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;
+import nl.tudelft.sem.template.hoa.models.VotingModel;
 import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 import nl.tudelft.sem.template.hoa.utils.JsonUtil;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
@@ -21,13 +26,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -59,23 +63,30 @@ public class ElectionControllerTest {
     private static final transient String randomId = "randomemberId";
     private static transient Address address = new Address("Netherlands", "Delft", "Drebelweg", "14", "1111AA");
     private static transient LocalDateTime start = LocalDateTime.now();
-    private static transient BoardElectionRequestModel electionRequestModel = new BoardElectionRequestModel(1, 1, new ArrayList<>(), "el1", "just el1", new TimeModel());
-    private static transient BoardElectionRequestModel electionRequestModel2 = new BoardElectionRequestModel(1, 3, new ArrayList<>(), "el2", "just el2", new TimeModel());
-    private static transient Object election = new Object(){
-        private long hoaId = 1l;
+    private static transient BoardElectionRequestModel electionRequestModel = new BoardElectionRequestModel(1, 1,
+            new ArrayList<>(), "el1", "just el1", new TimeModel(10, 10, 10, 10, 10, 10));
+    private static transient BoardElectionRequestModel electionRequestModel2 = new BoardElectionRequestModel(1, 3,
+            new ArrayList<>(), "el2", "just el2", new TimeModel(10, 10, 10, 10, 10, 10));
+    private static transient Object election = new Object() {
+        private long hoaId = 1L;
         public long getHoaId() {
             return hoaId;
         }
     };
 
-    private static transient MembershipResponseModel m1 = new MembershipResponseModel(0L, memberId, 1L, address.getCity(), address.getCountry(), true, start.minusYears(4), null);
-    private static transient MembershipResponseModel m2 = new MembershipResponseModel(1L, memberId, 2L, address.getCity(), address.getCountry(), false, start, null);
-    private static transient MembershipResponseModel m3 = new MembershipResponseModel(2L, randomId, 2L, address.getCity(), address.getCountry(), true, start, null);
-    private static transient ProposalRequestModel proposal = new ProposalRequestModel(1, "prop1", "des1",  new TimeModel());
-    private static transient ProposalRequestModel proposalBad = new ProposalRequestModel(2, "prop2", "des2",  new TimeModel());
+    private static transient MembershipResponseModel m1 = new MembershipResponseModel(0L, memberId,
+            1L, address.getCity(), address.getCountry(), true, start.minusYears(4), null);
+    private static transient MembershipResponseModel m2 = new MembershipResponseModel(1L, memberId,
+            2L, address.getCity(), address.getCountry(), false, start, null);
+    private static transient MembershipResponseModel m3 = new MembershipResponseModel(2L, randomId,
+            2L, address.getCity(), address.getCountry(), true, start, null);
+    private static transient ProposalRequestModel proposal = new ProposalRequestModel(1, "prop1",
+            "des1",  new TimeModel(10, 10, 10, 10, 10, 10));
+    private static transient ProposalRequestModel proposalBad = new ProposalRequestModel(2, "prop2",
+            "des2",  new TimeModel(10, 10, 10, 10, 10, 10));
 
     @BeforeAll
-    static void setupStatic(){
+    static void setupStatic() {
         // membershipUtilsMockedStatic
         membershipUtilsMockedStatic = mockStatic(MembershipUtils.class);
         List<MembershipResponseModel> list = new ArrayList<>();
@@ -101,14 +112,14 @@ public class ElectionControllerTest {
         when(ElectionUtils.getElectionById(el1))
                 .thenReturn(election);
         when(ElectionUtils.getElectionById(el2))
-                .thenReturn(new Object(){
+                .thenReturn(new Object() {
                     private long id;
                     public Object getHoaId() {
                         return null;
                     }
                 });
         when(ElectionUtils.getElectionById(el3))
-                .thenReturn(new Object(){
+                .thenReturn(new Object() {
                     private long id;
                     public Object nothing() {
                         return id;
@@ -342,13 +353,13 @@ public class ElectionControllerTest {
     }
 
     @Test
-    void validateMemberInHOANoBoard() {
+    void validateMemberInHoaNoBoard() {
         assertThrows(ResponseStatusException.class, () -> electionController
                 .validateMemberInHOA(m2.getHoaId(), memberId, true, tok));
     }
 
     @Test
-    void validateMemberInHOAEmpty() {
+    void validateMemberInHoaEmpty() {
         assertThrows(ResponseStatusException.class, () -> electionController
                 .validateMemberInHOA(1L, badId, false, tok));
     }

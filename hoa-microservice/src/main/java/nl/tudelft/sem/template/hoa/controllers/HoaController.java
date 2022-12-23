@@ -119,7 +119,7 @@ public class HoaController {
     /**
      * Gets all requirements of an HOA
      *
-     * @param id id of HOA to fetch requirements from
+     * @param hoaId id of HOA to fetch requirements from
      * @return List of requirements of an HOA, if it exists
      */
     @GetMapping("/hoa/getRequirements/{hoaId}")
@@ -154,13 +154,13 @@ public class HoaController {
     /**
      * Removes a requirement from an HOA
      *
-     * @param id ID of requirement to remove
+     * @param reqId ID of requirement to remove
      * @return Removed requirement, if one with the provided id exists
      */
     @PostMapping("/removeRequirement/{reqId}")
     public ResponseEntity<Requirement> removeRequirements(@PathVariable long reqId) {
         try {
-            Requirement req = requirementService.removeHoaRequirement(id);
+            Requirement req = requirementService.removeHoaRequirement(reqId);
             return ResponseEntity.ok(req);
         } catch (RequirementDoesNotExist e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
@@ -179,6 +179,8 @@ public class HoaController {
      */
     public void setRequirementService(RequirementService h) {
         this.requirementService = h;
+    }
+
     /**
      * Endpoint for reporting a member of an HOA for violating a rule/requirement
      *

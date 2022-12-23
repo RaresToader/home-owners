@@ -2,10 +2,11 @@ package nl.tudelft.sem.template.hoa.exception;
 
 import nl.tudelft.sem.template.hoa.annotations.Generated;
 
-@Generated
+
 /**
  * Exception to indicate that an activity does not exist.
  */
+@Generated
 public class RequirementDoesNotExist extends Exception {
 
     static final long serialVersionUID = -3375119931954227848L;
