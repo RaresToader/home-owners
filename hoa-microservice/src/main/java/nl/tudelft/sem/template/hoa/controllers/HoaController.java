@@ -27,8 +27,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 public class HoaController {
 
-    private final transient HoaService hoaService;
-    private final transient RequirementService requirementService;
+    private transient HoaService hoaService;
+    private transient RequirementService requirementService;
     private final transient HoaRepo hoaRepo;
 
 
@@ -95,15 +95,15 @@ public class HoaController {
     /**
      * Gets all requirements of an HOA
      *
-     * @param hoaId id of HOA to fetch requirements from
+     * @param id id of HOA to fetch requirements from
      * @return List of requirements of an HOA, if it exists
      */
     @GetMapping("/hoa/getRequirements/{id}")
-    public ResponseEntity<List<Requirement>> getRequirements(@PathVariable long hoaId) {
+    public ResponseEntity<List<Requirement>> getRequirements(@PathVariable long id) {
         try {
-            if (hoaRepo.findById(hoaId).isEmpty())
+            if (hoaRepo.findById(id).isEmpty())
                 throw new HoaDoesntExistException("Hoa with provided id does not exist");
-            return ResponseEntity.ok(requirementService.getHoaRequirements(hoaId));
+            return ResponseEntity.ok(requirementService.getHoaRequirements(id));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -112,15 +112,15 @@ public class HoaController {
     /**
      * Adds a requirement to an HOA
      *
-     * @param hoaId  id of HOA to add a requirement to
+     * @param id  id of HOA to add a requirement to
      * @param prompt String to represent the requirement added
      * @return Added requirement object
      */
     @PostMapping("/hoa/addRequirement/{id}")
-    public ResponseEntity<Requirement> addRequirement(@PathVariable long hoaId,
-                                                      @RequestBody String prompt) {
+    public ResponseEntity<Requirement> addRequirement(@PathVariable long id,
+                                                      @RequestBody Object prompt) {
         try {
-            Requirement req = requirementService.addHoaRequirement(hoaId, prompt);
+            Requirement req = requirementService.addHoaRequirement(id, String.valueOf(prompt));
             return ResponseEntity.ok(req);
         } catch (RequirementAlreadyPresent | HoaDoesntExistException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
@@ -130,17 +130,31 @@ public class HoaController {
     /**
      * Removes a requirement from an HOA
      *
-     * @param reqId ID of requirement to remove
+     * @param id ID of requirement to remove
      * @return Removed requirement, if one with the provided id exists
      */
     @PostMapping("/hoa/removeRequirement/{id}")
-    public ResponseEntity<Requirement> removeRequirements(@PathVariable long reqId) {
+    public ResponseEntity<Requirement> removeRequirements(@PathVariable long id) {
         try {
-            Requirement req = requirementService.removeHoaRequirement(reqId);
+            Requirement req = requirementService.removeHoaRequirement(id);
             return ResponseEntity.ok(req);
         } catch (RequirementDoesNotExist e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
+    }
+
+    /** Setter method used when HoaService needs to be mocked
+     * @param h - HoaService to be mocked
+     */
+    public void setHoaService(HoaService h) {
+        this.hoaService = h;
+    }
+
+    /** Setter method used when RequirementService needs to be mocked
+     * @param h - RequirementService to be mocked
+     */
+    public void setRequirementService(RequirementService h) {
+        this.requirementService = h;
     }
 }
 
