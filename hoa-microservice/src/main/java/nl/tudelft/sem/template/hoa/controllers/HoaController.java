@@ -141,7 +141,7 @@ public class HoaController {
      * @param prompt String to represent the requirement added
      * @return Added requirement object
      */
-    @PostMapping("/addRequirement/{reqId}")
+    @PostMapping("/addRequirement/{hoaId}")
     public ResponseEntity<Requirement> addRequirement(@PathVariable long hoaId,
                                                       @RequestBody Object prompt) {
         try {
