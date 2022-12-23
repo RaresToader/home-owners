@@ -1,5 +1,6 @@
 package voting.services;
 
+import org.apache.tomcat.jni.Local;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import voting.annotations.TestSuite;
@@ -76,8 +77,10 @@ class ElectionServiceTest {
 	@Test
 	void createBoardElectionAlreadyExisting() {
 		beModel.hoaId = 2;
+		beModel.scheduledFor = new TimeModel(10, 10, 10, 10, 10,
+				LocalDateTime.now().getYear() + 2);
 		Election boardElection = new BoardElection("BoardElection2", "ExistingElection", 2,
-			LocalDateTime.now(), 2, new ArrayList<>());
+			LocalDateTime.now().plusYears(1), 2, new ArrayList<>());
 		when(repository.getBoardElectionByHoaId(2)).thenReturn(Optional.of(boardElection));
 		assertThrows(BoardElectionAlreadyCreated.class, () -> electionService.createBoardElection(beModel));
 		verify(repository, times(1)).getBoardElectionByHoaId(beModel.hoaId);
@@ -86,8 +89,10 @@ class ElectionServiceTest {
 
 	@Test
 	void createBoardElectionSuccessful() throws BoardElectionAlreadyCreated, ElectionCannotBeCreated {
+		beModel.scheduledFor = new TimeModel(10, 10, 10, 10, 10,
+				LocalDateTime.now().getYear() + 2);
 		Election boardElection = new BoardElection(beModel.name, beModel.description, beModel.hoaId,
-			beModel.scheduledFor.createDate(), beModel.amountOfWinners, beModel.candidates);
+			LocalDateTime.now().plusYears(2), beModel.amountOfWinners, beModel.candidates);
 		when(repository.getBoardElectionByHoaId(1)).thenReturn(Optional.empty());
 		assertEquals(boardElection, electionService.createBoardElection(beModel));
 		verify(repository, times(1)).getBoardElectionByHoaId(beModel.hoaId);

@@ -253,7 +253,8 @@ public class ElectionController {
      *
      * @param electionId Id of election to fetch
      * @param token      Authorization token used for validation
-     * @return A response entity containing the fetched Election as an Object, if it exists
+     * @return A response entity containing the fetched Election as an Object, if it exists and if the member can
+     * access it
      */
     private ResponseEntity<Object> fetchElectionAsEntity(@PathVariable("id") int electionId, boolean boardCheck,
                                                          @RequestHeader(HttpHeaders.AUTHORIZATION) String token)
