@@ -125,8 +125,8 @@ public class ElectionService {
      */
     public boolean addParticipantToBoardElection(String memberId, long hoaId) throws ElectionDoesNotExist {
         BoardElection e = getBoardElectionByHoaId(hoaId);
+        if (e.getCandidates().contains(memberId)) return false;
         e.addParticipant(memberId);
-        electionRepository.deleteById(e.getElectionId());
         electionRepository.save(e);
         return true;
     }

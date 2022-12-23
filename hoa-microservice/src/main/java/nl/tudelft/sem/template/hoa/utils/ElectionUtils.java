@@ -133,7 +133,7 @@ public class ElectionUtils {
                     .accept(APPLICATION_JSON)
                     .post(null, Boolean.class);
         } catch (Exception e) {
-            throw new IllegalArgumentException("The HOA has no running election.");
+            throw new IllegalArgumentException("Could not join the election as a candidate.");
         }
     }
 

@@ -189,12 +189,21 @@ public class ElectionController {
         try {
             List<MembershipResponseModel> memberships =
                     MembershipUtils.getMembershipsForUser(authManager.getMemberId(), token);
-            Validator handler = new TimeInCurrentHoaValidator();
-            Validator otherBoardValidator = new NotInAnyOtherBoardValidator();
+
+            // USE THIS TO TEST THE FUNCTIONALITY IN A REASONABLE AMOUNT OF TIME
+            Validator handler = new NotInAnyOtherBoardValidator();
             Validator notForTooLongValidator = new NotBoardForTooLongValidator();
-            otherBoardValidator.setNext(notForTooLongValidator);
-            handler.setNext(otherBoardValidator);
+            handler.setNext(notForTooLongValidator);
             handler.handle(memberships, hoaID);
+
+//            // PROPER IMPLEMENTATION
+//            Validator handler = new TimeInCurrentHoaValidator();
+//            Validator otherBoardValidator = new NotInAnyOtherBoardValidator();
+//            Validator notForTooLongValidator = new NotBoardForTooLongValidator();
+//            otherBoardValidator.setNext(notForTooLongValidator);
+//            handler.setNext(otherBoardValidator);
+//            handler.handle(memberships, hoaID);
+
             return ResponseEntity.ok(ElectionUtils.joinElection(authManager.getMemberId(), hoaID));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
