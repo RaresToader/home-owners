@@ -156,7 +156,7 @@ public class ElectionControllerTest {
     void createProposal() throws Exception {
 
         Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn(memberId);
-        ResultActions resultActions = mockMvc.perform(post("/voting/proposal/" + 1L)
+        ResultActions resultActions = mockMvc.perform(post("/voting/proposal/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, tok)
                 .content(JsonUtil.serialize(proposal)));
@@ -167,7 +167,7 @@ public class ElectionControllerTest {
     @Test
     void createProposalBad() throws Exception {
         Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn(memberId);
-        ResultActions resultActions = mockMvc.perform(post("/voting/proposal/" + 1L)
+        ResultActions resultActions = mockMvc.perform(post("/voting/proposal/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, tok)
                 .content(JsonUtil.serialize(proposalBad)));
@@ -213,7 +213,7 @@ public class ElectionControllerTest {
 
     @Test
     void voteNoAllowed() throws Exception {
-        VotingModel request = new VotingModel(el3, randomId, "good_choice");
+        VotingModel request = new VotingModel(el1, randomId, "good_choice");
         Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn(randomId);
         ResultActions resultActions = mockMvc.perform(post("/voting/vote")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -232,7 +232,7 @@ public class ElectionControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, tok)
                 .content(JsonUtil.serialize(request)));
 
-        resultActions.andExpect(status().isUnauthorized());
+        resultActions.andExpect(status().isBadRequest());
     }
 
     @Test
@@ -349,7 +349,7 @@ public class ElectionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, tok));
 
-        resultActions.andExpect(status().isUnauthorized());
+        resultActions.andExpect(status().isBadRequest());
     }
 
     @Test
