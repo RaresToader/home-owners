@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.hoa.models;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.UNIT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDateTime;
@@ -7,11 +8,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 
+@TestSuite(testType = UNIT)
 class TimeModelTest {
 
     static final List<Integer> BASE_ARGS = new ArrayList<>(List.of(10, 10, 10, 10, 10, 10));

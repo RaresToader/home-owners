@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.hoa.db;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.INTEGRATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -10,10 +11,12 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import nl.tudelft.sem.template.hoa.db.ActivityRepo;
+
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.domain.Activity;
 import org.junit.jupiter.api.Test;
 
+@TestSuite(testType = INTEGRATION)
 class ActivityRepoTest {
 
     @Test

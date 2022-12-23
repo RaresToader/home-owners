@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.hoa.db;
 
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.domain.Requirement;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.RequirementAlreadyPresent;
@@ -12,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.INTEGRATION;
+
+@TestSuite(testType = INTEGRATION)
 public class RequirementServiceTest {
 
     private transient RequirementRepo requirementRepo;

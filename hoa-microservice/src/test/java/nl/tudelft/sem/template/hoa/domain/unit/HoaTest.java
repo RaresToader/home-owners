@@ -1,11 +1,14 @@
 package nl.tudelft.sem.template.hoa.domain.unit;
 
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.UNIT;
 
 
+@TestSuite(testType = UNIT)
 public class HoaTest {
 
     private static final  String CTR = "Germany";

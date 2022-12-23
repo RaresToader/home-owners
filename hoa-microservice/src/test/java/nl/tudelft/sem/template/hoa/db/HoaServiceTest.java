@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.hoa.db;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.INTEGRATION;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.db.HoaService;
 import nl.tudelft.sem.template.hoa.db.RequirementRepo;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+@TestSuite(testType = INTEGRATION)
 public class HoaServiceTest {
 
     private final transient String testCity = "Test country";

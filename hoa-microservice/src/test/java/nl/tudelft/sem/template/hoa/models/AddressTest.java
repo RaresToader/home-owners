@@ -1,8 +1,12 @@
 package nl.tudelft.sem.template.hoa.models;
 
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.UNIT;
+
+@TestSuite(testType = UNIT)
 public class AddressTest {
 
     @Test

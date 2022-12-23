@@ -1,6 +1,7 @@
 package nl.tudelft.sem.template.hoa.db;
 
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.INTEGRATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,6 +17,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.domain.Activity;
 import nl.tudelft.sem.template.hoa.exception.ActivityDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.BadActivityException;
@@ -39,6 +42,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@TestSuite(testType = INTEGRATION)
 class ActivityServiceTest {
 
     @Autowired

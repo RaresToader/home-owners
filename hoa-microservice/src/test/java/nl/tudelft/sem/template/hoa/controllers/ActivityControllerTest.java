@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.hoa.controllers;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.INTEGRATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -15,6 +16,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
+
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.db.ActivityRepo;
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.domain.Activity;
@@ -39,6 +42,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@TestSuite(testType = INTEGRATION)
 class ActivityControllerTest {
 
     private final transient String activityCreate = "/activity/create/";

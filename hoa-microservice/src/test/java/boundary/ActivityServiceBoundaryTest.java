@@ -2,6 +2,8 @@ package boundary;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.db.ActivityRepo;
 import nl.tudelft.sem.template.hoa.db.ActivityService;
 import nl.tudelft.sem.template.hoa.models.ActivityRequestModel;
@@ -11,7 +13,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.BOUNDARY;
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.UNIT;
 
+
+@TestSuite(testType = {BOUNDARY, UNIT})
 public class ActivityServiceBoundaryTest {
 
     @Mock

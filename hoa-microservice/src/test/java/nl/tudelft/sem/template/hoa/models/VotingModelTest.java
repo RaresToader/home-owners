@@ -1,12 +1,13 @@
 package nl.tudelft.sem.template.hoa.models;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.UNIT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-
-
+@TestSuite(testType = UNIT)
 class VotingModelTest {
 
     @ParameterizedTest

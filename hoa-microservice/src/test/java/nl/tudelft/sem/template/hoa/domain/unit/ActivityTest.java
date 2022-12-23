@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.hoa.domain.unit;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.UNIT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -8,10 +9,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.domain.Activity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+@TestSuite(testType = UNIT)
 public class ActivityTest {
 
     transient Long hoaId;

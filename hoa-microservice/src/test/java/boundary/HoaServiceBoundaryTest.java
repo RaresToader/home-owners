@@ -1,8 +1,11 @@
 package boundary;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.BOUNDARY;
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.UNIT;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.db.HoaService;
 import nl.tudelft.sem.template.hoa.db.RequirementRepo;
@@ -11,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+@TestSuite(testType = {BOUNDARY, UNIT})
 public class HoaServiceBoundaryTest {
     @Mock
     private transient HoaRepo hoaRepo;
