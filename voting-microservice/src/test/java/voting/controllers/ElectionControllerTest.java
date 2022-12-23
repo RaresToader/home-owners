@@ -207,11 +207,13 @@ class ElectionControllerTest {
 
     @Test
     void removeVoteSuccessTest() throws Exception {
-        Election p = new Proposal(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate());
+        TimeModel newTimeModel = new TimeModel(1, 1, 1, 1, 1, 1);
+        Election p = new BoardElection(VALID_NAME, VALID_DESC, 1, newTimeModel.createDate(),
+            1, List.of("1"));
         p.setStatus("ongoing");
-        p.vote("1", true);
+        p.vote("2", "1");
         electionRepo.save(p);
-        RemoveVoteModel reqModel = new RemoveVoteModel(1, "1");
+        RemoveVoteModel reqModel = new RemoveVoteModel(1, "2");
 
         // Perform a POST request
         ResultActions response = mockMvc.perform(post("/voting/removeVote")
@@ -221,7 +223,7 @@ class ElectionControllerTest {
         // Assert that the response has a 200 OK status
         response.andExpect(status().isOk());
 
-        Proposal fetchedP = (Proposal) electionRepo.findByElectionId(1).orElse(null);
+        BoardElection fetchedP = (BoardElection) electionRepo.findByElectionId(1).orElse(null);
         assertNotNull(fetchedP, "Make sure entry is persisted");
         assertTrue(fetchedP.getVotes().isEmpty(), "Make sure vote is persisted");
     }
