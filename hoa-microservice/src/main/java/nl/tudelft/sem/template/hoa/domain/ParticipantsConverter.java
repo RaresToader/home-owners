@@ -1,5 +1,7 @@
 package nl.tudelft.sem.template.hoa.domain;
 
+import nl.tudelft.sem.template.hoa.annotations.Generated;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.AttributeConverter;
@@ -7,6 +9,7 @@ import javax.persistence.AttributeConverter;
 /**
  * Converter class used to convert the list of participants into a String and vice-versa.
  */
+@Generated
 public class ParticipantsConverter implements AttributeConverter<List<Long>, String> {
     /**
      * Converts a list of participants into a string.

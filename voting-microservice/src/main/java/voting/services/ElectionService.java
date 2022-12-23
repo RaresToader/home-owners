@@ -2,17 +2,25 @@ package voting.services;
 
 import org.springframework.stereotype.Service;
 import voting.domain.BoardElection;
+import voting.domain.factories.BoardElectionFactory;
 import voting.domain.Election;
 import voting.domain.Proposal;
 import voting.db.repos.ElectionRepository;
+import voting.domain.factories.ProposalElectionFactory;
 import voting.exceptions.BoardElectionAlreadyCreated;
+import voting.exceptions.CannotProceedVote;
 import voting.exceptions.ElectionCannotBeCreated;
 import voting.exceptions.ElectionDoesNotExist;
 import voting.exceptions.ProposalAlreadyCreated;
+import voting.exceptions.ThereIsNoVote;
 import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
+import voting.models.RemoveVoteModel;
+import voting.models.VotingModel;
 
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,10 +41,10 @@ public class ElectionService {
     public BoardElection createBoardElection(BoardElectionModel model)
             throws BoardElectionAlreadyCreated, ElectionCannotBeCreated {
         if (!model.isValid()) throw new ElectionCannotBeCreated("Some/all of the provided fields are invalid");
+        if (model.getScheduledFor().createDate().isBefore(LocalDateTime.now()))
+            throw new ElectionCannotBeCreated("Election cannot be scheduled in the past");
         if (electionRepository.getBoardElectionByHoaId(model.hoaId).isEmpty()) {
-            LocalDateTime d = model.scheduledFor.createDate();
-            BoardElection boardElection = new BoardElection(model.name, model.description, model.hoaId, d,
-                    model.amountOfWinners, model.candidates);
+            BoardElection boardElection = (BoardElection) new BoardElectionFactory().createElection(model);
             electionRepository.save(boardElection);
             return boardElection;
         } else throw new BoardElectionAlreadyCreated("Board election with hoaId: "
@@ -53,31 +61,90 @@ public class ElectionService {
      */
     public Proposal createProposal(ProposalModel model) throws ProposalAlreadyCreated, ElectionCannotBeCreated {
         if (!model.isValid()) throw new ElectionCannotBeCreated("Some/all of the provided fields are invalid");
-        if (!electionRepository.existsByHoaIdAndName(model.hoaId, model.name)) {
-            LocalDateTime d = model.scheduledFor.createDate();
-            Proposal proposal = new Proposal(model.name, model.description, model.hoaId, d);
+        if (electionRepository.existsByHoaIdAndName(model.hoaId, model.name))
+            throw new ProposalAlreadyCreated("Proposal with hoaId: "
+                    + model.hoaId
+                    + "and name: "
+                    + model.name
+                    + "already exists.");
+        else {
+            Proposal proposal = (Proposal) new ProposalElectionFactory().createElection(model);
             electionRepository.save(proposal);
             return proposal;
-        } else throw new ProposalAlreadyCreated("Proposal with hoaId: "
+        }
+    }
+
+
+    /**
+     * Creates a proposal
+     *
+     * @param model Model from which to create the proposal
+     * @return New proposal, if one does not exist with same hoaID and name
+     * @throws ProposalAlreadyCreated If proposal for the given HoaID and name already exists
+     */
+    public Proposal createProposal(ProposalModel model, TemporalAmount startAfter)
+                                                throws ProposalAlreadyCreated, ElectionCannotBeCreated {
+        if (!model.isValid()) throw new ElectionCannotBeCreated("Some/all of the provided fields are invalid");
+        if (electionRepository.existsByHoaIdAndName(model.hoaId, model.name))
+            throw new ProposalAlreadyCreated("Proposal with hoaId: "
                 + model.hoaId
                 + "and name: "
                 + model.name
                 + "already exists.");
+        else {
+            Proposal proposal = (Proposal) new ProposalElectionFactory().createElection(model, startAfter);
+            electionRepository.save(proposal);
+            return proposal;
+        }
     }
 
     /**
      * Method called when a member wants to vote
      *
-     * @param electionId   Id of election to vote for
-     * @param memberShipId Id of member that wants to vote
-     * @param choice       Choice of member (binary for proposal, id for candidates)
+     * @param model VotingModel that contains electionId, memberID, and voting choice
      * @throws ElectionDoesNotExist If election does not exist with provided id
      */
-    public void vote(int electionId, int memberShipId, int choice) throws ElectionDoesNotExist {
-        if (electionId <= 0 || memberShipId <= 0) throw new ElectionDoesNotExist("Ids not valid");
-        Optional<Election> election = this.electionRepository.findByElectionId(electionId);
-        if (election.isEmpty()) throw new ElectionDoesNotExist("Election not found");
-        election.get().vote(memberShipId, choice);
+    public void vote(VotingModel model, LocalDateTime currTime) throws ElectionDoesNotExist, CannotProceedVote {
+        if (!model.isValid())
+            throw new ElectionDoesNotExist("Ids not valid");
+        Optional<Election> election = this.electionRepository.findByElectionId(model.electionId);
+        if (election.isEmpty())
+            throw new ElectionDoesNotExist("Election not found");
+        if (election.get().getScheduledFor().isAfter(currTime))
+            throw new CannotProceedVote("Election has not started");
+        if (election.get().getStatus().equals("finished"))
+            throw new CannotProceedVote("Election has been concluded");
+        if (election.get().getClass() == BoardElection.class
+                && !((BoardElection) election.get()).getCandidates().contains(model.choice))
+            throw new CannotProceedVote("Candidate with given id is not nominated for the election");
+        if (election.get().getClass() == Proposal.class
+                && !List.of("True", "true", "T", "False", "false", "F").contains(model.choice))
+            throw new CannotProceedVote("Invalid voting choice for proposal (must be a boolean or similar)");
+        election.get().setStatus("ongoing");
+        election.get().vote(model.memberId, model.choice);
+        this.electionRepository.save(election.get());
+    }
+
+    /**
+     * Method called when a member wants to remove his vote
+     *
+     * @param model RemoveVoteModel that contains electionId and memberID
+     * @throws ElectionDoesNotExist If election does not exist with provided id
+     * @throws ThereIsNoVote If the member has not voted yet
+     * @throws CannotProceedVote If the request has been made before the beginning or after the end of the voting process
+     */
+    public void removeVote(RemoveVoteModel model, LocalDateTime currTime)
+                            throws ElectionDoesNotExist, ThereIsNoVote, CannotProceedVote {
+        if (!model.isValid())
+            throw new ElectionDoesNotExist("Ids not valid");
+        Optional<Election> election = this.electionRepository.findByElectionId(model.electionId);
+        if (election.isEmpty())
+            throw new ElectionDoesNotExist("Election not found");
+        if (election.get().getScheduledFor().isAfter(currTime))
+            throw new CannotProceedVote("Election has not started");
+        if (election.get().getStatus().equals("finished"))
+            throw new CannotProceedVote("Election has been concluded");
+        election.get().removeVote(model.memberId);
         this.electionRepository.save(election.get());
     }
 
@@ -92,6 +159,39 @@ public class ElectionService {
         Optional<Election> e = this.electionRepository.findByElectionId(electionId);
         if (e.isEmpty()) throw new ElectionDoesNotExist("Election with provided id does not exist");
         return e.get();
+    }
+
+    /**
+     * Returns board election for a given hoa, if one is running
+     */
+    public BoardElection getBoardElectionByHoaId(long hoaId) throws ElectionDoesNotExist {
+        Optional<Election> e = this.electionRepository.getBoardElectionByHoaId(hoaId);
+        if (e.isEmpty()) throw new ElectionDoesNotExist("This hoa does not have an election");
+        return (BoardElection) e.get();
+    }
+
+    /**
+     * Adds a participant to board election if there is an election
+     */
+    public boolean addParticipantToBoardElection(String memberId, long hoaId) throws ElectionDoesNotExist {
+        BoardElection e = getBoardElectionByHoaId(hoaId);
+        if (e.getCandidates().contains(memberId)) return false;
+        e.addParticipant(memberId);
+        electionRepository.save(e);
+        return true;
+    }
+
+    /**
+     * Removes participant from board election if there is a board election and the member is participating
+     */
+    public boolean removeParticipantFromBoardElection(String memberId, long hoaId) throws ElectionDoesNotExist {
+        BoardElection e = getBoardElectionByHoaId(hoaId);
+        if (e.removeParticipant(memberId)) {
+            electionRepository.deleteById(e.getElectionId());
+            electionRepository.save(e);
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -115,8 +115,10 @@ jacoco {
 }
 
 pmd {
+	toolVersion = "6.52.0"
 	incrementalAnalysis = true
-	sourceSets = [sourceSets.main]
+	ruleSetFiles = files("../config/pmd/ruleset.xml")
+	ruleSets = []
 }
 
 apply plugin: 'info.solidsoft.pitest'

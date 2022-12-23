@@ -3,11 +3,16 @@ package nl.tudelft.sem.template.hoa.db;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import nl.tudelft.sem.template.hoa.domain.Hoa;
+import nl.tudelft.sem.template.hoa.domain.Requirement;
+import nl.tudelft.sem.template.hoa.exception.BadFormatHoaException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.HoaNameAlreadyTakenException;
 import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * A DDD service for hoa-related queries.
@@ -15,14 +20,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class HoaService {
     private final transient HoaRepo hoaRepo;
+    private final transient RequirementRepo requirementRepo;
 
     /**
      * Constructor for the HoaService.
      *
      * @param hoaRepo the hoa repository
      */
-    public HoaService(HoaRepo hoaRepo) {
+    public HoaService(HoaRepo hoaRepo, RequirementRepo requirementRepo) {
         this.hoaRepo = hoaRepo;
+        this.requirementRepo = requirementRepo;
     }
 
     /**
@@ -70,13 +77,132 @@ public class HoaService {
      * @return the hoa newly created
      * @throws HoaNameAlreadyTakenException thrown if the hoa name already exists
      */
-    public Hoa registerHoa(HoaRequestModel request) throws HoaNameAlreadyTakenException {
+    public Hoa registerHoa(HoaRequestModel request) throws HoaNameAlreadyTakenException, BadFormatHoaException {
         String country = request.getCountry();
         String city = request.getCity();
         String name = request.getName();
+        if (countryCheck(country) || countryCheck(city) || !nameCheck(name)) {
+            throw new BadFormatHoaException("Wrong format for the country, city, or name!");
+        }
+
         Hoa newHoa = Hoa.createHoa(country, city, name);
         this.saveHoa(newHoa);
         return newHoa;
+    }
+
+    /**
+     * Method to report another member that violates one of the HOA rules
+     *
+     * @param memberId Id of member that violated an HOA rule
+     * @param reqId    Id of requirement that was broken
+     */
+    public void report(String memberId, long reqId) throws ResponseStatusException {
+        Optional<Requirement> req = requirementRepo.findById(reqId);
+        if (req.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requirement has no associated HOA");
+        Optional<Hoa> hoa = hoaRepo.findById(req.get().getHoaId());
+        if (hoa.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Associated HOA does not exist");
+        hoa.get().report(memberId, reqId);
+        hoaRepo.save(hoa.get());
+    }
+
+    /**
+     * Method to notify a member of a rule change/addition
+     *
+     * @param hoaId       id of HOA to consider
+     * @param memberId    id of member to be notified
+     * @param rulesChange String representing the rule that was changed/added
+     */
+    public void notify(long hoaId, String memberId, String rulesChange) throws
+            ResponseStatusException {
+        Optional<Hoa> hoa = hoaRepo.findById(hoaId);
+        if (hoa.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Associated HOA does not exist");
+        hoa.get().notify(memberId, rulesChange);
+        hoaRepo.save(hoa.get());
+    }
+
+    /**
+     * Method to clear notifications of a member
+     *
+     * @param hoaId    id of HOA to consider
+     * @param memberId id of member to be notified
+     */
+    public List<String> clearNotifications(long hoaId, String memberId) throws
+            ResponseStatusException {
+        Optional<Hoa> hoa = hoaRepo.findById(hoaId);
+        if (hoa.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Associated HOA does not exist");
+        List<String> res = hoa.get().resetNotifications(memberId);
+        hoaRepo.save(hoa.get());
+        return res;
+    }
+
+    /**
+     * This method checks that a country/city has the correct format.
+     * This means that it must have maximum 50 characters, only letters (only ASCII), whitespaces are admissible,
+     * no numbers and the first letter needs to be uppercase. Of course, the string cannot contain only whitespaces.
+     *
+     * @param country the country or city name
+     * @return true if the country name fails to adhere to the format, false otherwise
+     */
+    public boolean countryCheck(String country) {
+        if (country == null || country.isEmpty() || country.isBlank()) {
+            return true;
+        }
+        if (!Character.isUpperCase(country.charAt(0)) || country.length() < 4 || country.length() > 50) {
+            return true;
+        }
+        for (int i = 1; i < country.length(); i++) {
+            char c = country.charAt(i);
+            if (!Character.isWhitespace(c) && !Character.isLetter(c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * This is a method that checks whether the format for a name is correct.
+     *
+     * @param name the name of the hoa
+     * @return true if the format is satisfied, false otherwise
+     */
+    public boolean nameCheck(String name) {
+        if (name == null || name.isEmpty() || name.isBlank()) {
+            return false;
+        }
+        if (!Character.isUpperCase(name.charAt(0)) || name.length() > 50) {
+            return false;
+        }
+        return enoughCharsAndWhitespace(name);
+    }
+
+    /**
+     * Checks that a string has at least 4 characters.
+     * Only letters or digits are allowed. The name can have at most 50 characters.
+     *
+     * @param name the name
+     * @return true if the conditions are met, false otherwise.
+     */
+    public boolean enoughCharsAndWhitespace(String name) {
+        if (name == null || name.isEmpty() || name.isBlank()) {
+            return false;
+        }
+        String[] split = name.split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (String s : split) {
+            sb.append(s);
+        }
+        String result = sb.toString();
+        char[] array = result.toCharArray();
+        for (Character x : array) {
+            if (!Character.isLetterOrDigit(x)) {
+                return false;
+            }
+        }
+        return result.length() >= 4;
     }
 
     /**

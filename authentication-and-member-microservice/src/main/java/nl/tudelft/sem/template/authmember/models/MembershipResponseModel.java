@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 
 @Data
 @AllArgsConstructor
@@ -14,6 +17,7 @@ public class MembershipResponseModel {
     private long hoaId;
     private String country;
     private String city;
-
     private boolean isBoard;
+    private LocalDateTime startTime;
+    private LocalTime duration;
 }

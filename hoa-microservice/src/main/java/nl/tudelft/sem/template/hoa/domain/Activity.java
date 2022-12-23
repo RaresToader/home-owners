@@ -13,10 +13,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 
 /**
  * DDD entity corresponding to an activity on the public board.
  */
+@Generated
 @Entity
 @Table(name = "Activities")
 @NoArgsConstructor

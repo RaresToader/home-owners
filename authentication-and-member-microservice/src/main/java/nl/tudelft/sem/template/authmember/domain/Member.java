@@ -2,10 +2,13 @@ package nl.tudelft.sem.template.authmember.domain;
 
 import java.util.Objects;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.authmember.domain.password.HashedPassword;
+import nl.tudelft.sem.template.authmember.domain.password.HashedPasswordAttributeConverter;
 
 /**
  * A DDD entity representing an application user in our domain.
@@ -21,11 +24,11 @@ public class Member {
     @Column(name = "memberid", nullable = false)
     private String memberId;
 
-    //TODO: Not store plaintext passwords
     @Column(name = "password_hash", nullable = false)
-    private String password;
+    @Convert(converter = HashedPasswordAttributeConverter.class)
+    private HashedPassword password;
 
-    public Member(String memberId, String password) {
+    public Member(String memberId, HashedPassword password) {
         this.memberId = memberId;
         this.password = password;
     }
@@ -35,8 +38,12 @@ public class Member {
         return memberId;
     }
 
-    public String getPassword() {
+    public HashedPassword getPassword() {
         return password;
+    }
+
+    public void setPassword(HashedPassword password) {
+        this.password = password;
     }
 
     /**

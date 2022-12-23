@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import nl.tudelft.sem.template.authmember.domain.Member;
 import nl.tudelft.sem.template.authmember.domain.db.MemberRepository;
+import nl.tudelft.sem.template.authmember.domain.password.PasswordHashingService;
 import nl.tudelft.sem.template.authmember.integration.utils.JsonUtil;
 import nl.tudelft.sem.template.authmember.models.RegistrationModel;
 import org.junit.jupiter.api.Test;
@@ -31,13 +32,15 @@ public class MemberTests {
     private transient MockMvc mockMvc;
     @Autowired
     private transient MemberRepository memberRepository;
+    @Autowired
+    private transient PasswordHashingService passwordHashingService;
 
     @Test
     public void createMemberGoodCase() throws Exception {
-        final Member member = new Member("Stefan", "coati69");
+        final Member member = new Member("Stefan", passwordHashingService.hash("coati69"));
         final RegistrationModel model = new RegistrationModel();
         model.setMemberId("Stefan");
-        model.setPassword("coati69");
+        model.setPassword("coati6969coati");
         // Act
         ResultActions resultActions = mockMvc.perform(post("/member/register")
                 .contentType(MediaType.APPLICATION_JSON)

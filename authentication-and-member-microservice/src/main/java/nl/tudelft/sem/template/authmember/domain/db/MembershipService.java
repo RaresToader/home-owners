@@ -3,11 +3,15 @@ package nl.tudelft.sem.template.authmember.domain.db;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import nl.tudelft.sem.template.authmember.domain.Membership;
+import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
-import nl.tudelft.sem.template.authmember.services.TimeUtils;
+import nl.tudelft.sem.template.authmember.models.MembershipResponseModel;
+import nl.tudelft.sem.template.authmember.utils.TimeUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,12 +20,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class MembershipService {
     private final transient MembershipRepository membershipRepository;
+    private final transient MemberRepository memberRepository;
 
     /**
      * Instantiates a new MembershipService.
      */
-    public MembershipService(MembershipRepository membershipRepository) {
+    public MembershipService(MembershipRepository membershipRepository, MemberRepository memberRepository) {
         this.membershipRepository = membershipRepository;
+        this.memberRepository = memberRepository;
     }
 
     /**
@@ -29,14 +35,107 @@ public class MembershipService {
      *
      * @throws MemberAlreadyInHoaException if there is an active membership for that HOA.
      */
-    public void saveMembership(JoinHoaModel model) throws MemberAlreadyInHoaException {
+    public boolean saveMembership(JoinHoaModel model, boolean asBoard)
+            throws MemberAlreadyInHoaException, BadJoinHoaModelException {
+        if (!validateCountryCityStreet(model.getAddress().getCity())
+                || !validateCountryCityStreet(model.getAddress().getCountry())
+                || !validateCountryCityStreet(model.getAddress().getStreet())
+                || !validateStreetNumber(model.getAddress().getHouseNumber())
+                || !validatePostalCode(model.getAddress().getPostalCode())) {
+            throw new BadJoinHoaModelException("Bad model!");
+        }
+        if (memberRepository.findByMemberId(model.getMemberId()).isEmpty()) {
+            throw new IllegalArgumentException("Member not found!");
+        }
         if (membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull(model.getMemberId(),
                 model.getHoaId()).isPresent()) {
             throw new MemberAlreadyInHoaException(model);
         } else {
             membershipRepository.save(new Membership(model.getMemberId(),
-                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, false));
+                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, asBoard));
+            return true;
         }
+    }
+
+    /**
+     * Validates the input for country, city, and street name. It must contain
+     * only letters. It must be non-null, non-empty, non-blank and must contain only letters.
+     * The first letter must be uppercase.
+     *
+     * @param name the name
+     * @return true if the name satisfies the right format
+     */
+    public boolean validateCountryCityStreet(String name) {
+        if (name == null || name.isEmpty() || name.isBlank()) {
+            return false;
+        }
+        String trimmed = name.trim();
+        if (trimmed.length() < 4 || trimmed.length() > 50) {
+            return false;
+        }
+        if (!Character.isUpperCase(trimmed.charAt(0))) {
+            return false;
+        }
+        for (int i = 1; i < trimmed.length(); i++) {
+            if (!Character.isLetter(trimmed.charAt(i)) && !Character.isWhitespace(trimmed.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+
+    }
+
+    /**
+     * Method that validates the format of a postal code. It must be of type
+     * "DDDDLL", where "D" represents a digit, and "L" a letter.
+     *
+     * @param postalCode the postal code
+     * @return true if the postal code matches the format, false otherwise
+     */
+    public boolean validatePostalCode(String postalCode) {
+        if (postalCode == null) {
+            return false;
+        }
+        String trimmed = postalCode.trim();
+        final int max = 6;
+        if (trimmed.length() != max) {
+            return false;
+        }
+        for (int i = 0; i < 4; i++) {
+            if (!Character.isDigit(trimmed.charAt(i))) {
+                return false;
+            }
+        }
+        for (int j = 4; j < 6; j++) {
+            if (!Character.isLetter(trimmed.charAt(j))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Validates the street number provided. Valid street numbers are the following:
+     * "80A", "23". Leading and trailing spaces are allowed.
+     *
+     * @param number the street number
+     * @return true if the number satisfies the format, false otherwise
+     */
+    public boolean validateStreetNumber(String number) {
+        if (number == null || number.isBlank() || number.isEmpty()) {
+            return false;
+        }
+        String trimmed = number.trim();
+        for (int i = 0; i < trimmed.length() - 1; i++) {
+            if (!Character.isDigit(trimmed.charAt(i))) {
+                return false;
+            }
+        }
+        if (!Character.isDigit(trimmed.charAt(trimmed.length() - 1))
+                && !Character.isLetter(trimmed.charAt(trimmed.length() - 1))) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -76,6 +175,11 @@ public class MembershipService {
         return membershipRepository.findAllByMemberIdAndDurationIsNull(memberId);
     }
 
+    public List<Membership> getActiveMembershipsByHoaId(long hoaId) {
+        return membershipRepository.findAllByDurationIsNull().stream()
+                .filter(m -> m.getHoaId() == hoaId).collect(Collectors.toList());
+    }
+
     /**
      * Returns the current membership in a given Hoa, if one exists.
      */
@@ -108,5 +212,29 @@ public class MembershipService {
      */
     public List<Membership> getAll() {
         return this.membershipRepository.findAll();
+    }
+
+    /**
+     * Toggle a membership's board status by stopping the current membership,
+     * and starting a new one with toggled status
+     *
+     * @param m             Membership to consider
+     * @param shouldPromote Whether it should be promoted - logically the same as final board status of member
+     * @throws MemberAlreadyInHoaException thrown if member is already in hoa when saved
+     *                                     SHOULD NOT HAPPEN DUE TO METHOD DESIGN
+     * @throws BadJoinHoaModelException    thrown if hoa model is smelly
+     *                                     SHOULD NOT HAPPEN DUE TO METHOD DESIGN
+     */
+    public void changeBoard(MembershipResponseModel m, boolean shouldPromote)
+            throws MemberAlreadyInHoaException, BadJoinHoaModelException {
+        GetHoaModel model = new GetHoaModel();
+        model.setHoaId(m.getHoaId());
+        model.setMemberId(m.getMemberId());
+        Membership old = stopMembership(model);
+        JoinHoaModel jmodel = new JoinHoaModel();
+        jmodel.setAddress(old.getAddress());
+        jmodel.setMemberId(m.getMemberId());
+        jmodel.setHoaId(m.getHoaId());
+        saveMembership(jmodel, shouldPromote);
     }
 }

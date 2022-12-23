@@ -1,15 +1,19 @@
 package nl.tudelft.sem.template.hoa.domain.unit;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.UNIT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.domain.ParticipantsConverter;
 import org.junit.jupiter.api.Test;
 
+@TestSuite(testType = UNIT)
 class ParticipantsConverterTest {
 
-    ParticipantsConverter participantsConverter = new ParticipantsConverter();
+    transient ParticipantsConverter participantsConverter = new ParticipantsConverter();
 
     @Test
     void convertToDatabaseColumnTest() {
