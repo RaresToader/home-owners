@@ -41,6 +41,8 @@ public class ElectionService {
     public BoardElection createBoardElection(BoardElectionModel model)
             throws BoardElectionAlreadyCreated, ElectionCannotBeCreated {
         if (!model.isValid()) throw new ElectionCannotBeCreated("Some/all of the provided fields are invalid");
+        if (model.getScheduledFor().createDate().isBefore(LocalDateTime.now()))
+            throw new ElectionCannotBeCreated("Election cannot be scheduled in the past");
         if (electionRepository.getBoardElectionByHoaId(model.hoaId).isEmpty()) {
             BoardElection boardElection = (BoardElection) new BoardElectionFactory().createElection(model);
             electionRepository.save(boardElection);
@@ -173,8 +175,8 @@ public class ElectionService {
      */
     public boolean addParticipantToBoardElection(String memberId, long hoaId) throws ElectionDoesNotExist {
         BoardElection e = getBoardElectionByHoaId(hoaId);
+        if (e.getCandidates().contains(memberId)) return false;
         e.addParticipant(memberId);
-        electionRepository.deleteById(e.getElectionId());
         electionRepository.save(e);
         return true;
     }

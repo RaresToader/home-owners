@@ -22,13 +22,15 @@ public class TimeModel {
      *
      * @param nums Integer array containing localdatetime values
      */
-    public TimeModel(Integer[] nums) {
-        this.year = nums[0];
-        this.month = nums[1];
-        this.day = nums[2];
-        this.hours = nums[3];
-        this.minutes = nums[4];
-        this.seconds = nums[5];
+    public static TimeModel createModelFromArr(Integer[] nums) {
+        TimeModel tm = new TimeModel();
+        tm.year = nums[0];
+        tm.month = nums[1];
+        tm.day = nums[2];
+        tm.hours = nums[3];
+        tm.minutes = nums[4];
+        tm.seconds = nums[5];
+        return tm;
     }
 
     public boolean isValid() {

@@ -48,6 +48,10 @@ class ElectionServiceTest {
 	private ElectionService electionService;
 	private ElectionRepository repository;
 
+	private static final String EL = "Election";
+
+	private static final String TESTEX = "TestExample";
+
 	@BeforeEach
 	void setUp() {
 		validTM = new TimeModel(10, 10, 10, 10, 10, 10);
@@ -81,8 +85,10 @@ class ElectionServiceTest {
 	@Test
 	void createBoardElectionAlreadyExisting() {
 		beModel.hoaId = 2;
+		beModel.scheduledFor = new TimeModel(10, 10, 10, 10, 10,
+				LocalDateTime.now().getYear() + 2);
 		Election boardElection = new BoardElection("BoardElection2", "ExistingElection", 2,
-			LocalDateTime.now(), 2, new ArrayList<>());
+			LocalDateTime.now().plusYears(1), 2, new ArrayList<>());
 		when(repository.getBoardElectionByHoaId(2)).thenReturn(Optional.of(boardElection));
 		assertThrows(BoardElectionAlreadyCreated.class, () -> electionService.createBoardElection(beModel));
 		verify(repository, times(1)).getBoardElectionByHoaId(beModel.hoaId);
@@ -91,8 +97,10 @@ class ElectionServiceTest {
 
 	@Test
 	void createBoardElectionSuccessful() throws BoardElectionAlreadyCreated, ElectionCannotBeCreated {
+		beModel.scheduledFor = new TimeModel(10, 10, 10, 10, 10,
+				LocalDateTime.now().getYear() + 2);
 		Election boardElection = new BoardElection(beModel.name, beModel.description, beModel.hoaId,
-			beModel.scheduledFor.createDate(), beModel.amountOfWinners, beModel.candidates);
+			LocalDateTime.now().plusYears(2), beModel.amountOfWinners, beModel.candidates);
 		when(repository.getBoardElectionByHoaId(1)).thenReturn(Optional.empty());
 		assertEquals(boardElection, electionService.createBoardElection(beModel));
 		verify(repository, times(1)).getBoardElectionByHoaId(beModel.hoaId);
@@ -143,7 +151,7 @@ class ElectionServiceTest {
 
 	@Test
 	void voteNotStarted() {
-		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Election proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		validTM.day = 9;
 		when(repository.findByElectionId(propVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		assertThrows(CannotProceedVote.class, () -> electionService.vote(propVoteModel, validTM.createDate()));
@@ -152,7 +160,7 @@ class ElectionServiceTest {
 
 	@Test
 	void voteEnded() {
-		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Election proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		proposal.setStatus("finished");
 		when(repository.findByElectionId(propVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		assertThrows(CannotProceedVote.class, () -> electionService.vote(propVoteModel, LocalDateTime.now()));
@@ -170,7 +178,7 @@ class ElectionServiceTest {
 
 	@Test
 	void voteSuccessfulProposal() throws ElectionDoesNotExist, CannotProceedVote {
-		Proposal proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Proposal proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		when(repository.findByElectionId(propVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		electionService.vote(propVoteModel, LocalDateTime.now());
 		assertEquals("ongoing", proposal.getStatus());
@@ -195,7 +203,7 @@ class ElectionServiceTest {
 
 	@Test
 	void removeVoteSuccessful() throws ElectionDoesNotExist, CannotProceedVote, ThereIsNoVote {
-		Proposal proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Proposal proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		proposal.setStatus("ongoing");
 		proposal.vote("chad", true);
 		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
@@ -221,7 +229,7 @@ class ElectionServiceTest {
 
 	@Test
 	void removeVoteNotStarted() {
-		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Election proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		validTM.day = 9;
 		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		assertThrows(CannotProceedVote.class, () -> electionService.removeVote(removeVoteModel, validTM.createDate()));
@@ -230,7 +238,7 @@ class ElectionServiceTest {
 
 	@Test
 	void removeVoteEnded() {
-		Election proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Election proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		proposal.setStatus("finished");
 		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		assertThrows(CannotProceedVote.class, () -> electionService.removeVote(removeVoteModel, LocalDateTime.now()));
@@ -239,7 +247,7 @@ class ElectionServiceTest {
 
 	@Test
 	void removeVoteNotVoted() throws ThereIsNoVote, ElectionDoesNotExist, CannotProceedVote {
-		Proposal proposal = new Proposal("Election", "TestExample", 1, validTM.createDate());
+		Proposal proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
 		proposal.setStatus("ongoing");
 		proposal.vote("notChad", true);
 		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
