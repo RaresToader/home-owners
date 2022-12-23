@@ -8,6 +8,8 @@ import javax.ws.rs.core.HttpHeaders;
 import nl.tudelft.sem.template.authmember.models.HoaResponseModel;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 
 /**
@@ -32,9 +34,7 @@ public class HoaUtils {
                     .header(HttpHeaders.AUTHORIZATION, token)
                     .get(HoaResponseModel.class);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Hoa id is invalid.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
-
-
 }

@@ -1,11 +1,15 @@
 package nl.tudelft.sem.template.hoa.controllers;
 
 import nl.tudelft.sem.template.hoa.authentication.AuthManager;
+import nl.tudelft.sem.template.hoa.db.HoaRepo;
+import nl.tudelft.sem.template.hoa.domain.Hoa;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.NotBoardForTooLongValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.NotInAnyOtherBoardValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.TimeInCurrentHoaValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.Validator;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
+import nl.tudelft.sem.template.hoa.models.RemoveVoteModel;
+import nl.tudelft.sem.template.hoa.models.TimeModel;
 import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +26,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;
@@ -33,11 +41,14 @@ import nl.tudelft.sem.template.hoa.models.VotingModel;
 @RequestMapping("/voting")
 public class ElectionController {
 
-    private transient AuthManager authManager;
+    private final transient AuthManager authManager;
+    private final transient HoaRepo hoaRepo;
 
     @Autowired
-    public ElectionController(AuthManager authManager) {
+    public ElectionController(AuthManager authManager,
+                              HoaRepo hoaRepo) {
         this.authManager = authManager;
+        this.hoaRepo = hoaRepo;
     }
 
     /**
@@ -46,12 +57,11 @@ public class ElectionController {
      * @param model the proposal
      * @return The created proposal or bad request
      */
-    @PostMapping("/proposal/{id}")
-    public ResponseEntity<Object> createProposal(@PathVariable("id") long hoaId,
-                                                 @RequestBody ProposalRequestModel model,
+    @PostMapping("/proposal")
+    public ResponseEntity<Object> createProposal(@RequestBody ProposalRequestModel model,
                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            validateMemberInHOA(hoaId, authManager.getMemberId(), true, token);
+            validateMemberInHOA(model.hoaId, authManager.getMemberId(), true, token);
             return ResponseEntity.ok(ElectionUtils.createProposal(model));
         } catch (ResponseStatusException e) {
             throw new ResponseStatusException(e.getStatus(), e.getMessage(), e);
@@ -83,9 +93,31 @@ public class ElectionController {
     public ResponseEntity<HttpStatus> vote(@RequestBody VotingModel model,
                                            @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            ResponseEntity<Object> e = getObjectResponseEntity(model.electionId, token);
-            if (e != null) return ResponseEntity.ok(ElectionUtils.vote(model));
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vote is unsuccessful.");
+            if (!model.memberId.equals(authManager.getMemberId()))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
+            fetchElectionAsEntity(model.electionId, true, token);
+            return ResponseEntity.ok(ElectionUtils.vote(model));
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(e.getStatus(), e.getMessage(), e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     *  Endpoint for removing a vote on an election
+     *
+     * @param model the vote to be removed
+     * @return the status of the removal of the vote
+     */
+    @PostMapping("/removeVote")
+    public ResponseEntity<HttpStatus> removeVote(@RequestBody RemoveVoteModel model,
+                                                 @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        try {
+            if (!model.memberId.equals(authManager.getMemberId()))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
+            fetchElectionAsEntity(model.electionId, true, token);
+            return ResponseEntity.ok(ElectionUtils.removeVote(model));
         } catch (ResponseStatusException e) {
             throw new ResponseStatusException(e.getStatus(), e.getMessage(), e);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -103,9 +135,7 @@ public class ElectionController {
     public ResponseEntity<Object> getElectionById(@PathVariable("id") int electionId,
                                                   @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            ResponseEntity<Object> e = getObjectResponseEntity(electionId, token);
-            if (e != null) return e;
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election fetch was not successful.");
+            return fetchElectionAsEntity(electionId, false, token);
         } catch (ResponseStatusException e) {
             throw new ResponseStatusException(e.getStatus(), e.getMessage(), e);
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -125,9 +155,38 @@ public class ElectionController {
     public ResponseEntity<Object> concludeElection(@PathVariable("id") int electionId,
                                                    @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            ResponseEntity<Object> e1 = getObjectResponseEntity(electionId, token);
-            if (e1 != null) return e1;
-            return ResponseEntity.ok(ElectionUtils.concludeElection(electionId));
+            ResponseEntity<Object> e = fetchElectionAsEntity(electionId, true, token);
+            Object result = ElectionUtils.concludeElection(electionId);
+            if (e.getClass().getName().equals("BoardElection")) {
+                LocalDateTime scheduledFor = (LocalDateTime) e.getClass().getDeclaredField("scheduledFor").get(e);
+                long hoaId = (Long) e.getClass().getDeclaredField("hoaId").get(e);
+                // start automatic annual board election
+                Integer[] nums = Arrays.stream(scheduledFor.plusYears(1)
+                        .format(DateTimeFormatter.ISO_DATE_TIME)
+                        .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new);
+                ElectionUtils.cyclicCreateBoardElection(new BoardElectionRequestModel(hoaId, 1,
+                        List.of(), "Annual board election",
+                        "This is the auto-generated annual board election", new TimeModel(nums)));
+                // clear board
+                MembershipUtils.resetBoard(hoaId);
+                // promote winners and demote rest of board
+                MembershipUtils.promoteWinners(result, hoaId);
+            } else if (e.getClass().getName().equals("Proposal") && (Boolean) result) {
+                long hoaId = (Long) e.getClass().getDeclaredField("hoaId").get(e);
+                Optional<Hoa> hoa = hoaRepo.findById(hoaId);
+                if (hoa.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Hoa with given id does not exists?");
+                // for each member in the HOA, add an entry in notification mapper
+                for (String memberId : MembershipUtils.getActiveMembershipsOfHoa(hoaId, token)
+                        .stream().map(MembershipResponseModel::getMemberId).collect(Collectors.toList())) {
+                    // PMD... cmon, really?
+                    String rule = (String) e.getClass().getDeclaredField("description").get(e);
+                    hoa.get().notify(memberId, rule);
+                }
+                // explicit save due to lack of hoaService
+                hoaRepo.save(hoa.get());
+            }
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot vote", e);
         }
@@ -152,13 +211,9 @@ public class ElectionController {
             Validator notForTooLongValidator = new NotBoardForTooLongValidator();
             otherBoardValidator.setNext(notForTooLongValidator);
             handler.setNext(otherBoardValidator);
-            try {
-                handler.handle(memberships, hoaID);
-                return ResponseEntity.ok(ElectionUtils.joinElection(authManager.getMemberId(), hoaID));
-            } catch (Exception e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-            }
-        } catch (IllegalArgumentException e) {
+            handler.handle(memberships, hoaID);
+            return ResponseEntity.ok(ElectionUtils.joinElection(authManager.getMemberId(), hoaID));
+        } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
@@ -173,8 +228,7 @@ public class ElectionController {
     public ResponseEntity<Boolean> leaveElection(@PathVariable long hoaID,
                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            validateMemberInHOA(hoaID, authManager.getMemberId(), true, token);
-
+            validateMemberInHOA(hoaID, authManager.getMemberId(), false, token);
             if (ElectionUtils.leaveElection(authManager.getMemberId(), hoaID))
                 return ResponseEntity.ok(true);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member did not participate in the election");
@@ -204,21 +258,21 @@ public class ElectionController {
      * @param electionId Id of election to fetch
      * @param token      Authorization token used for validation
      * @return A response entity containing the fetched Election as an Object, if it exists
-     * @throws IllegalAccessException Thrown if fetched object does not have required fields
      */
-    private ResponseEntity<Object> getObjectResponseEntity(@PathVariable("id") int electionId,
-                                                           @RequestHeader(HttpHeaders.AUTHORIZATION) String token)
+    private ResponseEntity<Object> fetchElectionAsEntity(@PathVariable("id") int electionId, boolean boardCheck,
+                                                         @RequestHeader(HttpHeaders.AUTHORIZATION) String token)
             throws IllegalAccessException, InvocationTargetException {
         Object e = ElectionUtils.getElectionById(electionId);
-        for (Method method : e.getClass().getDeclaredMethods()) {
-            if (method.getName().equals("getHoaId")) {
-                Object value = method.invoke(e);
-                if (value == null) throw new IllegalArgumentException("Election fetch was not successful.");
-                validateMemberInHOA((long) value, authManager.getMemberId(), false, token);
-                return ResponseEntity.ok(e);
+        try {
+            if (!e.getClass().getDeclaredMethod("getStatus").invoke(e).equals("finished")) {
+                Object val = e.getClass().getDeclaredMethod("getHoaId").invoke(e);
+                validateMemberInHOA((long) val, authManager.getMemberId(),
+                        !boardCheck || e.getClass().getName().equals("Proposal"), token);
             }
+            return ResponseEntity.ok(e);
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
         }
-        return null;
     }
 
     /** Setter method used when AuthManager needs to be mocked

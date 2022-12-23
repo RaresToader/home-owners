@@ -26,7 +26,7 @@ public class RequirementService {
     }
 
     /**
-     * Gets an HOA requirement
+     * Gets HOA requirements
      *
      * @param hoaId id of HOA
      * @return Fetched requirement, if id exists
@@ -36,6 +36,19 @@ public class RequirementService {
         Optional<List<Requirement>> optReqs = requirementRepo.findByHoaId(hoaId);
         if (optReqs.isEmpty()) throw new HoaDoesntExistException("Hoa with provided id does not exist");
         return optReqs.get();
+    }
+
+    /**
+     * Gets an HOA requirement
+     *
+     * @param reqId id of requirement
+     * @return Fetched requirement, if id exists
+     * @throws RequirementDoesNotExist Thrown if HOA with provided id does not exist in the database
+     */
+    public Requirement getHoaRequirement(long reqId) throws RequirementDoesNotExist {
+        Optional<Requirement> optReq = requirementRepo.findById(reqId);
+        if (optReq.isEmpty()) throw new RequirementDoesNotExist("Requirement with provided id does not exist");
+        return optReq.get();
     }
 
     /**

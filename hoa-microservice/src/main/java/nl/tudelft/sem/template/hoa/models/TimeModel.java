@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.hoa.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import nl.tudelft.sem.template.hoa.annotations.Generated;
 
@@ -10,6 +11,7 @@ import java.time.LocalTime;
 
 @Generated
 @Data
+@AllArgsConstructor
 public class TimeModel {
     public int seconds;
     public int minutes;
@@ -17,6 +19,21 @@ public class TimeModel {
     public int day;
     public int month;
     public int year;
+
+    /**
+     * Create a time model from an int array with all the required elements
+     * (array follows ISO date format, starting from year and ending with nanoseconds)
+     *
+     * @param nums Integer array containing localdatetime values
+     */
+    public TimeModel(Integer[] nums) {
+        this.year = nums[0];
+        this.month = nums[1];
+        this.day = nums[2];
+        this.hours = nums[3];
+        this.minutes = nums[4];
+        this.seconds = nums[5];
+    }
 
     public boolean isValid() {
         return createDate() != null;

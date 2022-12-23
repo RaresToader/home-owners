@@ -10,7 +10,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BoardElectionRequestModel {
-    public int hoaId;
+
+    public long hoaId;
     public int amountOfWinners;
     public List<String> candidates;
     public String name;

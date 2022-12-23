@@ -56,7 +56,7 @@ public class HoaControllerTest {
 
     void insertHoa() {
         Hoa hoa = Hoa.createHoa("Country", "City", "Test");
-        hoaRepo.save(hoa);
+        return hoaRepo.save(hoa);
     }
 
     @AfterEach

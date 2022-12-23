@@ -115,12 +115,8 @@ public class ActivityService {
      * @return true if the membership is for the hoaId provided
      */
     public boolean isInThisHoa(long membershipId, long hoaId) {
-        try {
-            MembershipResponseModel membership = MembershipUtils.getMembershipById(membershipId);
-            return membership.getHoaId() == hoaId;
-        } catch (Exception e) {
-            return false;
-        }
+        MembershipResponseModel membership = MembershipUtils.getMembershipById(membershipId);
+        return membership.getHoaId() == hoaId;
     }
 
     /**
@@ -175,7 +171,7 @@ public class ActivityService {
      * Thus, it should be impossible to add an activity that starts in the past.
      *
      * @param model the request model
-     * @param now the time
+     * @param now   the time
      * @return true if the activity can be added, false otherwise
      */
     public boolean validateActivity(ActivityRequestModel model, LocalDateTime now) {
@@ -196,7 +192,13 @@ public class ActivityService {
      * @return true, if the name has the right format, false otherwise;
      */
     public boolean rightFormatTitle(String name) {
-        if (name == null || name.isBlank() || name.isEmpty()) {
+        if (name == null) {
+            return false;
+        }
+        if (name.isEmpty()) {
+            return false;
+        }
+        if (name.isBlank()) {
             return false;
         }
         return name.length() <= 40;
@@ -210,7 +212,13 @@ public class ActivityService {
      * @return true, if the name has the right format, false otherwise;
      */
     public boolean rightFormatDescription(String name) {
-        if (name == null || name.isBlank() || name.isEmpty()) {
+        if (name == null) {
+            return false;
+        }
+        if (name.isEmpty()) {
+            return false;
+        }
+        if (name.isBlank()) {
             return false;
         }
         return name.length() <= 200;

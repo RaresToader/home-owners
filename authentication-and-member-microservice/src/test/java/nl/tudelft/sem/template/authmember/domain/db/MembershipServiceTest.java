@@ -83,14 +83,14 @@ class MembershipServiceTest {
 
     @Test
     void saveMembership() throws MemberAlreadyInHoaException, BadJoinHoaModelException {
-        assertTrue(membershipService.saveMembership(new JoinHoaModel(newId, 1L, address)));
+        assertTrue(membershipService.saveMembership(new JoinHoaModel(newId, 1L, address), false));
     }
 
     @Test
     void saveMembershipCountry() {
         assertThrows(BadJoinHoaModelException.class, () -> {
             membershipService.saveMembership(new JoinHoaModel(newId, 1L,
-                    new Address(null, city, street, "14", zip)));
+                    new Address(null, city, street, "14", zip)), false);
         });
     }
 
@@ -98,7 +98,7 @@ class MembershipServiceTest {
     void saveMembershipCity() {
         assertThrows(BadJoinHoaModelException.class, () -> {
             membershipService.saveMembership(new JoinHoaModel(newId, 1L,
-                    new Address(country, null, street, "14", zip)));
+                    new Address(country, null, street, "14", zip)), false);
         });
     }
 
@@ -106,7 +106,7 @@ class MembershipServiceTest {
     void saveMembershipStreet() {
         assertThrows(BadJoinHoaModelException.class, () -> {
             membershipService.saveMembership(new JoinHoaModel(newId, 1L,
-                    new Address(country, city, null, "14", zip)));
+                    new Address(country, city, null, "14", zip)), false);
         });
     }
 
@@ -114,7 +114,7 @@ class MembershipServiceTest {
     void saveMembershipNumber() {
         assertThrows(BadJoinHoaModelException.class, () -> {
             membershipService.saveMembership(new JoinHoaModel(newId, 1L,
-                    new Address(country, city, street, null, zip)));
+                    new Address(country, city, street, null, zip)), false);
         });
     }
 
@@ -122,21 +122,21 @@ class MembershipServiceTest {
     void saveMembershipPostal() {
         assertThrows(BadJoinHoaModelException.class, () -> {
             membershipService.saveMembership(new JoinHoaModel(newId, 1L,
-                    new Address(country, city, street, "1", "x")));
+                    new Address(country, city, street, "1", "x")), false);
         });
     }
 
     @Test
     void saveMembershipNoMember() {
         assertThrows(IllegalArgumentException.class, () -> {
-            membershipService.saveMembership(new JoinHoaModel(m2, 1L, address));
+            membershipService.saveMembership(new JoinHoaModel(m2, 1L, address), false);
         });
     }
 
     @Test
     void saveMembershipAlreadyThere() {
         assertThrows(MemberAlreadyInHoaException.class, () -> {
-            membershipService.saveMembership(new JoinHoaModel(id, 1L, address));
+            membershipService.saveMembership(new JoinHoaModel(id, 1L, address), false);
         });
     }
     

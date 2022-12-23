@@ -3,6 +3,7 @@ package voting.domain;
 import lombok.NoArgsConstructor;
 import voting.annotations.Generated;
 import voting.db.converters.ProposalVotesConverter;
+import voting.exceptions.ThereIsNoVote;
 
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;
@@ -64,6 +65,20 @@ public class Proposal extends Election {
     }
 
     /**
+     * Removes member's vote
+     * @param memberId Id of the member that wants to remove his vote
+     * @throws ThereIsNoVote - member has not yet voted
+     */
+    @Override
+    public void removeVote(String memberId) throws ThereIsNoVote {
+        if (this.votes.containsKey(memberId)) {
+            this.votes.remove(memberId);
+        } else {
+            throw new ThereIsNoVote("This person has not voted yet");
+        }
+    }
+
+    /**
      * Calculates the outcome of a proposal
      *
      * @return Binary decision, based on majority voting
@@ -86,7 +101,7 @@ public class Proposal extends Election {
      * @param a Master accumulator
      * @param b Sub-accumulator
      */
-    @Generated
+    @Generated // Helper method that accumulates one group of elements into another, no need to test due to triviality
     public void findOutcomeAccHelper(Integer[] a, Integer[] b) {
         a[0] += b[0];
         a[1] += b[1];

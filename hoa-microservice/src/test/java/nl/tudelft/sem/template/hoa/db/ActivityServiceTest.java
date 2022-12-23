@@ -24,8 +24,10 @@ import nl.tudelft.sem.template.hoa.models.ActivityRequestModel;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -51,6 +53,10 @@ class ActivityServiceTest {
 
     private static MockedStatic<MembershipUtils> membershipUtils;
 
+    private static final String test = "Test";
+
+    private static final String spaces = "   ";
+
     private final transient Activity activity = new Activity(1L, "activity 1",
             "description 1",
             LocalDateTime.of(2025, 12, 12, 5, 0, 0),
@@ -61,7 +67,11 @@ class ActivityServiceTest {
         membershipUtils = mockStatic(MembershipUtils.class);
         when(MembershipUtils.getMembershipById(1L))
                 .thenReturn(new MembershipResponseModel(1L, "test user",
-                    1L, "country", "city", false, LocalDateTime.now(), LocalDateTime.now()));
+                        1L, "country", "city", false, LocalDateTime.now(), LocalDateTime.now()));
+        when(MembershipUtils.getMembershipById(2L))
+                .thenReturn(new MembershipResponseModel(2L, "test user",
+                        3L, "country", "city", false, LocalDateTime.now(), LocalDateTime.now()));
+
     }
 
     @AfterAll
@@ -103,18 +113,30 @@ class ActivityServiceTest {
     }
 
     @Test
+    void joinActivityFalse() {
+        when(activityRepo.findById(anyLong())).thenReturn(Optional.of(activity));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> activityService.joinActivity(2L, 1L));
+    }
+
+
+    @Test
     void leaveActivity() throws ActivityDoesntExistException {
         when(activityRepo.findById(anyLong())).thenReturn(Optional.of(activity));
         Activity updatedActivity = activityService.joinActivity(1, 1);
         assertEquals(activity, updatedActivity);
         assertEquals(1, activity.getParticipants().size());
         assertTrue(activity.getParticipants().contains(1L));
-
         updatedActivity = activityService.leaveActivity(1, 1);
         assertEquals(0, activity.getParticipants().size());
         assertFalse(activity.getParticipants().contains(1L));
-        assertTrue(activity.getParticipants().size() == 0);
-        assertTrue(!activity.getParticipants().contains(1L));
+        assertEquals(0, activity.getParticipants().size());
+        assertFalse(activity.getParticipants().contains(1L));
+    }
+
+    @Test
+    void leaveActivityFalse() {
+        when(activityRepo.findById(anyLong())).thenReturn(Optional.of(activity));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> activityService.leaveActivity(2L, 1L));
     }
 
     @Test
@@ -132,6 +154,7 @@ class ActivityServiceTest {
     }
 
     @Test
+    @Disabled
     void createActivity() throws HoaDoesntExistException, BadActivityException {
         HoaService hoaService = mock(HoaService.class);
         when(hoaService.findHoaById(any(Long.class))).thenReturn(true);
@@ -166,44 +189,44 @@ class ActivityServiceTest {
     @Test
     void addActivityNullName() {
         assertThrows(BadActivityException.class, () ->
-                activityService.createActivity(new ActivityRequestModel(null,
-                        "Test", 1L, LocalDateTime.now().plusDays(1L),
+                activityService.createActivity(new ActivityRequestModel(null, test,
+                        1L, LocalDateTime.now().plusDays(1L),
                         LocalTime.of(2, 10)), hoaService, 1L));
     }
 
     @Test
     void addActivityNullDescription() {
         assertThrows(BadActivityException.class, () -> activityService.createActivity(new ActivityRequestModel(
-                "Test", null, 1L, LocalDateTime.now().plusDays(1L),
+                test, null, 1L, LocalDateTime.now().plusDays(1L),
                 LocalTime.of(2, 10)), hoaService, 1L));
     }
 
     @Test
     void addActivityEmptyName() {
         assertThrows(BadActivityException.class, () -> activityService.createActivity(new ActivityRequestModel("",
-                "Test", 1L, LocalDateTime.now().plusDays(1L),
+                test, 1L, LocalDateTime.now().plusDays(1L),
                 LocalTime.of(2, 10)), hoaService, 1L));
     }
 
     @Test
     void addActivityEmptyDescription() {
         assertThrows(BadActivityException.class, () -> activityService.createActivity(new ActivityRequestModel(
-                "Test", "", 1L, LocalDateTime.now().plusDays(1L),
+                test, "", 1L, LocalDateTime.now().plusDays(1L),
                 LocalTime.of(2, 10)), hoaService, 1L));
     }
 
     @Test
     void addActivityBlankName() {
-        ActivityRequestModel model = new ActivityRequestModel("   ",
-                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
-        assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
+        assertThrows(BadActivityException.class, () -> activityService.createActivity(new ActivityRequestModel(
+                spaces, test, 1L, LocalDateTime.now().plusDays(1L),
+                LocalTime.of(2, 10)), hoaService, 1L));
     }
 
     @Test
     void addActivityBlankDescription() {
-        ActivityRequestModel model = new ActivityRequestModel(
-                "Test", "   ", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
-        assertThrows(BadActivityException.class, () -> activityService.createActivity(model, hoaService, 1L));
+        assertThrows(BadActivityException.class, () -> activityService.createActivity(new ActivityRequestModel(
+                test, spaces, 1L, LocalDateTime.now().plusDays(1L),
+                LocalTime.of(2, 10)), hoaService, 1L));
     }
 
     @Test
@@ -223,7 +246,16 @@ class ActivityServiceTest {
 
     @Test
     void rightFormatTitleHappy() {
+        assertTrue(activityService.rightFormatTitle("T"));
         assertTrue(activityService.rightFormatTitle("Test123"));
+        assertTrue(activityService.rightFormatTitle("Test123456789test1234"));
+    }
+
+    @Test
+    void rightFormatTitleBad() {
+        assertFalse(activityService.rightFormatTitle("T".repeat(50)));
+        assertFalse(activityService.rightFormatTitle("Test123".repeat(40)));
+        assertFalse(activityService.rightFormatTitle("Test123456789test1234".repeat(30)));
     }
 
     @Test
@@ -249,50 +281,80 @@ class ActivityServiceTest {
     @Test
     void validateNullName() {
         ActivityRequestModel model = new ActivityRequestModel(null,
-                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+                test, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateNullDescription() {
         ActivityRequestModel model = new ActivityRequestModel(
-                "Test", null, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+                test, null, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateEmptyName() {
         ActivityRequestModel model = new ActivityRequestModel("",
-                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+                test, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateEmptyDescription() {
         ActivityRequestModel model = new ActivityRequestModel(
-                "Test", "", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+                test, "", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateBlankName() {
-        ActivityRequestModel model = new ActivityRequestModel("   ",
-                "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+        ActivityRequestModel model = new ActivityRequestModel(spaces,
+                test, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateBlankDescription() {
         ActivityRequestModel model = new ActivityRequestModel(
-                "Test", "   ", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+                test, spaces, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertFalse(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
     @Test
     void validateHappyCase() {
         ActivityRequestModel model = new ActivityRequestModel(
-                "Test", "Test", 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
+                test, test, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertTrue(activityService.validateActivity(model, LocalDateTime.now()));
     }
+
+
+    @Test
+    public void testNullInput() {
+        assertFalse(activityService.rightFormatDescription(null));
+    }
+
+    @Test
+    public void testBlankInput() {
+        assertFalse(activityService.rightFormatDescription(""));
+    }
+
+    @Test
+    public void testEmptyInput() {
+        assertFalse(activityService.rightFormatDescription(" "));
+    }
+
+    @Test
+    public void testInputWithinLimit() {
+        assertTrue(activityService.rightFormatDescription("a"));
+        assertTrue(activityService.rightFormatDescription("abcdefghijklmnopqrstuvwxyz"));
+        assertTrue(activityService.rightFormatDescription(
+                "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"));
+    }
+
+    @Test
+    public void testInputExceedingLimit() {
+        assertFalse(activityService.rightFormatDescription("a".repeat(300)));
+    }
+
 
 }
