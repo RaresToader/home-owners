@@ -85,7 +85,7 @@ public class MembershipUtils {
                     .get(new GenericType<>() {
                     });
         } catch (Exception e) {
-            throw new IllegalArgumentException(invalidMembership);
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

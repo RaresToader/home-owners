@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,7 +56,8 @@ class ElectionControllerTest {
 
     @BeforeAll
     static void setup() {
-        validTimeModel = new TimeModel(10, 10, 10, 10, 10, 2022);
+        validTimeModel = new TimeModel(1, 1, 1, 1, 1,
+                LocalDateTime.now().getYear());
     }
 
     @AfterEach
@@ -121,11 +123,12 @@ class ElectionControllerTest {
         reqModel.hoaId = 1;
         reqModel.description = "This is a test board election";
         reqModel.scheduledFor = validTimeModel;
+        reqModel.scheduledFor.year += 1;
         reqModel.amountOfWinners = 1;
         reqModel.candidates = List.of("1", "2", "3");
 
         Election expected = new BoardElection(reqModel.name, reqModel.description, reqModel.hoaId,
-                reqModel.scheduledFor.createDate(), reqModel.amountOfWinners, reqModel.candidates);
+                reqModel.scheduledFor.createDate().plusYears(1), reqModel.amountOfWinners, reqModel.candidates);
         expected.setElectionId(1);
 
         // Perform a POST request
@@ -164,7 +167,7 @@ class ElectionControllerTest {
 
     @Test
     void voteSuccessTest() throws Exception {
-        Election p = new Proposal(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate());
+        Election p = new Proposal(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate().minusDays(1));
         electionRepo.save(p);
         VotingModel reqModel = new VotingModel(1, "2", "false");
 
@@ -204,11 +207,13 @@ class ElectionControllerTest {
 
     @Test
     void removeVoteSuccessTest() throws Exception {
-        Election p = new Proposal(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate());
+        TimeModel newTimeModel = new TimeModel(1, 1, 1, 1, 1, 1);
+        Election p = new BoardElection(VALID_NAME, VALID_DESC, 1, newTimeModel.createDate(),
+            1, List.of("1"));
         p.setStatus("ongoing");
-        p.vote("1", true);
+        p.vote("2", "1");
         electionRepo.save(p);
-        RemoveVoteModel reqModel = new RemoveVoteModel(1, "1");
+        RemoveVoteModel reqModel = new RemoveVoteModel(1, "2");
 
         // Perform a POST request
         ResultActions response = mockMvc.perform(post("/voting/removeVote")
@@ -218,7 +223,7 @@ class ElectionControllerTest {
         // Assert that the response has a 200 OK status
         response.andExpect(status().isOk());
 
-        Proposal fetchedP = (Proposal) electionRepo.findByElectionId(1).orElse(null);
+        BoardElection fetchedP = (BoardElection) electionRepo.findByElectionId(1).orElse(null);
         assertNotNull(fetchedP, "Make sure entry is persisted");
         assertTrue(fetchedP.getVotes().isEmpty(), "Make sure vote is persisted");
     }

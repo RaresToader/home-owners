@@ -10,6 +10,7 @@ import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelExcep
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
+import nl.tudelft.sem.template.authmember.models.MembershipResponseModel;
 import nl.tudelft.sem.template.authmember.utils.TimeUtils;
 import org.springframework.stereotype.Service;
 
@@ -224,14 +225,14 @@ public class MembershipService {
      * @throws BadJoinHoaModelException    thrown if hoa model is smelly
      *                                     SHOULD NOT HAPPEN DUE TO METHOD DESIGN
      */
-    public void changeBoard(Membership m, boolean shouldPromote)
+    public void changeBoard(MembershipResponseModel m, boolean shouldPromote)
             throws MemberAlreadyInHoaException, BadJoinHoaModelException {
         GetHoaModel model = new GetHoaModel();
         model.setHoaId(m.getHoaId());
         model.setMemberId(m.getMemberId());
-        stopMembership(model);
+        Membership old = stopMembership(model);
         JoinHoaModel jmodel = new JoinHoaModel();
-        jmodel.setAddress(m.getAddress());
+        jmodel.setAddress(old.getAddress());
         jmodel.setMemberId(m.getMemberId());
         jmodel.setHoaId(m.getHoaId());
         saveMembership(jmodel, shouldPromote);

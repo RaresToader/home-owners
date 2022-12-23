@@ -102,8 +102,10 @@ public class ElectionController {
         try {
             electionService.vote(model, LocalDateTime.now());
             return ResponseEntity.ok().build();
-        } catch (ElectionDoesNotExist | CannotProceedVote e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (ElectionDoesNotExist e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election does not exist", e);
+        } catch (CannotProceedVote e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot proceed with vote", e);
         }
     }
 

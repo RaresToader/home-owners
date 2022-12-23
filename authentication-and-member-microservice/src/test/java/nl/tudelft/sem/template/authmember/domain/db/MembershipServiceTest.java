@@ -73,7 +73,7 @@ class MembershipServiceTest {
         Mockito.when(this.membershipRepository.findAllByMemberId(id)).thenReturn(list2);
         Mockito.when(this.memberRepository.findByMemberId(m2)).thenReturn(java.util.Optional.ofNullable(null));
         Mockito.when(this.memberRepository.findByMemberId(id)).thenReturn(java.util.Optional.ofNullable(new Member()));
-        Mockito.when(this.memberRepository.findByMemberId(newId)).thenReturn(java.util.Optional.ofNullable(new Member()));;
+        Mockito.when(this.memberRepository.findByMemberId(newId)).thenReturn(java.util.Optional.ofNullable(new Member()));
     }
 
     @AfterEach
