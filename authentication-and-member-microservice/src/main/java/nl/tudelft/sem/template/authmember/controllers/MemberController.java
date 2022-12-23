@@ -258,9 +258,10 @@ public class MemberController {
      * @return List of all members
      */
     @GetMapping("/getAllMemberships/{hoaId}")
-    public ResponseEntity<List<Membership>> getAllMemberships(@PathVariable Long hoaId) {
+    public ResponseEntity<List<MembershipResponseModel>> getAllMemberships(@PathVariable Long hoaId) {
         try {
-            return ResponseEntity.ok(this.membershipService.getActiveMembershipsByHoaId(hoaId));
+            return ResponseEntity.ok(MembershipConverter.convertMany(
+                    this.membershipService.getActiveMembershipsByHoaId(hoaId)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -271,11 +272,12 @@ public class MemberController {
      * Returns all active memberships for user.
      */
     @GetMapping("/getActiveMemberships/{memberId}")
-    public ResponseEntity<List<Membership>> getActiveMemberships(@PathVariable String memberId) {
+    public ResponseEntity<List<MembershipResponseModel>> getActiveMemberships(@PathVariable String memberId) {
         try {
             authManager.validateMember(memberId);
             memberService.getMember(memberId); //Validate existence
-            List<Membership> memberships = membershipService.getActiveMemberships(memberId);
+            List<MembershipResponseModel> memberships =
+                    MembershipConverter.convertMany(membershipService.getActiveMemberships(memberId));
             return ResponseEntity.ok(memberships);
         } catch (IllegalAccessException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
@@ -335,10 +337,10 @@ public class MemberController {
     public ResponseEntity<Boolean> demote(@PathVariable long hoaId, @RequestBody String key) {
         if (!secretClearBoardKey.equals(key)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                 "Unauthorized to clear board");
-        ResponseEntity<List<Membership>> memberships = this.getAllMemberships(hoaId);
+        ResponseEntity<List<MembershipResponseModel>> memberships = this.getAllMemberships(hoaId);
         if (memberships.getBody() == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Given hoa either does not exist, or no members are in it");
-        memberships.getBody().stream().filter(Membership::isInBoard).forEach(m -> {
+        memberships.getBody().stream().filter(MembershipResponseModel::isBoard).forEach(m -> {
             try {
                 membershipService.changeBoard(m, false);
             } catch (Exception e) {
@@ -362,7 +364,7 @@ public class MemberController {
                                            @PathVariable String key) {
         if (!secretPromotionKey.equals(key)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                 "Unauthorized to clear board");
-        ResponseEntity<List<Membership>> memberships = this.getAllMemberships(hoaId);
+        ResponseEntity<List<MembershipResponseModel>> memberships = this.getAllMemberships(hoaId);
         if (memberships.getBody() == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Given hoa either does not exist, or no members are in it");
         memberships.getBody().stream().filter(m -> mem.contains(m.getMemberId())).forEach(m -> {

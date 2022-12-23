@@ -78,7 +78,8 @@ public class HoaController {
             // start automatic annual board election
             Object e = ElectionUtils.cyclicCreateBoardElection(new BoardElectionRequestModel(newHoa.getId(),
                     1, List.of(), "Annual board election",
-                    "This is the auto-generated annual board election", new TimeModel(nums)));
+                    "This is the auto-generated annual board election",
+                    TimeModel.createModelFromArr(nums)));
             if (e != null) return ResponseEntity.ok(newHoa);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not create a board election");
         } catch (Exception e) {

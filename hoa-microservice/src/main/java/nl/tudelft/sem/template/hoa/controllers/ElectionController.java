@@ -74,11 +74,14 @@ public class ElectionController {
      * @return The created board election or bad request
      */
     @PostMapping("/boardElection")
-    public ResponseEntity<Object> createBoardElection(@RequestBody BoardElectionRequestModel model) {
+    public ResponseEntity<Object> createBoardElection(@RequestBody BoardElectionRequestModel model,
+                                                      @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
+            validateMemberInHOA(model.hoaId, authManager.getMemberId(), false, token);
+            checkCandidatesinHOA(model.candidates, model.hoaId, token);
             return ResponseEntity.ok(ElectionUtils.createBoardElection(model));
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create board election", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -144,7 +147,8 @@ public class ElectionController {
                         .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new);
                 ElectionUtils.cyclicCreateBoardElection(new BoardElectionRequestModel(hoaId, 1,
                         List.of(), "Annual board election",
-                        "This is the auto-generated annual board election", new TimeModel(nums)));
+                        "This is the auto-generated annual board election",
+                        TimeModel.createModelFromArr(nums)));
                 // clear board
                 MembershipUtils.resetBoard(hoaId);
                 // promote winners and demote rest of board
@@ -153,7 +157,7 @@ public class ElectionController {
                 long hoaId = (Long) e.getClass().getDeclaredField("hoaId").get(e);
                 Optional<Hoa> hoa = hoaRepo.findById(hoaId);
                 if (hoa.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "Hoa with given id does not exists?");
+                        "Hoa with given id does not exists?");
                 // for each member in the HOA, add an entry in notification mapper
                 for (String memberId : MembershipUtils.getActiveMembershipsOfHoa(hoaId, token)
                         .stream().map(MembershipResponseModel::getMemberId).collect(Collectors.toList())) {
@@ -228,6 +232,20 @@ public class ElectionController {
                 MembershipUtils.getActiveMembershipsForUser(memberID, token);
         if (memberships.stream().noneMatch(m -> m.getHoaId() == hoaID && (!alsoCheckBoard || m.isBoard())))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
+    }
+
+    /**
+     * Validates if all candidates are in the HOA
+     *
+     * @param candidates List of candidates to check
+     * @param hoaID      id of HOA to check
+     * @param token      Authorization token used for validation
+     */
+    public void checkCandidatesinHOA(List<String> candidates, long hoaID, String token) {
+        List<String> memberships = MembershipUtils.getActiveMembershipsOfHoa(hoaID, token)
+                .stream().map(MembershipResponseModel::getMemberId).collect(Collectors.toList());
+        if (!memberships.containsAll(candidates))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not all candidates are in Hoa");
     }
 
     /**
