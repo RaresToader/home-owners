@@ -6,6 +6,7 @@ import nl.tudelft.sem.template.hoa.models.VotingModel;
 import org.springframework.http.HttpStatus;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.inject.Singleton;
 import javax.ws.rs.client.Entity;
@@ -25,10 +26,15 @@ public class ElectionUtils {
      * @return the created proposal
      */
     public static Object createProposal(ProposalRequestModel model) {
-        return client.target(server).path("proposal/")
-                .request(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .post(Entity.entity(model, APPLICATION_JSON), Object.class);
+        try {
+            return client.target(server).path("proposal/")
+                    .request(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .post(Entity.entity(model, APPLICATION_JSON), Object.class);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+
     }
 
     /**
@@ -38,10 +44,14 @@ public class ElectionUtils {
      * @return the created board election
      */
     public static Object createBoardElection(BoardElectionRequestModel model) {
-        return client.target(server).path("boardElection/")
-                .request(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .post(Entity.entity(model, APPLICATION_JSON), Object.class);
+        try {
+            return client.target(server).path("boardElection/")
+                    .request(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .post(Entity.entity(model, APPLICATION_JSON), Object.class);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
     /**
@@ -52,10 +62,14 @@ public class ElectionUtils {
      * @return the created board election
      */
     public static Object cyclicCreateBoardElection(BoardElectionRequestModel model) {
-        return client.target("http://localhost:8084/voting/").path("boardElection")
-                .request(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .post(Entity.entity(model, APPLICATION_JSON), Object.class);
+        try {
+            return client.target("http://localhost:8084/voting/").path("boardElection")
+                    .request(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .post(Entity.entity(model, APPLICATION_JSON), Object.class);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
     /**
@@ -65,10 +79,14 @@ public class ElectionUtils {
      * @return the status of the vote
      */
     public static HttpStatus vote(VotingModel model) {
-        return client.target(server).path("vote/")
-                .request(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .post(Entity.entity(model, APPLICATION_JSON), HttpStatus.class);
+        try {
+            return client.target(server).path("vote/")
+                    .request(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .post(Entity.entity(model, APPLICATION_JSON), HttpStatus.class);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
     /**
@@ -78,10 +96,14 @@ public class ElectionUtils {
      * @return the fetched election
      */
     public static Object getElectionById(int electionId) {
-        return client.target(server).path("getElection/" + electionId)
-                .request(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .get(Object.class);
+        try {
+            return client.target(server).path("getElection/" + electionId)
+                    .request(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .get(Object.class);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
     /**
@@ -91,10 +113,14 @@ public class ElectionUtils {
      * @return Result of the election
      */
     public static Object concludeElection(int id) {
-        return client.target(server).path("conclude/" + id)
-                .request(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .post(null, Object.class);
+        try {
+            return client.target(server).path("conclude/" + id)
+                    .request(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .post(null, Object.class);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
     /**
@@ -108,7 +134,6 @@ public class ElectionUtils {
                     .post(null, Boolean.class);
         } catch (Exception e) {
             throw new IllegalArgumentException("The HOA has no running election.");
-
         }
     }
 
@@ -123,7 +148,6 @@ public class ElectionUtils {
                     .post(null, Boolean.class);
         } catch (Exception e) {
             throw new IllegalArgumentException("The HOA has no running election or the member did not participate.");
-
         }
     }
 }
