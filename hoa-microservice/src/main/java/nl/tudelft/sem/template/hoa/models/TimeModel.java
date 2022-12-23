@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.hoa.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.DateTimeException;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
+@AllArgsConstructor
 public class TimeModel {
     public int seconds;
     public int minutes;

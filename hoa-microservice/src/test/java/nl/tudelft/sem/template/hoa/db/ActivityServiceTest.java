@@ -23,7 +23,12 @@ import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.models.ActivityRequestModel;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
@@ -342,7 +347,8 @@ class ActivityServiceTest {
     public void testInputWithinLimit() {
         assertTrue(activityService.rightFormatDescription("a"));
         assertTrue(activityService.rightFormatDescription("abcdefghijklmnopqrstuvwxyz"));
-        assertTrue(activityService.rightFormatDescription("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"));
+        assertTrue(activityService.rightFormatDescription(
+                "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"));
     }
 
     @Test
