@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.db.HoaService;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
@@ -206,6 +207,30 @@ public class HoaServiceTest {
                 () -> hoaService.registerHoa(new HoaRequestModel("Test country", testCity, "Tst")));
     }
 
+    @Test
+    void countryCheckNotUpper() {
+        Assertions.assertTrue(hoaService.countryCheck("aaaa"));
+    }
+
+    @Test
+    void countryCheckLow() {
+        Assertions.assertTrue(hoaService.countryCheck("Aa"));
+    }
+
+    @Test
+    void countryCheckHigh() {
+        Assertions.assertTrue(hoaService.countryCheck("Aa" + "a".repeat(60)));
+    }
+
+    @Test
+    void nameCheckUpperCase() {
+        Assertions.assertFalse(hoaService.nameCheck("aa"));
+    }
+
+    @Test
+    void nameCheckUpper() {
+        Assertions.assertFalse(hoaService.nameCheck("Aa" + "a".repeat(60)));
+    }
 
 
 }
