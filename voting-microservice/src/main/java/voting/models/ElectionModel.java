@@ -7,6 +7,10 @@ public class ElectionModel {
     public long hoaId;
     public String name;
     public String description;
+    /**
+     * For board Election this is the scheduled time for voting
+     * For proposal this is the time of the creation of the proposal
+     */
     public TimeModel scheduledFor;
 
     /**

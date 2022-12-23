@@ -3,6 +3,8 @@ package nl.tudelft.sem.template.authmember.domain.db;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import nl.tudelft.sem.template.authmember.domain.Membership;
 import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
@@ -32,7 +34,8 @@ public class MembershipService {
      *
      * @throws MemberAlreadyInHoaException if there is an active membership for that HOA.
      */
-    public void saveMembership(JoinHoaModel model) throws MemberAlreadyInHoaException, BadJoinHoaModelException {
+    public boolean saveMembership(JoinHoaModel model, boolean asBoard)
+            throws MemberAlreadyInHoaException, BadJoinHoaModelException {
         if (!validateCountryCityStreet(model.getAddress().getCity())
                 || !validateCountryCityStreet(model.getAddress().getCountry())
                 || !validateCountryCityStreet(model.getAddress().getStreet())
@@ -48,7 +51,8 @@ public class MembershipService {
             throw new MemberAlreadyInHoaException(model);
         } else {
             membershipRepository.save(new Membership(model.getMemberId(),
-                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, false));
+                    model.getHoaId(), model.getAddress(), LocalDateTime.now(), null, asBoard));
+            return true;
         }
     }
 
@@ -170,6 +174,11 @@ public class MembershipService {
         return membershipRepository.findAllByMemberIdAndDurationIsNull(memberId);
     }
 
+    public List<Membership> getActiveMembershipsByHoaId(long hoaId) {
+        return membershipRepository.findAllByDurationIsNull().stream()
+                .filter(m -> m.getHoaId() == hoaId).collect(Collectors.toList());
+    }
+
     /**
      * Returns the current membership in a given Hoa, if one exists.
      */
@@ -202,5 +211,29 @@ public class MembershipService {
      */
     public List<Membership> getAll() {
         return this.membershipRepository.findAll();
+    }
+
+    /**
+     * Toggle a membership's board status by stopping the current membership,
+     * and starting a new one with toggled status
+     *
+     * @param m             Membership to consider
+     * @param shouldPromote Whether it should be promoted - logically the same as final board status of member
+     * @throws MemberAlreadyInHoaException thrown if member is already in hoa when saved
+     *                                     SHOULD NOT HAPPEN DUE TO METHOD DESIGN
+     * @throws BadJoinHoaModelException    thrown if hoa model is smelly
+     *                                     SHOULD NOT HAPPEN DUE TO METHOD DESIGN
+     */
+    public void changeBoard(Membership m, boolean shouldPromote)
+            throws MemberAlreadyInHoaException, BadJoinHoaModelException {
+        GetHoaModel model = new GetHoaModel();
+        model.setHoaId(m.getHoaId());
+        model.setMemberId(m.getMemberId());
+        stopMembership(model);
+        JoinHoaModel jmodel = new JoinHoaModel();
+        jmodel.setAddress(m.getAddress());
+        jmodel.setMemberId(m.getMemberId());
+        jmodel.setHoaId(m.getHoaId());
+        saveMembership(jmodel, shouldPromote);
     }
 }

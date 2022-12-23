@@ -2,10 +2,12 @@ package nl.tudelft.sem.template.hoa.utils;
 
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;
+import nl.tudelft.sem.template.hoa.models.RemoveVoteModel;
 import nl.tudelft.sem.template.hoa.models.VotingModel;
 import org.springframework.http.HttpStatus;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+
 import javax.inject.Singleton;
 import javax.ws.rs.client.Entity;
 
@@ -44,6 +46,20 @@ public class ElectionUtils {
     }
 
     /**
+     * Creates a board election request that is cyclically gated to this microservice's controller
+     * Used for automatic board election creation
+     *
+     * @param model the model for the board election
+     * @return the created board election
+     */
+    public static Object cyclicCreateBoardElection(BoardElectionRequestModel model) {
+        return client.target("http://localhost:8084/voting/").path("boardElection")
+                .request(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .post(Entity.entity(model, APPLICATION_JSON), Object.class);
+    }
+
+    /**
      * Allows the user to vote on an election using the voting microservice
      *
      * @param model the model for vote
@@ -54,6 +70,20 @@ public class ElectionUtils {
                 .request(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .post(Entity.entity(model, APPLICATION_JSON), HttpStatus.class);
+    }
+
+
+    /**
+     * Allows the user to remove his vote on an election using the voting microservice
+     *
+     * @param model the model for removing a vote
+     * @return the status of the removal of the vote
+     */
+    public static HttpStatus removeVote(RemoveVoteModel model) {
+        return client.target(server).path("removeVote/")
+            .request(APPLICATION_JSON)
+            .accept(APPLICATION_JSON)
+            .post(Entity.entity(model, APPLICATION_JSON), HttpStatus.class);
     }
 
     /**
@@ -88,9 +118,9 @@ public class ElectionUtils {
     public static boolean joinElection(String memberID, long hoaID) {
         try {
             return client.target(server).path("joinElection/" + memberID + "/" + hoaID)
-                .request(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .post(null, Boolean.class);
+                    .request(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .post(null, Boolean.class);
         } catch (Exception e) {
             throw new IllegalArgumentException("The HOA has no running election.");
 
@@ -102,10 +132,10 @@ public class ElectionUtils {
      */
     public static boolean leaveElection(String memberID, long hoaID) {
         try {
-            return client.target(server).path("leaveElection/" + memberID + "/" +  hoaID)
-                .request(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .post(null, Boolean.class);
+            return client.target(server).path("leaveElection/" + memberID + "/" + hoaID)
+                    .request(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .post(null, Boolean.class);
         } catch (Exception e) {
             throw new IllegalArgumentException("The HOA has no running election or the member did not participate.");
 

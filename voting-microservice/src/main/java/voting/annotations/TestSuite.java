@@ -18,7 +18,7 @@ public @interface TestSuite {
      */
     TestType[] testType() default {TestType.NONE};
 
-    @Generated
+    @Generated // It's an enum... why would test coverage go through this
     enum TestType {
         NONE,
         UNIT,
