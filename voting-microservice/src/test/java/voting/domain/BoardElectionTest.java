@@ -77,6 +77,22 @@ class BoardElectionTest {
 	}
 
 	@Test
+	void addParticipant() {
+		List<String> candidates = this.boardElection.getCandidates();
+		boardElection.addParticipant("another");
+		candidates.add("another");
+		assertEquals(candidates, boardElection.getCandidates());
+	}
+
+	@Test
+	void removeParticipant() {
+		List<String> candidates = this.boardElection.getCandidates();
+		boardElection.addParticipant("another");
+		boardElection.removeParticipant("another");
+		assertEquals(candidates, boardElection.getCandidates());
+	}
+
+	@Test
 	void successfulVote() {
 		assertTrue(boardElection.getVotes().isEmpty());
 		boardElection.setStatus("ongoing");
