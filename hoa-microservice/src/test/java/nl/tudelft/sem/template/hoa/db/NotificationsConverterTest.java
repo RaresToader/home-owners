@@ -19,12 +19,13 @@ class NotificationsConverterTest {
     @Test
     void convertToDatabaseColumnTest() {
         Map<String, List<String>> map = Map.of("test", List.of("req1"), "test2", List.of("req21", "req2"));
-        String result = notificationsConverter.convertToDatabaseColumn(map);
-        assertEquals("test=[req1],test2=[req21,req2]", result);
+        final String result = notificationsConverter.convertToDatabaseColumn(map);
+        assertTrue(() -> result.contains("test=[req1]") &&
+                (result.contains("test2=[req21,req2]") || result.contains("test2=[req2,req21]")));
 
         map = new HashMap<>();
-        result = notificationsConverter.convertToDatabaseColumn(map);
-        assertEquals("", result);
+        String res = notificationsConverter.convertToDatabaseColumn(map);
+        assertEquals("", res);
     }
 
     @Test
