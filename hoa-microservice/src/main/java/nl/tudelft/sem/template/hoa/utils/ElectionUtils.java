@@ -55,24 +55,6 @@ public class ElectionUtils {
     }
 
     /**
-     * Creates a board election request that is cyclically gated to this microservice's controller
-     * Used for automatic board election creation
-     *
-     * @param model the model for the board election
-     * @return the created board election
-     */
-    public static Object cyclicCreateBoardElection(BoardElectionRequestModel model) {
-        try {
-            return client.target("http://localhost:8084/voting/").path("boardElection")
-                    .request(APPLICATION_JSON)
-                    .accept(APPLICATION_JSON)
-                    .post(Entity.entity(model, APPLICATION_JSON), Object.class);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
-    }
-
-    /**
      * Allows the user to vote on an election using the voting microservice
      *
      * @param model the model for vote

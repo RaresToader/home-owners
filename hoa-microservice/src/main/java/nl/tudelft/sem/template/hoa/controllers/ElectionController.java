@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.ProposalRequestModel;
 import nl.tudelft.sem.template.hoa.models.VotingModel;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/voting")
@@ -41,6 +42,8 @@ public class ElectionController {
 
     private final transient AuthManager authManager;
     private final transient HoaRepo hoaRepo;
+
+    private final transient String AUTOMATICKEY = "ThisIsSupposedToBeASecureKeyForAutomaticBoardCreation";
 
     @Autowired
     public ElectionController(AuthManager authManager,
@@ -72,13 +75,20 @@ public class ElectionController {
      * @param model the board election
      * @return The created board election or bad request
      */
-    @PostMapping("/boardElection")
+    @PostMapping(value = {"/boardElection", "/boardElection/{autoKey}"})
     public ResponseEntity<Object> createBoardElection(@RequestBody BoardElectionRequestModel model,
-                                                      @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+                                                      @PathVariable Optional<String> autoKey,
+                                                      @RequestHeader(HttpHeaders.AUTHORIZATION) Optional<String> token) {
         try {
-            validateMemberInHOA(model.hoaId, authManager.getMemberId(), false, token);
-            checkCandidatesinHOA(model.candidates, model.hoaId, token);
-            return ResponseEntity.ok(ElectionUtils.createBoardElection(model));
+            if (autoKey.isPresent() && autoKey.get().equals(AUTOMATICKEY)) {
+                return ResponseEntity.ok(ElectionUtils.createBoardElection(model));
+            }
+            else if (token.isPresent()) {
+                validateMemberInHOA(model.hoaId, authManager.getMemberId(), false, token.get());
+                checkCandidatesinHOA(model.candidates, model.hoaId, token.get());
+                return ResponseEntity.ok(ElectionUtils.createBoardElection(model));
+            }
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed.");
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
@@ -137,17 +147,15 @@ public class ElectionController {
         try {
             LinkedHashMap<String, Object> e = fetchElectionAsEntity(electionId, true, token);
             Object result = ElectionUtils.concludeElection(electionId);
-            if (!e.containsKey("winningChoice")) {
+            // having winningChoice not null -> proposal, otherwise board election (bad class casting, but works...)
+            if (!e.containsKey("winningChoice") || e.get("winningChoice") == null) {
                 TimeModel scheduledFor = TimeModel.createModelFromArr(Arrays.stream(
                         ((String) e.get("scheduledFor"))
                         .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new));
                 long hoaId = (long)(int) e.get("hoaId");
                 // start automatic annual board election
                 scheduledFor.year += 1;
-//                Integer[] nums = Arrays.stream(scheduledFor.(1)
-//                        .format(DateTimeFormatter.ISO_DATE_TIME)
-//                        .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new);
-                ElectionUtils.cyclicCreateBoardElection(new BoardElectionRequestModel(hoaId, 1,
+                ElectionUtils.createBoardElection(new BoardElectionRequestModel(hoaId, 2,
                         List.of(), "Annual board election",
                         "This is the auto-generated annual board election", scheduledFor));
                 // clear board
@@ -171,7 +179,7 @@ public class ElectionController {
             }
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot vote", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
