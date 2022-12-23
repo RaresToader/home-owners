@@ -8,6 +8,7 @@ import nl.tudelft.sem.template.hoa.domain.electionchecks.NotInAnyOtherBoardValid
 import nl.tudelft.sem.template.hoa.domain.electionchecks.TimeInCurrentHoaValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.Validator;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
+import nl.tudelft.sem.template.hoa.models.RemoveVoteModel;
 import nl.tudelft.sem.template.hoa.models.TimeModel;
 import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
@@ -96,6 +97,27 @@ public class ElectionController {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
             fetchElectionAsEntity(model.electionId, true, token);
             return ResponseEntity.ok(ElectionUtils.vote(model));
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(e.getStatus(), e.getMessage(), e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     *  Endpoint for removing a vote on an election
+     *
+     * @param model the vote to be removed
+     * @return the status of the removal of the vote
+     */
+    @PostMapping("/removeVote")
+    public ResponseEntity<HttpStatus> removeVote(@RequestBody RemoveVoteModel model,
+                                                 @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        try {
+            if (!model.memberId.equals(authManager.getMemberId()))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
+            fetchElectionAsEntity(model.electionId, true, token);
+            return ResponseEntity.ok(ElectionUtils.removeVote(model));
         } catch (ResponseStatusException e) {
             throw new ResponseStatusException(e.getStatus(), e.getMessage(), e);
         } catch (IllegalAccessException | InvocationTargetException e) {
