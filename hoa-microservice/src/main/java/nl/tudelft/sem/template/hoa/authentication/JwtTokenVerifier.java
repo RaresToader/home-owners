@@ -7,10 +7,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.function.Function;
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 
 /**
  * Verifies the JWT token in the request for validity.
  */
+@Generated
 @Component
 public class JwtTokenVerifier {
     @Value("${jwt.secret}")  // automatically loads jwt.secret from resources/application.properties

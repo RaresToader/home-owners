@@ -1,5 +1,6 @@
-package domain.electionchecks.unit;
+package nl.tudelft.sem.template.hoa.domain.unit.electionchecks;
 
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.NotBoardForTooLongValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.NotInAnyOtherBoardValidator;
 import nl.tudelft.sem.template.hoa.domain.electionchecks.TimeInCurrentHoaValidator;
@@ -13,9 +14,11 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.UNIT;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TestSuite(testType = UNIT)
 public class ValidatorTests {
 
     transient Validator boardTimeValidator;

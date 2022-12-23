@@ -7,16 +7,20 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import lombok.NoArgsConstructor;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 
 
 /**
  * Class that holds a requirement.
  */
+@Generated
 @Entity
 @Table(name = "Requirement")
 @NoArgsConstructor
+@AllArgsConstructor
 public class Requirement {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

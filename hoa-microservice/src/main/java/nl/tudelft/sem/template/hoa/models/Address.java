@@ -2,11 +2,13 @@ package nl.tudelft.sem.template.hoa.models;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 
 
 /**
  * A DDD value object representing an Address.
  */
+@Generated
 @EqualsAndHashCode
 @Data
 public class Address {

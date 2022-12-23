@@ -1,16 +1,19 @@
 package nl.tudelft.sem.template.hoa.domain.unit;
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.UNIT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.domain.Requirement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 
-
+@TestSuite(testType = UNIT)
 public class RequirementTest {
 
     private static final String PROMPT = "Cannot be null.";

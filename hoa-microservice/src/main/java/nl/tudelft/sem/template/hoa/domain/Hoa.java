@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lombok.NoArgsConstructor;
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 import nl.tudelft.sem.template.hoa.db.NotificationsConverter;
 import nl.tudelft.sem.template.hoa.db.ReportsConverter;
 
@@ -20,6 +21,7 @@ import nl.tudelft.sem.template.hoa.db.ReportsConverter;
 /**
  * DDD entity representing an association in our domain.
  */
+@Generated
 @Entity
 @Table(name = "Hoa")
 @NoArgsConstructor

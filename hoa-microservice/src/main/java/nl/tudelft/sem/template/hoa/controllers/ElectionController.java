@@ -40,7 +40,7 @@ import nl.tudelft.sem.template.hoa.models.VotingModel;
 @RequestMapping("/voting")
 public class ElectionController {
 
-    private final transient AuthManager authManager;
+    private transient AuthManager authManager;
     private final transient HoaRepo hoaRepo;
 
     private static final String winC = "winningChoice";
@@ -304,5 +304,12 @@ public class ElectionController {
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
         }
+    }
+
+    /** Setter method used when AuthManager needs to be mocked
+     * @param a - AuthManager to be mocked
+     */
+    public void setAuthenticationManager(AuthManager a) {
+        this.authManager = a;
     }
 }

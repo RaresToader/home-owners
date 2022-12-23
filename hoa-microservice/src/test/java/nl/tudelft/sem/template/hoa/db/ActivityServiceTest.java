@@ -1,6 +1,7 @@
 package nl.tudelft.sem.template.hoa.db;
 
 
+import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.INTEGRATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,6 +17,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+
+import nl.tudelft.sem.template.hoa.annotations.TestSuite;
 import nl.tudelft.sem.template.hoa.domain.Activity;
 import nl.tudelft.sem.template.hoa.exception.ActivityDoesntExistException;
 import nl.tudelft.sem.template.hoa.exception.BadActivityException;
@@ -24,6 +27,7 @@ import nl.tudelft.sem.template.hoa.models.ActivityRequestModel;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
 import nl.tudelft.sem.template.hoa.utils.MembershipUtils;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,9 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
-
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@TestSuite(testType = INTEGRATION)
 class ActivityServiceTest {
 
     @Autowired
@@ -65,7 +69,10 @@ class ActivityServiceTest {
         membershipUtils = mockStatic(MembershipUtils.class);
         when(MembershipUtils.getMembershipById(1L))
                 .thenReturn(new MembershipResponseModel(1L, "test user",
-                    1L, "country", "city", false, LocalDateTime.now(), LocalDateTime.now()));
+                        1L, "country", "city", false, LocalDateTime.now(), LocalDateTime.now()));
+        when(MembershipUtils.getMembershipById(2L))
+                .thenReturn(new MembershipResponseModel(2L, "test user",
+                        3L, "country", "city", false, LocalDateTime.now(), LocalDateTime.now()));
     }
 
     @AfterAll
@@ -107,18 +114,30 @@ class ActivityServiceTest {
     }
 
     @Test
+    void joinActivityFalse() {
+        when(activityRepo.findById(anyLong())).thenReturn(Optional.of(activity));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> activityService.joinActivity(2L, 1L));
+    }
+
+
+    @Test
     void leaveActivity() throws ActivityDoesntExistException {
         when(activityRepo.findById(anyLong())).thenReturn(Optional.of(activity));
         Activity updatedActivity = activityService.joinActivity(1, 1);
         assertEquals(activity, updatedActivity);
         assertEquals(1, activity.getParticipants().size());
         assertTrue(activity.getParticipants().contains(1L));
-
-        activityService.leaveActivity(1, 1);
+        updatedActivity = activityService.leaveActivity(1, 1);
         assertEquals(0, activity.getParticipants().size());
         assertFalse(activity.getParticipants().contains(1L));
-        assertTrue(activity.getParticipants().size() == 0);
-        assertTrue(!activity.getParticipants().contains(1L));
+        assertEquals(0, activity.getParticipants().size());
+        assertFalse(activity.getParticipants().contains(1L));
+    }
+
+    @Test
+    void leaveActivityFalse() {
+        when(activityRepo.findById(anyLong())).thenReturn(Optional.of(activity));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> activityService.leaveActivity(2L, 1L));
     }
 
     @Test
@@ -227,7 +246,16 @@ class ActivityServiceTest {
 
     @Test
     void rightFormatTitleHappy() {
+        assertTrue(activityService.rightFormatTitle("T"));
         assertTrue(activityService.rightFormatTitle("Test123"));
+        assertTrue(activityService.rightFormatTitle("Test123456789test1234"));
+    }
+
+    @Test
+    void rightFormatTitleBad() {
+        assertFalse(activityService.rightFormatTitle("T".repeat(50)));
+        assertFalse(activityService.rightFormatTitle("Test123".repeat(40)));
+        assertFalse(activityService.rightFormatTitle("Test123456789test1234".repeat(30)));
     }
 
     @Test
@@ -298,5 +326,35 @@ class ActivityServiceTest {
                 test, test, 1L, LocalDateTime.now().plusDays(1L), LocalTime.of(2, 10));
         assertTrue(activityService.validateActivity(model, LocalDateTime.now()));
     }
+
+
+    @Test
+    public void testNullInput() {
+        assertFalse(activityService.rightFormatDescription(null));
+    }
+
+    @Test
+    public void testBlankInput() {
+        assertFalse(activityService.rightFormatDescription(""));
+    }
+
+    @Test
+    public void testEmptyInput() {
+        assertFalse(activityService.rightFormatDescription(" "));
+    }
+
+    @Test
+    public void testInputWithinLimit() {
+        assertTrue(activityService.rightFormatDescription("a"));
+        assertTrue(activityService.rightFormatDescription("abcdefghijklmnopqrstuvwxyz"));
+        assertTrue(activityService.rightFormatDescription(
+                "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"));
+    }
+
+    @Test
+    public void testInputExceedingLimit() {
+        assertFalse(activityService.rightFormatDescription("a".repeat(300)));
+    }
+
 
 }

@@ -1,13 +1,17 @@
 package nl.tudelft.sem.template.hoa.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import nl.tudelft.sem.template.hoa.annotations.Generated;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@Generated
 @Data
+@AllArgsConstructor
 public class TimeModel {
     public int seconds;
     public int minutes;
@@ -23,14 +27,7 @@ public class TimeModel {
      * @param nums Integer array containing localdatetime values
      */
     public static TimeModel createModelFromArr(Integer[] nums) {
-        TimeModel tm = new TimeModel();
-        tm.year = nums[0];
-        tm.month = nums[1];
-        tm.day = nums[2];
-        tm.hours = nums[3];
-        tm.minutes = nums[4];
-        tm.seconds = nums[5];
-        return tm;
+        return new TimeModel(nums[5], nums[4], nums[3], nums[2], nums[1], nums[0]);
     }
 
     public boolean isValid() {

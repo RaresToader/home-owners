@@ -60,7 +60,6 @@ public class AuthenticationTests {
         String body = result.getResponse().getContentAsString();
         assertThat(body).contains("token");
         String token = body.split(":")[1].replace("\"", "").replace("}", "");
-        System.out.println(token);
 
         // STEP 4: Use NO token to test get method
         // Act

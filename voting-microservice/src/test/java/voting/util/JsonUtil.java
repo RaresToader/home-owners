@@ -20,7 +20,6 @@ public class JsonUtil {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String string = objectMapper.writeValueAsString(object);
-        System.out.println(string);
         return string;
     }
 

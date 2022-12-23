@@ -40,8 +40,8 @@ import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 @RequestMapping("/hoa")
 public class HoaController {
 
-    private final transient HoaService hoaService;
-    private final transient RequirementService requirementService;
+    private transient HoaService hoaService;
+    private transient RequirementService requirementService;
     private final transient HoaRepo hoaRepo;
 
 
@@ -143,9 +143,9 @@ public class HoaController {
      */
     @PostMapping("/addRequirement/{hoaId}")
     public ResponseEntity<Requirement> addRequirement(@PathVariable long hoaId,
-                                                      @RequestBody String prompt) {
+                                                      @RequestBody Object prompt) {
         try {
-            Requirement req = requirementService.addHoaRequirement(hoaId, prompt);
+            Requirement req = requirementService.addHoaRequirement(hoaId, String.valueOf(prompt));
             return ResponseEntity.ok(req);
         } catch (RequirementAlreadyPresent | HoaDoesntExistException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
@@ -166,6 +166,20 @@ public class HoaController {
         } catch (RequirementDoesNotExist e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
+    }
+
+    /** Setter method used when HoaService needs to be mocked
+     * @param h - HoaService to be mocked
+     */
+    public void setHoaService(HoaService h) {
+        this.hoaService = h;
+    }
+
+    /** Setter method used when RequirementService needs to be mocked
+     * @param h - RequirementService to be mocked
+     */
+    public void setRequirementService(RequirementService h) {
+        this.requirementService = h;
     }
 
     /**
