@@ -456,7 +456,6 @@ public class MemberControllerTest {
     }
 
     @Test
-    @Disabled
     void getMembershipById() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/member/getMembershipById/" + m1.getMembershipId())
                 .contentType(MediaType.APPLICATION_JSON));
@@ -468,7 +467,6 @@ public class MemberControllerTest {
     }
 
     @Test
-    @Disabled
     void getMembershipByIdIllegal() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/member/getMembershipById/" + 69L)
                 .contentType(MediaType.APPLICATION_JSON));

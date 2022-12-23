@@ -158,7 +158,6 @@ class ActivityServiceTest {
     }
 
     @Test
-    @Disabled
     void createActivity() throws HoaDoesntExistException, BadActivityException {
         HoaService hoaService = mock(HoaService.class);
         when(hoaService.findHoaById(any(Long.class))).thenReturn(true);
