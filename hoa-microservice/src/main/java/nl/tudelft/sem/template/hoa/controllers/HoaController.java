@@ -123,7 +123,7 @@ public class HoaController {
      * @param hoaId id of HOA to fetch requirements from
      * @return List of requirements of an HOA, if it exists
      */
-    @GetMapping("/hoa/getRequirements/{hoaId}")
+    @GetMapping("/getRequirements/{hoaId}")
     public ResponseEntity<List<Requirement>> getRequirements(@PathVariable long hoaId) {
         try {
             if (hoaRepo.findById(hoaId).isEmpty())
@@ -141,7 +141,7 @@ public class HoaController {
      * @param prompt String to represent the requirement added
      * @return Added requirement object
      */
-    @PostMapping("/hoa/addRequirement/{reqId}")
+    @PostMapping("/addRequirement/{reqId}")
     public ResponseEntity<Requirement> addRequirement(@PathVariable long hoaId,
                                                       @RequestBody Object prompt) {
         try {
