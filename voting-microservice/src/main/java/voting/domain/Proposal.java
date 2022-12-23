@@ -86,7 +86,7 @@ public class Proposal extends Election {
      * @param a Master accumulator
      * @param b Sub-accumulator
      */
-    @Generated
+    @Generated // Helper method that accumulates one group of elements into another, no need to test due to triviality
     public void findOutcomeAccHelper(Integer[] a, Integer[] b) {
         a[0] += b[0];
         a[1] += b[1];

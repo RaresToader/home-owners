@@ -34,12 +34,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static voting.annotations.TestSuite.TestType.INTEGRATION;
-import static voting.annotations.TestSuite.TestType.SYSTEM;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)
-@TestSuite(testType =   {INTEGRATION, SYSTEM})
+@TestSuite(testType = {INTEGRATION})
 class ElectionControllerTest {
 
     @Autowired

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.db.HoaService;
+import nl.tudelft.sem.template.hoa.db.RequirementRepo;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
 import nl.tudelft.sem.template.hoa.exception.BadFormatHoaException;
 import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
@@ -33,13 +34,16 @@ public class HoaServiceTest {
     @Mock
     private transient HoaRepo hoaRepo;
 
+    @Mock
+    private transient RequirementRepo reqRepo;
+
     private transient HoaService hoaService;
     private final transient Hoa hoa = Hoa.createHoa(testCountry, testCity, test);
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        hoaService = new HoaService(hoaRepo);
+        hoaService = new HoaService(hoaRepo, reqRepo);
     }
 
     @Test
