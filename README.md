@@ -1,27 +1,25 @@
-# Lab Template
+# SEM Group22a Working Prototype
 
-This template contains two microservices:
-- authentication-microservice
-- example-microservice
+This template contains three microservices:
+- authentication-member-microservice
+- hoa-microservice
+- voting-microservice
 
-The `authentication-microservice` is responsible for registering new users and authenticating current ones. After successful authentication, this microservice will provide a JWT token which can be used to bypass the security on the `example-microservice`. This token contains the *NetID* of the user that authenticated. If your scenario includes different roles, these will have to be added to the authentication-microservice and to the JWT token. To do this, you will have to:
-- Add a concept of roles to the `AppUser`
-- Add the roles to the `UserDetails` in `JwtUserDetailsService`
-- Add the roles as claims to the JWT token in `JwtTokenGenerator`
+The `authentication-member-microservice` is responsible for registering new users, authenticating them, and keeping 
+track of the membership pairs (member and hoa).
 
-The `example-microservice` is just an example and needs to be modified to suit the domain you are modeling based on your scenario.
+The `hoa-microservice` is the central and most extensive one of the bunch. It is responsible for keeping track of the
+HOAs, which also includes the activities, requirements, notifications, board members, and election histories.
 
-The `domain` and `application` packages contain the code for the domain layer and application layer. The code for the framework layer is the root package as *Spring* has some limitations on were certain files are located in terms of autowiring.
+Finally, the `voting-microservice` is responsible for handling anything pertaining to the elections, including
+creating new ones, updating votes, calculating final outcomes, and voting validation.
 
 ## Running the microservices
 
-You can run the two microservices individually by starting the Spring applications. Then, you can use *Postman* to perform the different requests:
+You can simply run the three microservices individually through Spring's default app bootloader. Two things to note:
+- In proper deployment only the HOA and auth-member microservices are supposed to be visible to a potential client,
+hence why the authenticating code is somewhat overlapping between the two services, but it must *always* start from 
+auth-member in order to function.
 
-Register:
-![image](instructions/register.png)
-
-Authenticate:
-![image](instructions/authenticate.png)
-
-Hello:
-![image](instructions/hello.png)
+- Because of this, the two microservices **must have the same jwtSecret** in order for the authentication to carry over 
+properly
