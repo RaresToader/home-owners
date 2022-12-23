@@ -174,6 +174,7 @@ public class ElectionController {
                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
             validateMemberInHOA(hoaID, authManager.getMemberId(), true, token);
+
             if (ElectionUtils.leaveElection(authManager.getMemberId(), hoaID))
                 return ResponseEntity.ok(true);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member did not participate in the election");
@@ -218,5 +219,12 @@ public class ElectionController {
             }
         }
         return null;
+    }
+
+    /** Setter method used when AuthManager needs to be mocked
+     * @param a - AuthManager to be mocked
+     */
+    public void setAuthenticationManager(AuthManager a) {
+        this.authManager = a;
     }
 }
