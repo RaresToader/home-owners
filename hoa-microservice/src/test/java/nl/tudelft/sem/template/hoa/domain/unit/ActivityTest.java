@@ -30,7 +30,7 @@ public class ActivityTest {
         hoaId = 1L;
         activityName = "BBQ";
         activityDescription = "Annual neighborhood BBQ";
-        activityTime = LocalDateTime.of(2022, 12, 25, 12, 0);
+        activityTime = LocalDateTime.of(2030, 12, 25, 12, 0);
         activityDuration = LocalTime.of(2, 0);
         activity = new Activity(hoaId, activityName, activityDescription, activityTime, activityDuration);
     }
