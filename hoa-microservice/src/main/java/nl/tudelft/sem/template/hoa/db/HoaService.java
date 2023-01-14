@@ -148,20 +148,9 @@ public class HoaService {
      * @return true if the country name fails to adhere to the format, false otherwise
      */
     public boolean countryCheck(String country) {
-        if (country == null || country.isEmpty() || country.isBlank()) {
-            return true;
-        }
-        if (!Character.isUpperCase(country.charAt(0)) || country.length() < 4 || country.length() > 50) {
-            return true;
-        }
-        for (int i = 1; i < country.length(); i++) {
-            char c = country.charAt(i);
-            if (!Character.isWhitespace(c) && !Character.isLetter(c)) {
-                return true;
-            }
-        }
-        return false;
+        return country == null || !country.matches("^[A-Z][a-zA-Z\\s]{3,49}$");
     }
+
 
     /**
      * This is a method that checks whether the format for a name is correct.
