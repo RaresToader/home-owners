@@ -153,45 +153,14 @@ public class HoaService {
 
 
     /**
-     * This is a method that checks whether the format for a name is correct.
-     *
-     * @param name the name of the hoa
-     * @return true if the format is satisfied, false otherwise
-     */
-    public boolean nameCheck(String name) {
-        if (name == null || name.isEmpty() || name.isBlank()) {
-            return false;
-        }
-        if (!Character.isUpperCase(name.charAt(0)) || name.length() > 50) {
-            return false;
-        }
-        return enoughCharsAndWhitespace(name);
-    }
-
-    /**
      * Checks that a string has at least 4 characters.
      * Only letters or digits are allowed. The name can have at most 50 characters.
      *
      * @param name the name
      * @return true if the conditions are met, false otherwise.
      */
-    public boolean enoughCharsAndWhitespace(String name) {
-        if (name == null || name.isEmpty() || name.isBlank()) {
-            return false;
-        }
-        String[] split = name.split(" ");
-        StringBuilder sb = new StringBuilder();
-        for (String s : split) {
-            sb.append(s);
-        }
-        String result = sb.toString();
-        char[] array = result.toCharArray();
-        for (Character x : array) {
-            if (!Character.isLetterOrDigit(x)) {
-                return false;
-            }
-        }
-        return result.length() >= 4;
+    public boolean nameCheck(String name) {
+        return name != null && name.matches("^(?!\\s*$)[a-zA-Z0-9\\s]{4,50}$");
     }
 
     /**
