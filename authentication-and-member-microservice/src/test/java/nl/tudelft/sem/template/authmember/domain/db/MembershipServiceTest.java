@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+
+import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -142,142 +144,138 @@ class MembershipServiceTest {
     
     @Test
     void validateCountryCityStreetNull() {
-        assertFalse(membershipService.validateCountryCityStreet(null));
+        assertFalse(validateCountryCityStreet(null));
     }
 
     @Test
     void validateCountryCityStreetEmpty() {
-        assertFalse(membershipService.validateCountryCityStreet(""));
+        assertFalse(validateCountryCityStreet(""));
     }
 
     @Test
     void validateCountryCityStreetLower() {
-        assertFalse(membershipService.validateCountryCityStreet("almostGood"));
+        assertFalse(validateCountryCityStreet("almostGood"));
     }
 
     @Test
     void validateCountryCityStreetWrongChar() {
-        assertFalse(membershipService.validateCountryCityStreet("Almost1almost"));
+        assertFalse(validateCountryCityStreet("Almost1almost"));
     }
 
     @Test
     void validateCountryCityStreetWrongChar2() {
-        assertFalse(membershipService.validateCountryCityStreet("A&lmost1almost"));
+        assertFalse(validateCountryCityStreet("A&lmost1almost"));
     }
 
     @Test
     void validateCountryCityStreetBlank() {
-        assertFalse(membershipService.validateCountryCityStreet("   "));
+        assertFalse(validateCountryCityStreet("   "));
     }
 
     @Test
     void validateCountryCityStreetShort() {
-        assertFalse(membershipService.validateCountryCityStreet("Joe"));
+        assertFalse(validateCountryCityStreet("Joe"));
     }
 
     @Test
     void validateCountryCityStreetLong() {
-        assertFalse(membershipService.validateCountryCityStreet("JoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMa1"));
+        assertFalse(validateCountryCityStreet("JoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMa1"));
     }
 
     @Test
     void validateCountryCityStreetCorrectLower() {
-        assertTrue(membershipService.validateCountryCityStreet("JoeM"));
+        assertTrue(validateCountryCityStreet("JoeM"));
     }
 
     @Test
     void validateCountryCityStreetCorrectUpper() {
-        assertTrue(membershipService.validateCountryCityStreet("JoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMa"));
-    }
-
-    @Test
-    void validatePostalCode() {
+        assertTrue(validateCountryCityStreet("JoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMaJoeMa"));
     }
 
     @Test
     void validatePostalCodeNull() {
-        assertFalse(membershipService.validatePostalCode(null));
+        assertFalse(validatePostalCode(null));
     }
 
     @Test
     void validatePostalCodeEmpty() {
-        assertFalse(membershipService.validatePostalCode(""));
+        assertFalse(validatePostalCode(""));
     }
 
     @Test
     void validatePostalCodeBlank() {
-        assertFalse(membershipService.validatePostalCode("   "));
+        assertFalse(validatePostalCode("   "));
     }
 
     @Test
     void validatePostalCodeShort() {
-        assertFalse(membershipService.validatePostalCode("1234X"));
+        assertFalse(validatePostalCode("1234X"));
     }
 
     @Test
     void validatePostalCodeLong() {
-        assertFalse(membershipService.validatePostalCode("1234XAX"));
+        assertFalse(validatePostalCode("1234XAX"));
     }
 
     @Test
     void validatePostalCodeLong2() {
-        assertFalse(membershipService.validatePostalCode("12345X"));
+        assertFalse(validatePostalCode("12345X"));
     }
 
     @Test
     void validatePostalCodeCorrectLower() {
-        assertTrue(membershipService.validatePostalCode("1234Xa"));
+        assertTrue(validatePostalCode("1234Xa"));
     }
 
     @Test
     void validatePostalCodeCorrectUpper() {
-        assertTrue(membershipService.validatePostalCode("1234xA"));
+        assertTrue(validatePostalCode("1234xA"));
     }
 
 
     @Test
     void validateStreetNumberNull() {
-        assertFalse(membershipService.validateStreetNumber(null));
+        assertFalse(validateStreetNumber(null));
     }
 
     @Test
     void validateStreetNumberEmpty() {
-        assertFalse(membershipService.validateStreetNumber(""));
+        assertFalse(validateStreetNumber(""));
     }
 
     @Test
     void validateStreetNumberBlank() {
-        assertFalse(membershipService.validateStreetNumber("   "));
+        assertFalse(validateStreetNumber("   "));
     }
 
     @Test
     void validateStreetNumberShortOk() {
-        assertTrue(membershipService.validateStreetNumber("1"));
+        assertTrue(validateStreetNumber("1"));
     }
 
     @Test
     void validateStreetNumberLetterSoon() {
-        assertFalse(membershipService.validateStreetNumber("123aa"));
+        assertFalse(validateStreetNumber("123aa"));
     }
 
     @Test
     void validateStreetNumberLetterSoon2() {
-        assertFalse(membershipService.validateStreetNumber("1a2a"));
+        assertFalse(validateStreetNumber("1a2a"));
     }
 
     @Test
     void validateStreetNumberDigitLater() {
-        assertFalse(membershipService.validateStreetNumber("123a4"));
+        assertFalse(validateStreetNumber("123a4"));
     }
 
     @Test
     void validateStreetLetter() {
-        assertTrue(membershipService.validateStreetNumber("a"));
+        assertTrue(validateStreetNumber("a"));
     }
 
     @Test
     void validateStreetNumberCorrectUpper() {
-        assertTrue(membershipService.validateStreetNumber("1234x"));
+        assertTrue(validateStreetNumber("1234x"));
     }
 
     @Test
