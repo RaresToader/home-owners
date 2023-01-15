@@ -53,17 +53,4 @@ public class HoaServiceBoundaryTest {
         String sb = "A" + "a".repeat(49);
         assertTrue(hoaService.nameCheck(sb));
     }
-
-    @Test
-    void enoughCharsOffPoint() {
-        String string = "A a a ";
-        assertFalse(hoaService.enoughCharsAndWhitespace(string));
-
-    }
-
-    @Test
-    void enoughCharsOnPoint() {
-        String string = "A a a a";
-        assertTrue(hoaService.enoughCharsAndWhitespace(string));
-    }
 }

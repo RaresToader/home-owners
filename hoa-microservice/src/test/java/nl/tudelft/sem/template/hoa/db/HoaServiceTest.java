@@ -138,62 +138,44 @@ public class HoaServiceTest {
     }
 
     @Test
-    void nullName() {
+    void nameCheckNull() {
         Assertions.assertFalse(hoaService.nameCheck(null));
+
     }
 
     @Test
-    void emptyName() {
+    void nameCheckEmpty() {
         Assertions.assertFalse(hoaService.nameCheck(""));
+
     }
 
     @Test
-    void blankName() {
+    void nameCheckBlank() {
         Assertions.assertFalse(hoaService.nameCheck("    "));
+
     }
 
     @Test
-    void nameNotUpper() {
+    void nameCheckOtherChar() {
+        Assertions.assertFalse(hoaService.nameCheck("Test 1$23"));
+
+    }
+
+    @Test
+    void nameCheckNotUpper() {
         Assertions.assertFalse(hoaService.nameCheck("a"));
     }
 
+
+
     @Test
-    void happyName() {
-        Assertions.assertTrue(hoaService.nameCheck("Test name"));
+    void nameCheckHappy() {
+        Assertions.assertTrue(hoaService.nameCheck("Test 123"));
     }
 
     @Test
-    void enoughCharsAndWhitespaceNull() {
-        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace(null));
-
-    }
-
-    @Test
-    void enoughCharsAndWhitespaceEmpty() {
-        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace(""));
-
-    }
-
-    @Test
-    void enoughCharsAndWhitespaceBlank() {
-        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace("    "));
-
-    }
-
-    @Test
-    void enoughCharsAndWhitespaceOtherChar() {
-        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace("Test 1$23"));
-
-    }
-
-    @Test
-    void enoughCharsAndWhitespaceHappy() {
-        Assertions.assertTrue(hoaService.enoughCharsAndWhitespace("Test 123"));
-    }
-
-    @Test
-    void enoughCharsAndWhitespaceHappyButNotEnoughChars() {
-        Assertions.assertFalse(hoaService.enoughCharsAndWhitespace("Tes"));
+    void nameCheckHappyButNotEnoughChars() {
+        Assertions.assertFalse(hoaService.nameCheck("Tes"));
     }
 
     @Test
