@@ -26,7 +26,7 @@ public class RequirementController {
     private transient RequirementService requirementService;
     private final transient HoaRepo hoaRepo;
 
-    private transient HoaService hoaService;
+    private final transient HoaService hoaService;
 
 
     /**

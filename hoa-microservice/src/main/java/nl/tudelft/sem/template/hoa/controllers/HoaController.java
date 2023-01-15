@@ -6,14 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import nl.tudelft.sem.template.hoa.db.HoaRepo;
 import nl.tudelft.sem.template.hoa.db.HoaService;
-import nl.tudelft.sem.template.hoa.db.RequirementService;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
-import nl.tudelft.sem.template.hoa.domain.Requirement;
-import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
-import nl.tudelft.sem.template.hoa.exception.RequirementAlreadyPresent;
-import nl.tudelft.sem.template.hoa.exception.RequirementDoesNotExist;
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
@@ -41,19 +35,16 @@ import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 public class HoaController {
 
     private transient HoaService hoaService;
-    private final transient HoaRepo hoaRepo;
 
 
     /**
      * Constructor for the HoaController.
      *
-     * @param hoaService         the hoa service
+     * @param hoaService the hoa service
      */
     @Autowired
-    public HoaController(HoaService hoaService,
-                         HoaRepo hoaRepo) {
+    public HoaController(HoaService hoaService) {
         this.hoaService = hoaService;
-        this.hoaRepo = hoaRepo;
     }
 
     /**
@@ -115,7 +106,9 @@ public class HoaController {
     }
 
 
-    /** Setter method used when HoaService needs to be mocked
+    /**
+     * Setter method used when HoaService needs to be mocked
+     *
      * @param h - HoaService to be mocked
      */
     public void setHoaService(HoaService h) {
