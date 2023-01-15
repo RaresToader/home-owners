@@ -14,7 +14,7 @@ import nl.tudelft.sem.template.authmember.models.MembershipResponseModel;
 import nl.tudelft.sem.template.authmember.utils.TimeUtils;
 import org.springframework.stereotype.Service;
 
-import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.*;
+import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.validate;
 
 /**
  * A DDD service for member-related queries.

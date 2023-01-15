@@ -1,6 +1,5 @@
 package nl.tudelft.sem.template.authmember.domain.db;
 
-import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelException;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
 
 public final class MembershipValidator {

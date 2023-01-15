@@ -19,8 +19,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-
-import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.*;
+import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.validateStreetNumber;
+import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.validateCountryCityStreet;
+import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.validatePostalCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

@@ -9,8 +9,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-
-import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.*;
+import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.validate;
+import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.validateCountryCityStreet;
+import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.validatePostalCode;
+import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.validateStreetNumber;
 
 public class MembershipValidatorTest {
 
@@ -128,6 +130,7 @@ public class MembershipValidatorTest {
 
     @Test
     public void validateHappy() {
-        Assertions.assertTrue(validate(new JoinHoaModel("m1", 1l, new Address("Netherlands", "Delft", "Drebelweg", "14", "1111AA"))));
+        Assertions.assertTrue(validate(new JoinHoaModel("m1", 1L, new Address("Netherlands",
+                "Delft", "Drebelweg", "14", "1111AA"))));
     }
 }
