@@ -5,6 +5,7 @@ import voting.annotations.TestSuite;
 import voting.domain.Election;
 import voting.domain.Proposal;
 import voting.models.BoardElectionModel;
+import voting.models.ElectionModel;
 import voting.models.ProposalModel;
 import voting.models.TimeModel;
 import java.time.LocalDateTime;
@@ -30,27 +31,20 @@ class ProposalElectionFactoryTest {
 
     @Test
     void createElectionTest() {
-        ProposalModel model = new ProposalModel();
-        model.name = "a";
-        model.description = "b";
-        model.hoaId = 1;
-        model.scheduledFor = new TimeModel(10, 10, 10, 10, 10, 10);
+        ProposalModel model = new ProposalModel("a", "b", 1,
+                new TimeModel(10, 10, 10, 10, 10, 10));
         Proposal created = (Proposal) sut.createElection(model);
         Proposal expected = new Proposal("a", "b", 1,
                 LocalDateTime.of(10, 10, 10, 10, 10, 10));
         assertEquals(created, expected);
 
-        model.hoaId = -1;
+        model = new ProposalModel(model.name, model.description, -1, model.scheduledFor);
         Election createdNull = sut.createElection(model);
         assertNull(createdNull);
 
-        BoardElectionModel wrongModel = new BoardElectionModel();
-        wrongModel.name = "a";
-        wrongModel.description = "b";
-        wrongModel.hoaId = 1;
-        wrongModel.scheduledFor = new TimeModel(10, 10, 10, 10, 10, 10);
-        wrongModel.amountOfWinners = 2;
-        wrongModel.candidates = List.of("test", "test2");
+        BoardElectionModel wrongModel = new BoardElectionModel(new ElectionModel("a", "b", 1,
+                        new TimeModel(10, 10, 10, 10, 10, 10)),
+                2, List.of("test", "test2"));
         Election wrongElection = sut.createElection(wrongModel);
         assertNull(wrongElection);
     }

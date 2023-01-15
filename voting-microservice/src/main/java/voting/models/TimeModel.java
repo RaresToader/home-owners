@@ -1,22 +1,20 @@
 package voting.models;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-@Data
 @AllArgsConstructor
 public class TimeModel {
-    public int seconds;
-    public int minutes;
-    public int hours;
-    public int day;
-    public int month;
-    public int year;
+    public final int seconds;
+    public final int minutes;
+    public final int hours;
+    public final int day;
+    public final int month;
+    public final int year;
 
     public boolean isValid() {
         return createDate() != null;
@@ -34,5 +32,10 @@ public class TimeModel {
         } catch (DateTimeException e) {
             return null;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this.getClass() == o.getClass() && this == o;
     }
 }

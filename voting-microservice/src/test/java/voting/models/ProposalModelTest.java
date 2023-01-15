@@ -17,11 +17,7 @@ class ProposalModelTest {
     @ParameterizedTest
     @MethodSource("argGen")
     void isValidTest(int hoaId, String name, String desc, TimeModel scheduledFor, boolean expected, String testdesc) {
-        ProposalModel sut = new ProposalModel();
-        sut.hoaId = hoaId;
-        sut.name = name;
-        sut.description = desc;
-        sut.scheduledFor = scheduledFor;
+        ProposalModel sut = new ProposalModel(name, desc, hoaId, scheduledFor);
         assertEquals(expected, sut.isValid(), testdesc);
     }
 

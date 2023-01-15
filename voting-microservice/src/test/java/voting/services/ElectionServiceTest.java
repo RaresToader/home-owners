@@ -7,6 +7,7 @@ import voting.db.repos.ElectionRepository;
 import voting.domain.BoardElection;
 import voting.domain.Election;
 import voting.domain.Proposal;
+import voting.domain.factories.BoardElectionFactory;
 import voting.exceptions.BoardElectionAlreadyCreated;
 import voting.exceptions.CannotProceedVote;
 import voting.exceptions.ElectionCannotBeCreated;
@@ -14,6 +15,7 @@ import voting.exceptions.ElectionDoesNotExist;
 import voting.exceptions.ProposalAlreadyCreated;
 import voting.exceptions.ThereIsNoVote;
 import voting.models.BoardElectionModel;
+import voting.models.ElectionModel;
 import voting.models.ProposalModel;
 import voting.models.RemoveVoteModel;
 import voting.models.TimeModel;
@@ -38,6 +40,7 @@ import static voting.annotations.TestSuite.TestType.INTEGRATION;
 @TestSuite(testType = {INTEGRATION})
 class ElectionServiceTest {
 
+	private ElectionModel eModel;
 	private TimeModel validTM;
 	private BoardElectionModel beModel;
 	private ProposalModel propModel;
@@ -55,18 +58,10 @@ class ElectionServiceTest {
 	@BeforeEach
 	void setUp() {
 		validTM = new TimeModel(10, 10, 10, 10, 10, 10);
-		beModel = new BoardElectionModel();
-		beModel.name = "BoardElection";
-		beModel.description = "TestBoardElection";
-		beModel.candidates = new ArrayList<>(List.of("1", "2", "3"));
-		beModel.amountOfWinners = 2;
+		eModel = new ElectionModel("BoardElection", "TestBoardElection", 1, validTM);
+		beModel = new BoardElectionModel(eModel, 2, new ArrayList<>(List.of("1", "2", "3")));
 
-		propModel = new ProposalModel();
-		propModel.name = "Proposal";
-		propModel.description = "TestProposal";
-
-		beModel.scheduledFor = propModel.scheduledFor = validTM;
-		beModel.hoaId = propModel.hoaId = 1;
+		propModel = new ProposalModel("Proposal", "TestProposal", 1, validTM);
 
 		propVoteModel = new VotingModel(0, "chad", "false");
 		beVoteModel = new VotingModel(0, "chad", "1");
@@ -77,16 +72,16 @@ class ElectionServiceTest {
 
 	@Test
 	void createBoardElectionInvalidModel() {
-		beModel.amountOfWinners = 0;
+		beModel = new BoardElectionModel(eModel, 0, beModel.candidates);
 		assertThrows(ElectionCannotBeCreated.class, () -> electionService.createBoardElection(beModel));
 		verify(repository, times(0)).getBoardElectionByHoaId(beModel.hoaId);
 	}
 
 	@Test
 	void createBoardElectionAlreadyExisting() {
-		beModel.hoaId = 2;
-		beModel.scheduledFor = new TimeModel(10, 10, 10, 10, 10,
-				LocalDateTime.now().getYear() + 2);
+		beModel = new BoardElectionModel(new ElectionModel(beModel.name, beModel.description, 2,
+				new TimeModel(10, 10, 10, 10, 10,
+						LocalDateTime.now().getYear() + 2)), beModel.amountOfWinners, beModel.candidates);
 		Election boardElection = new BoardElection("BoardElection2", "ExistingElection", 2,
 			LocalDateTime.now().plusYears(1), 2, new ArrayList<>());
 		when(repository.getBoardElectionByHoaId(2)).thenReturn(Optional.of(boardElection));
@@ -97,10 +92,10 @@ class ElectionServiceTest {
 
 	@Test
 	void createBoardElectionSuccessful() throws BoardElectionAlreadyCreated, ElectionCannotBeCreated {
-		beModel.scheduledFor = new TimeModel(10, 10, 10, 10, 10,
-				LocalDateTime.now().getYear() + 2);
-		Election boardElection = new BoardElection(beModel.name, beModel.description, beModel.hoaId,
-			LocalDateTime.now().plusYears(2), beModel.amountOfWinners, beModel.candidates);
+		beModel = new BoardElectionModel(new ElectionModel(beModel.name, beModel.description, beModel.hoaId,
+				new TimeModel(10, 10, 10, 10, 10,
+						LocalDateTime.now().getYear() + 2)), beModel.amountOfWinners, beModel.candidates);
+		Election boardElection = new BoardElectionFactory().createElection(beModel);
 		when(repository.getBoardElectionByHoaId(1)).thenReturn(Optional.empty());
 		assertEquals(boardElection, electionService.createBoardElection(beModel));
 		verify(repository, times(1)).getBoardElectionByHoaId(beModel.hoaId);
@@ -109,14 +104,15 @@ class ElectionServiceTest {
 
 	@Test
 	void createProposalInvalidModel() {
-		propModel.hoaId = -1;
+		propModel = new ProposalModel(propModel.name, propModel.description, -1, propModel.scheduledFor);
 		assertThrows(ElectionCannotBeCreated.class, () -> electionService.createProposal(propModel));
 		verify(repository, times(0)).getBoardElectionByHoaId(propModel.hoaId);
 	}
 
 	@Test
 	void createProposalAlreadyExisting() {
-		beModel.hoaId = 2;
+		beModel = new BoardElectionModel(new ElectionModel(eModel.name, eModel.description,
+				2, eModel.scheduledFor), beModel.amountOfWinners, beModel.candidates);
 		when(repository.existsByHoaIdAndName(propModel.hoaId, propModel.name)).thenReturn(true);
 		assertThrows(ProposalAlreadyCreated.class, () -> electionService.createProposal(propModel));
 		verify(repository, times(1)).existsByHoaIdAndName(propModel.hoaId,
@@ -137,7 +133,7 @@ class ElectionServiceTest {
 
 	@Test
 	void voteInvalidModel() {
-		propVoteModel.electionId = -1;
+		propVoteModel = new VotingModel(-1, propVoteModel.memberId, propVoteModel.choice);
 		assertThrows(ElectionDoesNotExist.class, () -> electionService.vote(propVoteModel, LocalDateTime.now()));
 		verify(repository, times(0)).findByElectionId(propVoteModel.electionId);
 	}
@@ -152,7 +148,7 @@ class ElectionServiceTest {
 	@Test
 	void voteNotStarted() {
 		Election proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
-		validTM.day = 9;
+		validTM = new TimeModel(validTM.seconds, validTM.minutes, validTM.hours, 9, validTM.month, validTM.year);
 		when(repository.findByElectionId(propVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		assertThrows(CannotProceedVote.class, () -> electionService.vote(propVoteModel, validTM.createDate()));
 		verify(repository, times(1)).findByElectionId(propVoteModel.electionId);
@@ -171,7 +167,7 @@ class ElectionServiceTest {
 	void voteNotACandidate() {
 		BoardElection boardElection = new BoardElection(beModel.name, beModel.description, beModel.hoaId,
 				beModel.scheduledFor.createDate(), beModel.amountOfWinners, new ArrayList<>(List.of("6", "7")));
-		when(repository.findByElectionId(beVoteModel.getElectionId())).thenReturn(Optional.of(boardElection));
+		when(repository.findByElectionId(beVoteModel.electionId)).thenReturn(Optional.of(boardElection));
 		assertThrows(CannotProceedVote.class, () -> electionService.vote(beVoteModel, validTM.createDate()));
 		verify(repository, times(1)).findByElectionId(beVoteModel.electionId);
 	}
@@ -192,7 +188,7 @@ class ElectionServiceTest {
 	void voteSuccessfulBoard() throws ElectionDoesNotExist, CannotProceedVote {
 		BoardElection boardElection = new BoardElection(beModel.name, beModel.description, beModel.hoaId,
 				beModel.scheduledFor.createDate(), beModel.amountOfWinners, beModel.candidates);
-		when(repository.findByElectionId(beVoteModel.getElectionId())).thenReturn(Optional.of(boardElection));
+		when(repository.findByElectionId(beVoteModel.electionId)).thenReturn(Optional.of(boardElection));
 		electionService.vote(beVoteModel, LocalDateTime.now());
 		assertEquals("ongoing", boardElection.getStatus());
 		assertTrue(boardElection.getVotes().containsKey(beVoteModel.memberId)
@@ -215,7 +211,7 @@ class ElectionServiceTest {
 
 	@Test
 	void removeVoteInvalidModel() {
-		removeVoteModel.electionId = -1;
+		removeVoteModel = new RemoveVoteModel(-1, removeVoteModel.memberId);
 		assertThrows(ElectionDoesNotExist.class, () -> electionService.removeVote(removeVoteModel, LocalDateTime.now()));
 		verify(repository, times(0)).findByElectionId(removeVoteModel.electionId);
 	}
@@ -230,7 +226,7 @@ class ElectionServiceTest {
 	@Test
 	void removeVoteNotStarted() {
 		Election proposal = new Proposal(EL, TESTEX, 1, validTM.createDate());
-		validTM.day = 9;
+		validTM = new TimeModel(validTM.seconds, validTM.minutes, validTM.hours, 9, validTM.month, validTM.year);
 		when(repository.findByElectionId(removeVoteModel.electionId)).thenReturn(Optional.of(proposal));
 		assertThrows(CannotProceedVote.class, () -> electionService.removeVote(removeVoteModel, validTM.createDate()));
 		verify(repository, times(1)).findByElectionId(removeVoteModel.electionId);

@@ -5,6 +5,7 @@ import voting.annotations.TestSuite;
 import voting.domain.BoardElection;
 import voting.domain.Election;
 import voting.models.BoardElectionModel;
+import voting.models.ElectionModel;
 import voting.models.ProposalModel;
 import voting.models.TimeModel;
 
@@ -32,8 +33,8 @@ class BoardElectionFactoryTest {
 
     @Test
     void createElectionCompleteTest() {
-        BoardElection created = (BoardElection) sut.createElection("a", "b", 1,
-                LocalDateTime.of(10, 10, 10, 10, 10, 10),
+        BoardElection created = (BoardElection) sut.createElection(new ElectionModel("a", "b", 1,
+                LocalDateTime.of(10, 10, 10, 10, 10, 10)),
                 1, List.of("test", "test2"));
         BoardElection expected = new BoardElection("a", "b", 1,
                 LocalDateTime.of(10, 10, 10, 10, 10, 10), 1,
@@ -43,28 +44,22 @@ class BoardElectionFactoryTest {
 
     @Test
     void createElectionTest() {
-        BoardElectionModel model = new BoardElectionModel();
-        model.name = "a";
-        model.description = "b";
-        model.hoaId = 1;
-        model.scheduledFor = new TimeModel(10, 10, 10, 10, 10, 10);
-        model.amountOfWinners = 2;
-        model.candidates = List.of("test", "test2");
+        BoardElectionModel model = new BoardElectionModel("a", "b", 1,
+                new TimeModel(10, 10, 10, 10, 10, 10), 2,
+                List.of("test", "test2"));
         BoardElection created = (BoardElection) sut.createElection(model);
         BoardElection expected = new BoardElection("a", "b", 1,
                 LocalDateTime.of(10, 10, 10, 10, 10, 10),
                 2, List.of("test", "test2"));
         assertEquals(created, expected);
 
-        model.hoaId = -1;
+        model = new BoardElectionModel(model.name, model.description, -1, model.scheduledFor,
+                model.amountOfWinners, model.candidates);
         Election createdNull = sut.createElection(model);
         assertNull(createdNull);
 
-        ProposalModel wrongModel = new ProposalModel();
-        wrongModel.name = "a";
-        wrongModel.description = "b";
-        wrongModel.hoaId = 1;
-        wrongModel.scheduledFor = new TimeModel(10, 10, 10, 10, 10, 10);
+        ProposalModel wrongModel = new ProposalModel("a", "b", 1,
+                new TimeModel(10, 10, 10, 10, 10, 10));
         Election wrongElection = sut.createElection(wrongModel);
         assertNull(wrongElection);
     }

@@ -1,14 +1,12 @@
 package voting.models;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 
-@Data
 @AllArgsConstructor
 public class VotingModel {
-    public int electionId;
-    public String memberId;
-    public String choice;
+    public final int electionId;
+    public final String memberId;
+    public final String choice;
 
     /**
      * Checks whether this model is a valid one for creating a vote
@@ -18,5 +16,10 @@ public class VotingModel {
     public boolean isValid() {
         return electionId >= 0
                 && !choice.equals(memberId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this.getClass() == o.getClass() && this == o;
     }
 }
