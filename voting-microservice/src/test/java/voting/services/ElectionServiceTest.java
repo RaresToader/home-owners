@@ -40,7 +40,7 @@ import static voting.annotations.TestSuite.TestType.INTEGRATION;
 @TestSuite(testType = {INTEGRATION})
 class ElectionServiceTest {
 
-	private ElectionModel eModel;
+	private ElectionModel elModel;
 	private TimeModel validTM;
 	private BoardElectionModel beModel;
 	private ProposalModel propModel;
@@ -58,8 +58,8 @@ class ElectionServiceTest {
 	@BeforeEach
 	void setUp() {
 		validTM = new TimeModel(10, 10, 10, 10, 10, 10);
-		eModel = new ElectionModel("BoardElection", "TestBoardElection", 1, validTM);
-		beModel = new BoardElectionModel(eModel, 2, new ArrayList<>(List.of("1", "2", "3")));
+		elModel = new ElectionModel("BoardElection", "TestBoardElection", 1, validTM);
+		beModel = new BoardElectionModel(elModel, 2, new ArrayList<>(List.of("1", "2", "3")));
 
 		propModel = new ProposalModel("Proposal", "TestProposal", 1, validTM);
 
@@ -72,7 +72,7 @@ class ElectionServiceTest {
 
 	@Test
 	void createBoardElectionInvalidModel() {
-		beModel = new BoardElectionModel(eModel, 0, beModel.candidates);
+		beModel = new BoardElectionModel(elModel, 0, beModel.candidates);
 		assertThrows(ElectionCannotBeCreated.class, () -> electionService.createBoardElection(beModel));
 		verify(repository, times(0)).getBoardElectionByHoaId(beModel.hoaId);
 	}
@@ -111,8 +111,8 @@ class ElectionServiceTest {
 
 	@Test
 	void createProposalAlreadyExisting() {
-		beModel = new BoardElectionModel(new ElectionModel(eModel.name, eModel.description,
-				2, eModel.scheduledFor), beModel.amountOfWinners, beModel.candidates);
+		beModel = new BoardElectionModel(new ElectionModel(elModel.name, elModel.description,
+				2, elModel.scheduledFor), beModel.amountOfWinners, beModel.candidates);
 		when(repository.existsByHoaIdAndName(propModel.hoaId, propModel.name)).thenReturn(true);
 		assertThrows(ProposalAlreadyCreated.class, () -> electionService.createProposal(propModel));
 		verify(repository, times(1)).existsByHoaIdAndName(propModel.hoaId,

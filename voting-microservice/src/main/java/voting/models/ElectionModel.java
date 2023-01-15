@@ -22,6 +22,7 @@ public class ElectionModel {
         description = "";
         scheduledFor = null;
     }
+
     /**
      * Create an ElectionModel object from base fields
      *

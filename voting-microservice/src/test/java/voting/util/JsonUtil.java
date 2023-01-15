@@ -19,8 +19,7 @@ public class JsonUtil {
     public static String serialize(Object object) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        String string = objectMapper.writeValueAsString(object);
-        return string;
+        return objectMapper.writeValueAsString(object);
     }
 
     /**

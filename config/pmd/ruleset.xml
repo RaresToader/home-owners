@@ -37,7 +37,7 @@
     <rule ref="category/java/codestyle.xml/AtLeastOneConstructor">
         <properties>
             <property name="ignoredAnnotations" value="lombok.Data|javax.persistence.Converter|
-            lombok.NoArgsConstructor|voting.annotations.TestSuite"/>
+            lombok.NoArgsConstructor|voting.annotations.TestSuite|lombok.AllArgsConstructor"/>
         </properties>
     </rule>
     <rule ref="category/java/codestyle.xml/LinguisticNaming">
@@ -97,6 +97,7 @@
 
     <rule ref="category/java/errorprone.xml">
         <exclude name="DataflowAnomalyAnalysis"/>
+        <exclude name="OverrideBothEqualsAndHashcode" />
     </rule>
     <rule ref="category/java/errorprone.xml/AvoidDuplicateLiterals">
         <properties>
