@@ -41,7 +41,6 @@ import nl.tudelft.sem.template.hoa.utils.ElectionUtils;
 public class HoaController {
 
     private transient HoaService hoaService;
-    private transient RequirementService requirementService;
     private final transient HoaRepo hoaRepo;
 
 
@@ -49,13 +48,11 @@ public class HoaController {
      * Constructor for the HoaController.
      *
      * @param hoaService         the hoa service
-     * @param requirementService the requirement service
      */
     @Autowired
-    public HoaController(HoaService hoaService, RequirementService requirementService,
+    public HoaController(HoaService hoaService,
                          HoaRepo hoaRepo) {
         this.hoaService = hoaService;
-        this.requirementService = requirementService;
         this.hoaRepo = hoaRepo;
     }
 
@@ -117,56 +114,6 @@ public class HoaController {
         }
     }
 
-    /**
-     * Gets all requirements of an HOA
-     *
-     * @param hoaId id of HOA to fetch requirements from
-     * @return List of requirements of an HOA, if it exists
-     */
-    @GetMapping("/getRequirements/{hoaId}")
-    public ResponseEntity<List<Requirement>> getRequirements(@PathVariable long hoaId) {
-        try {
-            if (hoaRepo.findById(hoaId).isEmpty())
-                throw new HoaDoesntExistException("Hoa with provided id does not exist");
-            return ResponseEntity.ok(requirementService.getHoaRequirements(hoaId));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    /**
-     * Adds a requirement to an HOA
-     *
-     * @param hoaId  id of HOA to add a requirement to
-     * @param prompt String to represent the requirement added
-     * @return Added requirement object
-     */
-    @PostMapping("/addRequirement/{hoaId}")
-    public ResponseEntity<Requirement> addRequirement(@PathVariable long hoaId,
-                                                      @RequestBody Object prompt) {
-        try {
-            Requirement req = requirementService.addHoaRequirement(hoaId, String.valueOf(prompt));
-            return ResponseEntity.ok(req);
-        } catch (RequirementAlreadyPresent | HoaDoesntExistException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Removes a requirement from an HOA
-     *
-     * @param reqId ID of requirement to remove
-     * @return Removed requirement, if one with the provided id exists
-     */
-    @PostMapping("/removeRequirement/{reqId}")
-    public ResponseEntity<Requirement> removeRequirements(@PathVariable long reqId) {
-        try {
-            Requirement req = requirementService.removeHoaRequirement(reqId);
-            return ResponseEntity.ok(req);
-        } catch (RequirementDoesNotExist e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
-    }
 
     /** Setter method used when HoaService needs to be mocked
      * @param h - HoaService to be mocked
@@ -175,38 +122,6 @@ public class HoaController {
         this.hoaService = h;
     }
 
-    /** Setter method used when RequirementService needs to be mocked
-     * @param h - RequirementService to be mocked
-     */
-    public void setRequirementService(RequirementService h) {
-        this.requirementService = h;
-    }
-
-    /**
-     * Endpoint for reporting a member of an HOA for violating a rule/requirement
-     *
-     * @param memberId id of member to report
-     * @param reqId    id of requirement that was broken
-     * @param token    Authorization token used for validation
-     * @return ResponseEntity that contains the operation's success
-     */
-    @PostMapping("/report/{memberId}/{reqId}")
-    public ResponseEntity<Boolean> reportUser(@PathVariable String memberId, @PathVariable long reqId,
-                                              @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
-        List<MembershipResponseModel> memberships =
-                MembershipUtils.getActiveMembershipsForUser(memberId, token);
-        if (memberships.stream().noneMatch(m -> {
-            try {
-                //PMD, this is silly :)
-                return m.getHoaId() == requirementService.getHoaRequirement(reqId).getHoaId();
-            } catch (RequirementDoesNotExist e) {
-                throw new RuntimeException(e);
-            }
-        }))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
-        hoaService.report(memberId, reqId);
-        return ResponseEntity.ok(true);
-    }
 
     /**
      * Endpoint for notifying users of accepted proposals (rule changes)
