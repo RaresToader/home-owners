@@ -99,6 +99,34 @@ public class ElectionService {
     }
 
     /**
+     * Checks whether an election is ongoing in the current moment
+     * @param election - the election for which the check is
+     * @param currTime - the current moment
+     * @throws CannotProceedVote - if the election is finished or not started
+     */
+    private void checkElectionTime(Election election, LocalDateTime currTime) throws CannotProceedVote {
+        if (election.getScheduledFor().isAfter(currTime))
+            throw new CannotProceedVote("Election has not started");
+        if (election.getStatus().equals("finished"))
+            throw new CannotProceedVote("Election has been concluded");
+    }
+
+    /**
+     * Checks whether the choice is a legal choice for the given election
+     * @param election - the election that we check
+     * @param choice - the choice that we check
+     * @throws CannotProceedVote - if the vote is illegal
+     */
+    private void checkElectionVote(Election election, String choice) throws CannotProceedVote {
+
+        if (election.getClass() == BoardElection.class) {
+            if (!((BoardElection) election).getCandidates().contains(choice))
+                throw new CannotProceedVote("Candidate with given id is not nominated for the election");
+        } else if (!List.of("True", "true", "T", "False", "false", "F").contains(choice))
+            throw new CannotProceedVote("Invalid voting choice for proposal (must be a boolean or similar)");
+    }
+
+    /**
      * Method called when a member wants to vote
      *
      * @param model VotingModel that contains electionId, memberID, and voting choice
@@ -110,16 +138,8 @@ public class ElectionService {
         Optional<Election> election = this.electionRepository.findByElectionId(model.electionId);
         if (election.isEmpty())
             throw new ElectionDoesNotExist("Election not found");
-        if (election.get().getScheduledFor().isAfter(currTime))
-            throw new CannotProceedVote("Election has not started");
-        if (election.get().getStatus().equals("finished"))
-            throw new CannotProceedVote("Election has been concluded");
-        if (election.get().getClass() == BoardElection.class
-                && !((BoardElection) election.get()).getCandidates().contains(model.choice))
-            throw new CannotProceedVote("Candidate with given id is not nominated for the election");
-        if (election.get().getClass() == Proposal.class
-                && !List.of("True", "true", "T", "False", "false", "F").contains(model.choice))
-            throw new CannotProceedVote("Invalid voting choice for proposal (must be a boolean or similar)");
+        checkElectionTime(election.get(), currTime);
+        checkElectionVote(election.get(), model.choice);
         election.get().setStatus("ongoing");
         election.get().vote(model.memberId, model.choice);
         this.electionRepository.save(election.get());
@@ -140,10 +160,7 @@ public class ElectionService {
         Optional<Election> election = this.electionRepository.findByElectionId(model.electionId);
         if (election.isEmpty())
             throw new ElectionDoesNotExist("Election not found");
-        if (election.get().getScheduledFor().isAfter(currTime))
-            throw new CannotProceedVote("Election has not started");
-        if (election.get().getStatus().equals("finished"))
-            throw new CannotProceedVote("Election has been concluded");
+        checkElectionTime(election.get(), currTime);
         election.get().removeVote(model.memberId);
         this.electionRepository.save(election.get());
     }
