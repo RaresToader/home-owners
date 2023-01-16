@@ -14,6 +14,15 @@ public class BoardElectionFactory extends ElectionFactory {
         // Left empty intentionally
     }
 
+    /**
+     * Generates an election from base fields
+     *
+     * @param name         Name of election
+     * @param description  Description of election
+     * @param hoaId        Id of associated hoa
+     * @param scheduledFor LocalDateTime to represent election's start time
+     * @return Created board election with provided fields
+     */
     @Override
     public Election createElection(String name, String description, long hoaId, LocalDateTime scheduledFor) {
         return new BoardElection(name, description, hoaId, scheduledFor, 0, List.of());
@@ -22,20 +31,14 @@ public class BoardElectionFactory extends ElectionFactory {
     /**
      * Complete generator for board elections
      *
-     * @param name            Name of election
-     * @param description     Description of election
-     * @param hoaId           Id of associated hoa
-     * @param scheduledFor    Time the election is scheduled for
+     * @param model           ElectionModel to use for election creation
      * @param amountOfWinners Amount of winners of the election
      * @param candidates      Board candidates of the election
      * @return Created board election with provided fields
      */
-    public Election createElection(String name, String description, long hoaId, LocalDateTime scheduledFor,
-                                   int amountOfWinners, List<String> candidates) {
-        BoardElection be = (BoardElection) createElection(name, description, hoaId, scheduledFor);
-        be.setAmountOfWinners(amountOfWinners);
-        be.setCandidates(candidates);
-        return be;
+    public Election createElection(ElectionModel model, int amountOfWinners, List<String> candidates) {
+        return new BoardElection(model.name, model.description, model.hoaId, model.scheduledFor.createDate(),
+                amountOfWinners, candidates);
     }
 
     /**

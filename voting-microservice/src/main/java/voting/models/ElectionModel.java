@@ -1,23 +1,54 @@
 package voting.models;
 
-import lombok.Data;
+import java.time.LocalDateTime;
 
-@Data
 public class ElectionModel {
-    public long hoaId;
-    public String name;
-    public String description;
+
+    public final long hoaId;
+    public final String name;
+    public final String description;
     /**
      * For board Election this is the scheduled time for voting
      * For proposal this is the time of the creation of the proposal
      */
-    public TimeModel scheduledFor;
+    public final TimeModel scheduledFor;
 
     /**
-     * Overwrite base DTO constructor to change visibility to protected (cannot be instantiated)
+     * Default constructors for [de-]serializer
      */
-    protected ElectionModel() {
-        // This constructor cannot be called, hence it is left empty.
+    public ElectionModel() {
+        hoaId = 0;
+        name = "";
+        description = "";
+        scheduledFor = null;
+    }
+
+    /**
+     * Create an ElectionModel object from base fields
+     *
+     * @param name         Name of election
+     * @param description  Description of election
+     * @param hoaId        id of associated hoa
+     * @param scheduledFor TimeModel to represent an election's start time
+     */
+    public ElectionModel(String name, String description, long hoaId, TimeModel scheduledFor) {
+        this.name = name;
+        this.description = description;
+        this.hoaId = hoaId;
+        this.scheduledFor = scheduledFor;
+    }
+
+    /**
+     * Create an ElectionModel object from base fields
+     *
+     * @param name        Name of election
+     * @param description Description of election
+     * @param hoaId       id of associated hoa
+     * @param sf          LocalDateTime to represent an election's start time
+     */
+    public ElectionModel(String name, String description, long hoaId, LocalDateTime sf) {
+        this(name, description, hoaId, new TimeModel(sf.getSecond(), sf.getMinute(),
+                sf.getHour(), sf.getDayOfMonth(), sf.getMonthValue(), sf.getYear()));
     }
 
     /**
@@ -37,4 +68,8 @@ public class ElectionModel {
                 && scheduledFor.isValid();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return this.getClass() == o.getClass() && this == o;
+    }
 }

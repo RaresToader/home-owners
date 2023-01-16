@@ -16,6 +16,7 @@ import voting.domain.BoardElection;
 import voting.domain.Election;
 import voting.domain.Proposal;
 import voting.models.BoardElectionModel;
+import voting.models.ElectionModel;
 import voting.models.ProposalModel;
 import voting.models.RemoveVoteModel;
 import voting.models.TimeModel;
@@ -73,11 +74,8 @@ class ElectionControllerTest {
 
     @Test
     void createProposalSuccessTest() throws Exception {
-        ProposalModel reqModel = new ProposalModel();
-        reqModel.name = "Test Proposal";
-        reqModel.hoaId = 1;
-        reqModel.description = "This is a test proposal";
-        reqModel.scheduledFor = validTimeModel;
+        ProposalModel reqModel = new ProposalModel("Test Proposal", "This is a test proposal",
+                1, validTimeModel);
 
         Election expected = new Proposal(reqModel.name, reqModel.description, reqModel.hoaId,
                 reqModel.scheduledFor.createDate());
@@ -100,11 +98,8 @@ class ElectionControllerTest {
 
     @Test
     void createProposalFailTest() throws Exception {
-        ProposalModel reqModel = new ProposalModel();
-        reqModel.name = "Test Proposal";
-        reqModel.hoaId = -1;
-        reqModel.description = "This is a test proposal";
-        reqModel.scheduledFor = validTimeModel;
+        ProposalModel reqModel = new ProposalModel("Test Proposal", "This is a test proposal",
+                -1, validTimeModel);
 
         // Perform a POST request
         ResultActions response = mockMvc.perform(post("/voting/proposal")
@@ -118,14 +113,11 @@ class ElectionControllerTest {
 
     @Test
     void createBoardElectionSuccessTest() throws Exception {
-        BoardElectionModel reqModel = new BoardElectionModel();
-        reqModel.name = "Test Board Election";
-        reqModel.hoaId = 1;
-        reqModel.description = "This is a test board election";
-        reqModel.scheduledFor = validTimeModel;
-        reqModel.scheduledFor.year += 1;
-        reqModel.amountOfWinners = 1;
-        reqModel.candidates = List.of("1", "2", "3");
+        BoardElectionModel reqModel = new BoardElectionModel(new ElectionModel("Test Board Election",
+                "This is a test board election", 1,
+                new TimeModel(validTimeModel.seconds, validTimeModel.minutes, validTimeModel.hours,
+                validTimeModel.day, validTimeModel.month, validTimeModel.year + 1)),
+                1, List.of("1", "2", "3"));
 
         Election expected = new BoardElection(reqModel.name, reqModel.description, reqModel.hoaId,
                 reqModel.scheduledFor.createDate().plusYears(1), reqModel.amountOfWinners, reqModel.candidates);
@@ -148,13 +140,9 @@ class ElectionControllerTest {
 
     @Test
     void createBoardElectionFailTest() throws Exception {
-        BoardElectionModel reqModel = new BoardElectionModel();
-        reqModel.name = "Test Board Election";
-        reqModel.hoaId = -1;
-        reqModel.description = "This is a test board election";
-        reqModel.scheduledFor = validTimeModel;
-        reqModel.amountOfWinners = 1;
-        reqModel.candidates = List.of("1", "2", "3");
+        BoardElectionModel reqModel = new BoardElectionModel(new ElectionModel("Test Board Election",
+                "This is a test board election", -1, validTimeModel), 1,
+                List.of("1", "2", "3"));
 
         // Perform a POST request
         ResultActions response = mockMvc.perform(post("/voting/boardElection")
