@@ -37,17 +37,9 @@ public class HoaService {
     public String joinHoa(JoinHoaModel model, String token) throws
             MemberAlreadyInHoaException, MemberDifferentAddressException, BadJoinHoaModelException {
         try {
-            List<Membership> activeMemberships = this.membershipService.getActiveMemberships(model.getMemberId());
-            for (Membership membership : activeMemberships) {
-                if (membership.getHoaId() == model.getHoaId()) {
-                    throw new MemberAlreadyInHoaException(model);
-                }
-            }
+            validateUserNotInHoa(model);
             HoaResponseModel hoa = HoaUtils.getHoaById(model.getHoaId(), token);
-            if (!hoa.getCountry().equals(model.getAddress().getCountry())
-                    || !hoa.getCity().equals(model.getAddress().getCity())) {
-                throw new MemberDifferentAddressException(model);
-            }
+            validateUserInCorrectCity(model, hoa);
             membershipService.saveMembership(model, false);
             return model.getMemberId();
         } catch (IllegalArgumentException e) {
@@ -96,5 +88,31 @@ public class HoaService {
      */
     public void setMembershipService(MembershipService m) {
         this.membershipService = m;
+    }
+
+    /**
+     * Checks whether a user has no active memberships in an hoa
+     * @param model
+     * @throws MemberAlreadyInHoaException
+     */
+    public void validateUserNotInHoa(JoinHoaModel model) throws MemberAlreadyInHoaException {
+        List<Membership> activeMemberships = this.membershipService.getActiveMemberships(model.getMemberId());
+        for (Membership membership : activeMemberships) {
+            if (membership.getHoaId() == model.getHoaId()) {
+                throw new MemberAlreadyInHoaException(model);
+            }
+        }
+    }
+
+    /**
+     * Checks that a house is in the same city as the HOA
+     * @param model
+     * @throws MemberAlreadyInHoaException
+     */
+    public void validateUserInCorrectCity(JoinHoaModel model, HoaResponseModel hoa) throws MemberDifferentAddressException {
+        if (!hoa.getCountry().equals(model.getAddress().getCountry())
+            || !hoa.getCity().equals(model.getAddress().getCity())) {
+            throw new MemberDifferentAddressException(model);
+        }
     }
 }
