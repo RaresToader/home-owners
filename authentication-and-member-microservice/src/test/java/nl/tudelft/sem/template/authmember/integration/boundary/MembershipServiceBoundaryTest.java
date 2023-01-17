@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import static nl.tudelft.sem.template.authmember.domain.db.MembershipValidator.validateCountryCityStreet;
+
 public class MembershipServiceBoundaryTest {
 
     private transient MembershipService membershipService;
@@ -24,21 +26,21 @@ public class MembershipServiceBoundaryTest {
 
     @Test
     public void offPointLeft() {
-        Assertions.assertFalse(membershipService.validateCountryCityStreet("Tes"));
+        Assertions.assertFalse(validateCountryCityStreet("Tes"));
     }
 
     @Test
     public void offPointRight() {
-        Assertions.assertFalse(membershipService.validateCountryCityStreet("T".repeat(51)));
+        Assertions.assertFalse(validateCountryCityStreet("T".repeat(51)));
     }
 
     @Test
     public void onPointLeft() {
-        Assertions.assertTrue(membershipService.validateCountryCityStreet("Test"));
+        Assertions.assertTrue(validateCountryCityStreet("Test"));
     }
 
     @Test
     public void onPointRight() {
-        Assertions.assertTrue(membershipService.validateCountryCityStreet("T".repeat(50)));
+        Assertions.assertTrue(validateCountryCityStreet("T".repeat(50)));
     }
 }
