@@ -32,6 +32,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.INTEGRATION;
@@ -81,12 +82,14 @@ public class ElectionControllerTest {
             new BoardElectionRequestModel(1, 3,
             new ArrayList<>(List.of(badId)), "el2", "just el2", new TimeModel(10, 10, 10,
             10, 10, 10));
-    private static Object election = new Object() {
-        private long hoaId = 1L;
-        public long getHoaId() {
-            return hoaId;
-        }
-    };
+    private static Object election = new LinkedHashMap<String, Object>() {{
+        put("hoaId", 1L);
+        put("status", "finished");
+    }};
+    private static Object election2 = new LinkedHashMap<String, Object>() {{
+        put("hoaId", 2L);
+        put("status", "ongoing");
+    }};
 
     private static MembershipResponseModel m1 = new MembershipResponseModel(0L, memberId,
             1L, address.getCity(), address.getCountry(), true, start.minusYears(4), null);
@@ -126,19 +129,9 @@ public class ElectionControllerTest {
         when(ElectionUtils.getElectionById(el1))
                 .thenReturn(election);
         when(ElectionUtils.getElectionById(el2))
-                .thenReturn(new Object() {
-                    private long id;
-                    public Object getHoaId() {
-                        return null;
-                    }
-                });
+                .thenReturn(election2);
         when(ElectionUtils.getElectionById(el3))
-                .thenReturn(new Object() {
-                    private long id;
-                    public Object nothing() {
-                        return id;
-                    }
-                });
+                .thenReturn(null);
 
 
         when(ElectionUtils.leaveElection(memberId, m1.getHoaId()))
@@ -219,7 +212,6 @@ public class ElectionControllerTest {
     }
 
     @Test
-    @Disabled
     void vote() throws Exception {
         VotingModel request = new VotingModel(el1, member2Id, memberId);
         Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn(member2Id);
@@ -256,7 +248,6 @@ public class ElectionControllerTest {
     }
 
     @Test
-    @Disabled
     void getElectionById() throws Exception {
         Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn(memberId);
         ResultActions resultActions = mockMvc.perform(get("/voting/getElection/" + el1)
@@ -270,7 +261,6 @@ public class ElectionControllerTest {
     }
 
     @Test
-    @Disabled
     void getElectionByIdNone() throws Exception {
         Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn(memberId);
         ResultActions resultActions = mockMvc.perform(get("/voting/getElection/" + el3)
@@ -284,7 +274,7 @@ public class ElectionControllerTest {
     @Disabled
     void concludeElection() throws Exception {
         Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn(memberId);
-        ResultActions resultActions = mockMvc.perform(post("/voting/conclude/" + el1)
+        ResultActions resultActions = mockMvc.perform(post("/voting/conclude/" + el2)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, tok));
 
@@ -298,7 +288,7 @@ public class ElectionControllerTest {
     @Test
     void concludeElectionBadMethod() throws Exception {
         Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn(memberId);
-        ResultActions resultActions = mockMvc.perform(post("/voting/conclude/" + el2)
+        ResultActions resultActions = mockMvc.perform(post("/voting/conclude/" + el1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, tok));
 
