@@ -83,13 +83,13 @@ public class ElectionControllerTest {
             new ArrayList<>(List.of(badId)), "el2", "just el2", new TimeModel(10, 10, 10,
             10, 10, 10));
     private static Object election = new LinkedHashMap<String, Object>() {{
-        put("hoaId", 1L);
-        put("status", "finished");
-    }};
+            put("hoaId", 1L);
+            put("status", "finished");
+        }};
     private static Object election2 = new LinkedHashMap<String, Object>() {{
-        put("hoaId", 2L);
-        put("status", "ongoing");
-    }};
+            put("hoaId", 2L);
+            put("status", "ongoing");
+        }};
 
     private static MembershipResponseModel m1 = new MembershipResponseModel(0L, memberId,
             1L, address.getCity(), address.getCountry(), true, start.minusYears(4), null);
