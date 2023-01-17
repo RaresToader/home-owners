@@ -11,39 +11,34 @@ public final class MembershipValidator {
      * @return true if the name satisfies the right format
      */
     public static boolean validate(JoinHoaModel model) {
-        return validateCountryCityStreet(model.getAddress().getCity())
-                && validateCountryCityStreet(model.getAddress().getCountry())
-                && validateCountryCityStreet(model.getAddress().getStreet())
+        return validateCountryCityAndStreet(model)
                 && validateStreetNumber(model.getAddress().getHouseNumber())
                 && validatePostalCode(model.getAddress().getPostalCode());
+    }
+
+    /**
+     * Validates country, city and street of a membership
+     */
+    public static boolean validateCountryCityAndStreet(JoinHoaModel model) {
+        return validateCountryCityStreet(model.getAddress().getCountry())
+            && validateCountryCityStreet(model.getAddress().getCity())
+            && validateCountryCityStreet(model.getAddress().getStreet());
     }
     
     /**
      * Validates the input for country, city, and street name. It must contain
-     * only letters. It must be non-null, non-empty, non-blank and must contain only letters.
+     * only letters. It must be non-null, non-empty, non-blank.
      * The first letter must be uppercase.
      *
      * @param name the name
      * @return true if the name satisfies the right format
      */
     public static boolean validateCountryCityStreet(String name) {
-        if (name == null || name.isEmpty() || name.isBlank()) {
+        if (checkNullBlankEmpty(name)) {
             return false;
         }
         String trimmed = name.trim();
-        if (trimmed.length() < 4 || trimmed.length() > 50) {
-            return false;
-        }
-        if (!Character.isUpperCase(trimmed.charAt(0))) {
-            return false;
-        }
-        for (int i = 1; i < trimmed.length(); i++) {
-            if (!Character.isLetter(trimmed.charAt(i)) && !Character.isWhitespace(trimmed.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-
+        return trimmed.matches("[A-Z][A-Za-z\\s]{3,49}");
     }
 
     /**
@@ -58,21 +53,7 @@ public final class MembershipValidator {
             return false;
         }
         String trimmed = postalCode.trim();
-        final int max = 6;
-        if (trimmed.length() != max) {
-            return false;
-        }
-        for (int i = 0; i < 4; i++) {
-            if (!Character.isDigit(trimmed.charAt(i))) {
-                return false;
-            }
-        }
-        for (int j = 4; j < 6; j++) {
-            if (!Character.isLetter(trimmed.charAt(j))) {
-                return false;
-            }
-        }
-        return true;
+        return trimmed.matches("[0-9]{4}[A-Za-z]{2}");
     }
 
     /**
@@ -83,19 +64,12 @@ public final class MembershipValidator {
      * @return true if the number satisfies the format, false otherwise
      */
     public static boolean validateStreetNumber(String number) {
-        if (number == null || number.isBlank() || number.isEmpty()) {
-            return false;
-        }
+        if (checkNullBlankEmpty(number)) return false;
         String trimmed = number.trim();
-        for (int i = 0; i < trimmed.length() - 1; i++) {
-            if (!Character.isDigit(trimmed.charAt(i))) {
-                return false;
-            }
-        }
-        if (!Character.isDigit(trimmed.charAt(trimmed.length() - 1))
-                && !Character.isLetter(trimmed.charAt(trimmed.length() - 1))) {
-            return false;
-        }
-        return true;
+        return trimmed.matches("^[0-9]*[A-Za-z]?$");
+    }
+
+    public static boolean checkNullBlankEmpty(String toCheck) {
+        return (toCheck == null || toCheck.isBlank() || toCheck.isEmpty());
     }
 }

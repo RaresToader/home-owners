@@ -17,8 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
  */
 @Singleton
 public class HoaUtils {
-    private static final String server = "http://localhost:8084/hoa/";
-    private static final ResteasyClient client = new ResteasyClientBuilder().build();
+    private static final String SERVER = "http://localhost:8084/hoa/";
+    private static final ResteasyClient CLIENT = new ResteasyClientBuilder().build();
 
     /**
      * Calls and endpoint from the HOA microservice, to retrieve that specific HOA, if it exists.
@@ -28,7 +28,7 @@ public class HoaUtils {
      */
     public static HoaResponseModel getHoaById(long hoaId, String token) {
         try {
-            return client.target(server).path("getById/" + hoaId)
+            return CLIENT.target(SERVER).path("getById/" + hoaId)
                     .request(APPLICATION_JSON)
                     .accept(APPLICATION_JSON)
                     .header(HttpHeaders.AUTHORIZATION, token)

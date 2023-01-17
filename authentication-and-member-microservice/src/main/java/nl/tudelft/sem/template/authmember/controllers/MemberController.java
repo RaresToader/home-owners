@@ -58,9 +58,9 @@ public class MemberController {
     private transient AuthManager authManager;
     private final transient String unauthorizedMessage = "Access is not allowed";
 
-    private static final String secretClearBoardKey = "Thisisacustomseckeyforclear";
+    private static final String SECRET_CLEAR_BOARD_KEY = "Thisisacustomseckeyforclear";
 
-    private static final String secretPromotionKey = "Thisisacustomseckeyforpromotion";
+    private static final String SECRET_PROMOTION_KEY = "Thisisacustomseckeyforpromotion";
 
     /**
      * Instantiates a new MemberController.
@@ -335,7 +335,7 @@ public class MemberController {
      */
     @PostMapping("/resetBoard/{hoaId}")
     public ResponseEntity<Boolean> demote(@PathVariable long hoaId, @RequestBody String key) {
-        if (!secretClearBoardKey.equals(key)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+        if (!SECRET_CLEAR_BOARD_KEY.equals(key)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                 "Unauthorized to clear board");
         ResponseEntity<List<MembershipResponseModel>> memberships = this.getAllMemberships(hoaId);
         if (memberships.getBody() == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -362,7 +362,7 @@ public class MemberController {
     @PostMapping("/promoteWinners/{hoaId}/{key}")
     public ResponseEntity<Boolean> promote(@PathVariable long hoaId, @RequestBody List<String> mem,
                                            @PathVariable String key) {
-        if (!secretPromotionKey.equals(key)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+        if (!SECRET_PROMOTION_KEY.equals(key)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                 "Unauthorized to clear board");
         ResponseEntity<List<MembershipResponseModel>> memberships = this.getAllMemberships(hoaId);
         if (memberships.getBody() == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
