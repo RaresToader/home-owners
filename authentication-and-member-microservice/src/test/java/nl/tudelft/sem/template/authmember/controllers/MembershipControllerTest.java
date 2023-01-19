@@ -2,7 +2,12 @@ package nl.tudelft.sem.template.authmember.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,7 +41,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,6 +118,7 @@ public class MembershipControllerTest {
         Mockito.when(this.membershipService.getAll()).thenReturn(list);
         Mockito.when(this.membershipService.getMembership(m1.getMembershipId())).thenReturn(m1);
         Mockito.when(this.membershipService.getMembership(69L)).thenThrow(new IllegalArgumentException());
+        Mockito.when(this.membershipService.getActiveMembershipsByHoaId(1L)).thenReturn(List.of(m1));
 
         // HOAService mocking
         List<Membership> list2 = new ArrayList<>();
@@ -271,6 +276,16 @@ public class MembershipControllerTest {
     void getAllMemberships() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/member/getAllMemberships")
                 .contentType(MediaType.APPLICATION_JSON));
+        resultActions.andExpect(status().isOk());
+        String res = resultActions.andReturn().getResponse().getContentAsString();
+        assertTrue(res.contains("\"hoaId\":1"));
+        assertTrue(res.contains("\"hoaId\":2"));
+    }
+
+    @Test
+    void getAllMembershipsHoa() throws Exception {
+        ResultActions resultActions = mockMvc.perform(get("/member/getAllMemberships/" + 1L)
+                .contentType(MediaType.APPLICATION_JSON));
 
         resultActions.andExpect(status().isOk());
     }
@@ -279,8 +294,9 @@ public class MembershipControllerTest {
     void getActiveMemberships() throws Exception {
         ResultActions resultActions = mockMvc.perform(get("/member/getActiveMemberships/" + memberId)
                 .contentType(MediaType.APPLICATION_JSON));
-
         resultActions.andExpect(status().isOk());
+        String res = resultActions.andReturn().getResponse().getContentAsString();
+        assertTrue(res.contains("\"hoaId\":1"));
     }
 
     @Test
@@ -300,14 +316,85 @@ public class MembershipControllerTest {
     }
 
     @Test
-    void validateExistenceNonMember() throws Exception {
-        assertThrows(ResponseStatusException.class, () -> membershipController
+    void promoteTest() throws Exception {
+        List<String> request = List.of(memberId);
+        ResultActions resultActions = mockMvc.perform(post("/member/promoteWinners/" + 1L
+                + "/Thisisacustomseckeyforpromotion")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(request)));
+        resultActions.andExpect(status().isOk());
+        String res = resultActions.andReturn().getResponse().getContentAsString();
+        assertTrue(res.contains("true"));
+        verify(membershipService, times(1)).changeBoard(any(), eq(true));
+    }
+
+    @Test
+    void promoteFailTest() throws Exception {
+        // Invalid if request body is empty
+        ResultActions resultActions = mockMvc.perform(post("/member/promoteWinners/" + 1L
+                + "/Thisisacustomseckeyforpromotion")
+                .contentType(MediaType.APPLICATION_JSON));
+        resultActions.andExpect(status().isBadRequest());
+
+        // Invalid key
+        List<String> request = List.of(memberId);
+        resultActions = mockMvc.perform(post("/member/promoteWinners/" + 1L + "/Badkey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(request)));
+        resultActions.andExpect(status().isUnauthorized());
+
+        // Invalid hoa
+        resultActions = mockMvc.perform(post("/member/promoteWinners/" + 3L
+                + "/Thisisacustomseckeyforpromotion")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(request)));
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void demoteTest() throws Exception {
+        String req = "Thisisacustomseckeyforclear";
+        ResultActions resultActions = mockMvc.perform(post("/member/resetBoard/" + 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(req));
+        resultActions.andExpect(status().isOk());
+        String res = resultActions.andReturn().getResponse().getContentAsString();
+        assertTrue(res.contains("true"));
+        verify(membershipService, times(1)).changeBoard(any(), eq(false));
+    }
+
+    @Test
+    void demoteFailTest() throws Exception {
+        // Invalid if request body is empty
+        ResultActions resultActions = mockMvc.perform(post("/member/resetBoard/" + 1L)
+                .contentType(MediaType.APPLICATION_JSON));
+        resultActions.andExpect(status().isBadRequest());
+
+        String wrongReq = "RandomKey";
+        // Invalid key
+        resultActions = mockMvc.perform(post("/member/resetBoard/" + 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(wrongReq));
+        resultActions.andExpect(status().isUnauthorized());
+
+        String req = "Thisisacustomseckeyforclear";
+        // Invalid hoa
+        resultActions = mockMvc.perform(post("/member/resetBoard/" + 3L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(req));
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void validateExistenceNonMember() {
+        assertThrows(IllegalArgumentException.class, () -> membershipController
                 .validateExistence(new GetHoaModel(randomId, 1L)));
     }
 
     @Test
-    void validateExistenceUnauthorized() throws Exception {
-        assertThrows(ResponseStatusException.class, () -> membershipController
+    void validateExistenceUnauthorized() {
+        assertThrows(IllegalAccessException.class, () -> membershipController
                 .validateExistence(new GetHoaModel(badId, 1L)));
     }
 }

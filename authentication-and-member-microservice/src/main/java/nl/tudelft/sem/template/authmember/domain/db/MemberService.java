@@ -28,7 +28,8 @@ public class MemberService {
      *
      * @throws MemberAlreadyExistsException if the user already exists
      */
-    public Member registerUser(RegistrationModel model) throws MemberAlreadyExistsException, BadRegistrationModelException {
+    public Member registerUser(RegistrationModel model) throws MemberAlreadyExistsException,
+            BadRegistrationModelException {
         if (!validateUsername(model.getMemberId()) || !validatePassword(model.getPassword())) {
             throw new BadRegistrationModelException("Bad username or password!");
         }
@@ -77,22 +78,19 @@ public class MemberService {
      * @param model the registration model
      * @return Member if password updated successfully
      */
-    public Member updatePassword(RegistrationModel model) throws BadRegistrationModelException {
+    public Member updatePassword(RegistrationModel model) throws BadRegistrationModelException,
+            IllegalArgumentException {
         if (!validatePassword(model.getPassword())) {
             throw new BadRegistrationModelException("Bad username or password!");
         }
-
         Member member = new Member(model.getMemberId(), passwordHashingService.hash(model.getPassword()));
-
         if (memberRepository.existsByMemberId(member.getMemberId())) {
-
             // Delete the member with old password
             memberRepository.delete(memberRepository.findByMemberId(member.getMemberId()).get());
             // Save the member with updated password
             memberRepository.save(member);
             return member;
         }
-
         throw new IllegalArgumentException(model.getMemberId());
     }
 
@@ -103,7 +101,7 @@ public class MemberService {
      * @return the member
      * @throws IllegalArgumentException if the member does not exist
      */
-    public Member getMember(String memberId) {
+    public Member getMember(String memberId) throws IllegalArgumentException {
         if (memberRepository.existsByMemberId(memberId)) {
             if (memberRepository.findByMemberId(memberId).isPresent()) {
                 return memberRepository.findByMemberId(memberId).get();

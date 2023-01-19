@@ -38,7 +38,7 @@ public class MembershipService {
      * @throws MemberAlreadyInHoaException if there is an active membership for that HOA.
      */
     public boolean saveMembership(JoinHoaModel model, boolean asBoard)
-            throws MemberAlreadyInHoaException, BadJoinHoaModelException {
+            throws MemberAlreadyInHoaException, BadJoinHoaModelException, IllegalArgumentException {
         if (!validate(model)) {
             throw new BadJoinHoaModelException("Bad model!");
         }
@@ -101,7 +101,7 @@ public class MembershipService {
     /**
      * Returns the current membership in a given Hoa, if one exists.
      */
-    public Membership getActiveMembershipByMemberAndHoa(String memberId, long hoaId) {
+    public Membership getActiveMembershipByMemberAndHoa(String memberId, long hoaId) throws IllegalArgumentException {
         Optional<Membership> membership = membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull(memberId, hoaId);
         if (membership.isPresent()) {
             return membership.get();
@@ -115,7 +115,7 @@ public class MembershipService {
      * @param membershipId the id of the membership
      * @return the membership, if found
      */
-    public Membership getMembership(long membershipId) {
+    public Membership getMembership(long membershipId) throws IllegalArgumentException {
         if (membershipRepository.findByMembershipId(membershipId).isPresent()) {
             return membershipRepository.findByMembershipId(membershipId).get();
         } else {
@@ -138,21 +138,20 @@ public class MembershipService {
      *
      * @param m             Membership to consider
      * @param shouldPromote Whether it should be promoted - logically the same as final board status of member
-     * @throws MemberAlreadyInHoaException thrown if member is already in hoa when saved
-     *                                     SHOULD NOT HAPPEN DUE TO METHOD DESIGN
-     * @throws BadJoinHoaModelException    thrown if hoa model is smelly
-     *                                     SHOULD NOT HAPPEN DUE TO METHOD DESIGN
      */
-    public void changeBoard(MembershipResponseModel m, boolean shouldPromote)
-            throws MemberAlreadyInHoaException, BadJoinHoaModelException {
-        GetHoaModel model = new GetHoaModel();
-        model.setHoaId(m.getHoaId());
-        model.setMemberId(m.getMemberId());
-        Membership old = stopMembership(model);
-        JoinHoaModel jmodel = new JoinHoaModel();
-        jmodel.setAddress(old.getAddress());
-        jmodel.setMemberId(m.getMemberId());
-        jmodel.setHoaId(m.getHoaId());
-        saveMembership(jmodel, shouldPromote);
+    public void changeBoard(MembershipResponseModel m, boolean shouldPromote) {
+        try {
+            GetHoaModel model = new GetHoaModel();
+            model.setHoaId(m.getHoaId());
+            model.setMemberId(m.getMemberId());
+            Membership old = stopMembership(model);
+            JoinHoaModel jmodel = new JoinHoaModel();
+            jmodel.setAddress(old.getAddress());
+            jmodel.setMemberId(m.getMemberId());
+            jmodel.setHoaId(m.getHoaId());
+            saveMembership(jmodel, shouldPromote);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 }
