@@ -107,7 +107,7 @@ public class ElectionUtils {
     }
 
     /**
-     * Concludes an election with the given id using the voting miccroservice
+     * Concludes an election with the given id using the voting microservice
      *
      * @param id the id of election to conclude
      * @return Result of the election

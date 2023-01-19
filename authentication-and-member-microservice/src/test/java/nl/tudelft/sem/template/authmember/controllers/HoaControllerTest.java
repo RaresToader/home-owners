@@ -28,7 +28,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -220,14 +219,14 @@ public class HoaControllerTest {
     }
 
     @Test
-    void validateExistenceNonMember() throws Exception {
-        assertThrows(ResponseStatusException.class, () -> hoaController
+    void validateExistenceNonMember() {
+        assertThrows(IllegalArgumentException.class, () -> hoaController
                 .validateExistence(new GetHoaModel(randomId, 1L)));
     }
 
     @Test
-    void validateExistenceUnauthorized() throws Exception {
-        assertThrows(ResponseStatusException.class, () -> hoaController
+    void validateExistenceUnauthorized() {
+        assertThrows(IllegalAccessException.class, () -> hoaController
                 .validateExistence(new GetHoaModel(badId, 1L)));
     }
 }

@@ -17,7 +17,7 @@ class BoardElectionModelTest {
 
     @ParameterizedTest
     @MethodSource("argGen")
-    void isValidTest(int hoaId, String name, String desc, TimeModel scheduledFor, int amountOfWinners,
+    void isValidTest(long hoaId, String name, String desc, TimeModel scheduledFor, int amountOfWinners,
                      List<String> candidates, boolean expected, String testdesc) {
         BoardElectionModel sut = new BoardElectionModel(
                 name, desc, hoaId, scheduledFor, amountOfWinners, candidates);
