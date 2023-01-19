@@ -3,8 +3,8 @@ package nl.tudelft.sem.template.authmember.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 
 @Data
@@ -17,7 +17,7 @@ public class MembershipResponseModel {
     private String city;
     private boolean boardMember;
     private LocalDateTime startTime;
-    private LocalTime duration;
+    private Duration duration;
 
     public long getMembershipId() {
         return membershipId;
@@ -47,7 +47,7 @@ public class MembershipResponseModel {
         return startTime;
     }
 
-    public LocalTime getDuration() {
+    public Duration getDuration() {
         return duration;
     }
 }

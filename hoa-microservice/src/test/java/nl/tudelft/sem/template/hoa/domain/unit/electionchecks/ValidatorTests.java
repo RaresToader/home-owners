@@ -11,6 +11,7 @@ import nl.tudelft.sem.template.hoa.utils.TimeUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,8 +29,7 @@ public class ValidatorTests {
     //Used to check that validators filter properly
     transient  MembershipResponseModel wrongHOA =
         new MembershipResponseModel(0L, "0", 1, "a", "b",
-            false, TimeUtils.getFirstEpochDate(),
-            TimeUtils.dateFromYearsSinceEpoch(9));
+            false, TimeUtils.getFirstEpochDate(), Duration.ofDays(9 * 365));
     transient List<MembershipResponseModel> memberships;
 
     @BeforeEach
@@ -45,12 +45,10 @@ public class ValidatorTests {
     void notBoardTooLongTrueTest() throws InvalidParticipantException {
         MembershipResponseModel nineYearsInBoard =
             new MembershipResponseModel(0L, "0", 0, "a", "b",
-                true, TimeUtils.getFirstEpochDate(),
-                TimeUtils.dateFromYearsSinceEpoch(9));
+                true, TimeUtils.getFirstEpochDate(), Duration.ofDays(9 * 365));
         MembershipResponseModel oneYearInBoard =
             new MembershipResponseModel(0L, "0", 0, "a", "b",
-                true, TimeUtils.getFirstEpochDate(),
-                TimeUtils.dateFromYearsSinceEpoch(1));
+                true, TimeUtils.getFirstEpochDate(), Duration.ofDays(365));
         //9 years
         memberships.add(nineYearsInBoard);
         assertTrue(boardTimeValidator.handle(memberships, 0));
@@ -66,8 +64,7 @@ public class ValidatorTests {
     void notBoardForTooLongTestInHoaButNotInBoard() throws InvalidParticipantException {
         MembershipResponseModel inHoaButNotBoard =
             new MembershipResponseModel(0L, "0", 0, "a", "b",
-                false, TimeUtils.getFirstEpochDate(),
-                TimeUtils.dateFromYearsSinceEpoch(11));
+                false, TimeUtils.getFirstEpochDate(), Duration.ofDays(11 * 365));
         memberships.add(inHoaButNotBoard);
         assertTrue(boardTimeValidator.handle(memberships, 0));
     }
@@ -76,8 +73,7 @@ public class ValidatorTests {
     void notAnyOtherBoardValidatorTest() throws InvalidParticipantException {
         MembershipResponseModel currentBoard =
             new MembershipResponseModel(0L, "0", 0, "a", "b",
-                true, TimeUtils.getFirstEpochDate(),
-                TimeUtils.dateFromYearsSinceEpoch(1));
+                true, TimeUtils.getFirstEpochDate(), Duration.ofDays(365));
         //User has never been in a board
         assertTrue(notInOtherBoardValidator.handle(memberships, 0));
         memberships.add(currentBoard);
@@ -85,8 +81,7 @@ public class ValidatorTests {
         assertTrue(notInOtherBoardValidator.handle(memberships, 0));
         MembershipResponseModel otherBoard =
             new MembershipResponseModel(0L, "0", 1, "a", "b",
-                true, TimeUtils.getFirstEpochDate(),
-                TimeUtils.dateFromYearsSinceEpoch(1));
+                true, TimeUtils.getFirstEpochDate(), Duration.ofDays(365));
         //User is in another board -> not fine
         memberships.add(otherBoard);
         assertThrows(InvalidParticipantException.class, () -> notInOtherBoardValidator.handle(memberships, 0));
@@ -96,8 +91,7 @@ public class ValidatorTests {
     void timeInCurrentHoaValidatorTest() throws InvalidParticipantException {
         MembershipResponseModel oneYear =
             new MembershipResponseModel(0L, "0", 0, "a", "b",
-                false, TimeUtils.getFirstEpochDate(),
-                TimeUtils.dateFromYearsSinceEpoch(1));
+                false, TimeUtils.getFirstEpochDate(), Duration.ofDays(366));
 
         //User 9 years in other board, but not in current
         assertThrows(InvalidParticipantException.class, () -> timeInCurrentHoaValidator.handle(memberships, 0));

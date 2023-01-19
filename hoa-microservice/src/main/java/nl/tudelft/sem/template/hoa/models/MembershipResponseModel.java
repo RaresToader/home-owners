@@ -1,11 +1,13 @@
 package nl.tudelft.sem.template.hoa.models;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.DurationDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,9 +19,9 @@ public class MembershipResponseModel {
     private long hoaId;
     private String country;
     private String city;
-    private boolean isBoard;
+    private boolean boardMember;
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime startTime;
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime duration;
+    @JsonDeserialize(using = DurationDeserializer.class)
+    private Duration duration;
 }

@@ -9,7 +9,7 @@ public class NotInAnyOtherBoardValidator extends BaseValidator {
     @Override
     public boolean handle(List<MembershipResponseModel> memberships, long hoaID) throws InvalidParticipantException {
         boolean isInOtherBoard = memberships.stream()
-            .anyMatch(m -> m.getHoaId() != hoaID && m.isBoard());
+            .anyMatch(m -> m.getHoaId() != hoaID && m.isBoardMember());
 
         if (!isInOtherBoard) {
             return super.checkNext(memberships, hoaID);

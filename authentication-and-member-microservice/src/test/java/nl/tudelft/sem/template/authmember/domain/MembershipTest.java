@@ -2,8 +2,9 @@ package nl.tudelft.sem.template.authmember.domain;
 
 import nl.tudelft.sem.template.authmember.utils.TimeUtils;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -50,7 +51,7 @@ class MembershipTest {
 
     @Test
     void getDuration() {
-        assertEquals(LocalTime.of(12, 0, 0), membership.getDuration());
+        assertEquals(Duration.ofHours(12), membership.getDuration());
     }
 
     @Test
@@ -61,6 +62,6 @@ class MembershipTest {
     @Test
     void setDuration() {
         membership.setDuration(TimeUtils.absoluteDifference(start, start.plusHours(16)));
-        assertEquals(LocalTime.of(16, 0, 0), membership.getDuration());
+        assertEquals(16, membership.getDuration().toHours());
     }
 }

@@ -1,7 +1,7 @@
 package nl.tudelft.sem.template.authmember.domain;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -38,7 +38,7 @@ public class Membership {
 
     private LocalDateTime startTime;
     @Column(name = "duration")
-    private LocalTime duration;
+    private Duration duration;
     @Column(name = "isBoard")
     private boolean isBoard;
 
@@ -52,7 +52,7 @@ public class Membership {
      * @param duration  the duration
      * @param isBoard   if the member is in the board
      */
-    public Membership(String memberId, long hoaId, Address address, LocalDateTime startTime, LocalTime duration,
+    public Membership(String memberId, long hoaId, Address address, LocalDateTime startTime, Duration duration,
                       boolean isBoard) {
         this.memberId = memberId;
         this.hoaId = hoaId;
@@ -91,7 +91,7 @@ public class Membership {
         return startTime;
     }
 
-    public LocalTime getDuration() {
+    public Duration getDuration() {
         return duration;
     }
 
@@ -99,7 +99,7 @@ public class Membership {
         return isBoard;
     }
 
-    public void setDuration(LocalTime time) {
+    public void setDuration(Duration time) {
         this.duration = time;
     }
 }

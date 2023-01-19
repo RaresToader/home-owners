@@ -62,11 +62,11 @@ class ActivityControllerTest {
         membershipUtils = mockStatic(MembershipUtils.class);
         when(MembershipUtils.getMembershipById(1L))
                 .thenReturn(new MembershipResponseModel(1L, "test user", 1L,
-                    "country", "city", false, LocalDateTime.now(), LocalDateTime.now()));
+                    "country", "city", false, LocalDateTime.now(), null));
         when(MembershipUtils.getMembershipById(2L))
                 .thenReturn(new MembershipResponseModel(2L, "test user 2", 2L,
                         "country 2", "city 2", false,
-                        LocalDateTime.now(), LocalDateTime.now()));
+                        LocalDateTime.now(), null));
     }
 
     @AfterAll
