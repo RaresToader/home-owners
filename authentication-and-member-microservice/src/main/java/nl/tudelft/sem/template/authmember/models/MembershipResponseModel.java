@@ -18,38 +18,6 @@ public class MembershipResponseModel {
     private boolean boardMember;
     private LocalDateTime startTime;
     private Duration duration;
-
-    public long getMembershipId() {
-        return membershipId;
-    }
-
-    public String getMemberId() {
-        return memberId;
-    }
-
-    public long getHoaId() {
-        return hoaId;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public boolean isBoard() {
-        return boardMember;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public Duration getDuration() {
-        return duration;
-    }
 }
 
 

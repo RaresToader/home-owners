@@ -185,7 +185,7 @@ public class MembershipController {
         ResponseEntity<List<MembershipResponseModel>> memberships = this.getAllMemberships(hoaId);
         if (memberships.getBody().isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Given hoa either does not exist, or no members are in it");
-        memberships.getBody().stream().filter(MembershipResponseModel::isBoard).forEach(m ->
+        memberships.getBody().stream().filter(MembershipResponseModel::isBoardMember).forEach(m ->
                 membershipService.changeBoard(m, false));
         return ResponseEntity.ok(true);
     }

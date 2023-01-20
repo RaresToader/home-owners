@@ -41,7 +41,7 @@ import nl.tudelft.sem.template.hoa.models.VotingModel;
 public class ElectionController {
 
     private transient AuthManager authManager;
-    private final transient HoaRepo hoaRepo;
+    private transient HoaRepo hoaRepo;
 
     private static final String winC = "winningChoice";
 
@@ -64,8 +64,8 @@ public class ElectionController {
         try {
             validateMemberInHOA(model.hoaId, authManager.getMemberId(), true, token);
             return ResponseEntity.ok(ElectionUtils.createProposal(model));
-        } catch (ResponseStatusException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
         }
     }
 
@@ -83,6 +83,8 @@ public class ElectionController {
             checkCandidatesinHOA(model.candidates, model.hoaId, token);
             return ResponseEntity.ok(ElectionUtils.createBoardElection(model));
             //throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed.");
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
@@ -99,13 +101,13 @@ public class ElectionController {
                                            @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
             if (!model.memberId.equals(authManager.getMemberId()))
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
+                throw new IllegalAccessException("Access is not allowed");
             fetchElectionAsEntity(model.electionId, true, token);
             return ResponseEntity.ok(ElectionUtils.vote(model));
-        } catch (ResponseStatusException e) {
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
+        } catch (InvocationTargetException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -120,13 +122,13 @@ public class ElectionController {
                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
             if (!model.memberId.equals(authManager.getMemberId()))
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
+                throw new IllegalAccessException("Access is not allowed");
             fetchElectionAsEntity(model.electionId, true, token);
             return ResponseEntity.ok(ElectionUtils.removeVote(model));
-        } catch (ResponseStatusException e) {
-            throw new ResponseStatusException(e.getStatus(), e.getMessage(), e);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -141,10 +143,10 @@ public class ElectionController {
                                                   @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
             return ResponseEntity.ok(fetchElectionAsEntity(electionId, false, token));
-        } catch (ResponseStatusException e) {
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
+        } catch (InvocationTargetException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -162,8 +164,8 @@ public class ElectionController {
         try {
             LinkedHashMap<String, Object> e = fetchElectionAsEntity(electionId, true, token);
             Object result = ElectionUtils.concludeElection(electionId);
-            // having winningChoice not null -> proposal, otherwise board election (bad class casting, but works...)
-            if (!e.containsKey(winC) || e.get(winC) == null) {
+            // having winningChoice -> proposal, otherwise board election (bad class casting, but works...)
+            if (!e.containsKey(winC)) {
                 TimeModel scheduledFor = TimeModel.createModelFromArr(Arrays.stream(
                         ((String) e.get("scheduledFor"))
                         .split("\\D+")).map(Integer::parseInt).toArray(Integer[]::new));
@@ -177,7 +179,7 @@ public class ElectionController {
                 MembershipUtils.resetBoard(hoaId);
                 // promote winners and demote rest of board
                 MembershipUtils.promoteWinners(result, hoaId);
-            } else if (e.containsKey(winC) && (Boolean) result) {
+            } else if ((Boolean) result) {
                 long hoaId = (long) (int) e.get("hoaId");
                 Optional<Hoa> hoa = hoaRepo.findById(hoaId);
                 if (hoa.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -247,8 +249,8 @@ public class ElectionController {
             if (ElectionUtils.leaveElection(authManager.getMemberId(), hoaID))
                 return ResponseEntity.ok(true);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member did not participate in the election");
-        } catch (ResponseStatusException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
     }
 
@@ -260,11 +262,12 @@ public class ElectionController {
      * @param alsoCheckBoard Also check if he is a board member
      * @param token          Authorization token used for validation
      */
-    public void validateMemberInHOA(long hoaID, String memberID, boolean alsoCheckBoard, String token) {
+    public void validateMemberInHOA(long hoaID, String memberID, boolean alsoCheckBoard, String token)
+        throws IllegalAccessException {
         List<MembershipResponseModel> memberships =
                 MembershipUtils.getActiveMembershipsForUser(memberID, token);
-        if (memberships.stream().noneMatch(m -> m.getHoaId() == hoaID && (!alsoCheckBoard || m.isBoard())))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
+        if (memberships.stream().noneMatch(m -> m.getHoaId() == hoaID && (!alsoCheckBoard || m.isBoardMember())))
+            throw new IllegalAccessException("Access is not allowed");
     }
 
     /**
@@ -293,16 +296,18 @@ public class ElectionController {
                                                                 boolean boardCheck,
                                                                 @RequestHeader(HttpHeaders.AUTHORIZATION) String token)
             throws IllegalAccessException, InvocationTargetException {
-        LinkedHashMap<String, Object> e = (LinkedHashMap<String, Object>) ElectionUtils.getElectionById(electionId);
         try {
+            LinkedHashMap<String, Object> e = (LinkedHashMap<String, Object>) ElectionUtils.getElectionById(electionId);
             if (!e.get("status").equals("finished")) {
                 long val = (long) (int) e.get("hoaId");
                 validateMemberInHOA(val, authManager.getMemberId(),
                         !boardCheck || e.containsKey(winC), token);
             }
             return e;
+        } catch (IllegalAccessException ex) {
+            throw new IllegalAccessException(ex.getMessage());
         } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+            throw new InvocationTargetException(ex);
         }
     }
 
@@ -311,5 +316,13 @@ public class ElectionController {
      */
     public void setAuthenticationManager(AuthManager a) {
         this.authManager = a;
+    }
+
+
+    /** Setter method used when AuthManager needs to be mocked
+     * @param a - AuthManager to be mocked
+     */
+    public void setHoaRepo(HoaRepo a) {
+        this.hoaRepo = a;
     }
 }
