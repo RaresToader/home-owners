@@ -133,7 +133,7 @@ public class Hoa {
      */
     public List<String> resetNotifications(String memberId) {
         if (!notifications.containsKey(memberId)) return new ArrayList<>();
-        List<String> res = notifications.get(memberId);
+        List<String> res = new ArrayList<>(notifications.get(memberId));
         notifications.get(memberId).clear();
         return res;
     }

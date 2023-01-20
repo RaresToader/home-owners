@@ -217,6 +217,7 @@ public class ElectionControllerTest {
     @AfterAll
     static void deregisterMocks() {
         membershipUtilsMockedStatic.close();
+        electionUtilsMockedStatic.close();
     }
 
     @Test

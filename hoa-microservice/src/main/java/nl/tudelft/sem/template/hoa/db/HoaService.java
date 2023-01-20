@@ -129,14 +129,15 @@ public class HoaService {
      * @param hoaId    id of HOA to consider
      * @param memberId id of member to be notified
      */
-    public List<String> clearNotifications(long hoaId, String memberId) throws
-            ResponseStatusException {
-        Optional<Hoa> hoa = hoaRepo.findById(hoaId);
-        if (hoa.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Associated HOA does not exist");
-        List<String> res = hoa.get().resetNotifications(memberId);
-        hoaRepo.save(hoa.get());
-        return res;
+    public List<String> clearNotifications(long hoaId, String memberId) throws HoaDoesntExistException {
+        try {
+            Hoa hoa = getHoaById(hoaId);
+            List<String> res = hoa.resetNotifications(memberId);
+            hoaRepo.save(hoa);
+            return res;
+        } catch (HoaDoesntExistException e) {
+            throw new HoaDoesntExistException("Associated HOA does not exist");
+        }
     }
 
     /**

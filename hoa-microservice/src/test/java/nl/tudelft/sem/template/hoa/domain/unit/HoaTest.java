@@ -5,6 +5,8 @@ import nl.tudelft.sem.template.hoa.domain.Hoa;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static nl.tudelft.sem.template.hoa.annotations.TestSuite.TestType.UNIT;
 
 
@@ -47,5 +49,14 @@ public class HoaTest {
     void hashCodeTest() {
         Hoa hoa = Hoa.createHoa(CTR, CITY, STR);
         Assertions.assertNotNull(hoa.hashCode());
+    }
+
+    @Test
+    void resetNotifTest() {
+        Hoa hoa = Hoa.createHoa(CTR, CITY, STR);
+        hoa.notify("a", "b");
+        List<String> res = hoa.resetNotifications("a");
+        Assertions.assertTrue(res.contains("b"));
+        Assertions.assertTrue(hoa.getNotifications().containsKey("a"));
     }
 }
