@@ -143,6 +143,14 @@ class ElectionTest {
 	}
 
 	@Test
+	void decrementVoteCount() {
+		boardElection.incrementVoteCount();
+		assertEquals(1, boardElection.getVoteCount());
+		boardElection.decrementVoteCount();
+		assertEquals(0, boardElection.getVoteCount());
+	}
+
+	@Test
 	void testToString() {
 		String ans = "Election{"
 			+ "electionID='0"

@@ -150,6 +150,10 @@ public abstract class Election {
         this.voteCount++;
     }
 
+    public void decrementVoteCount() {
+        this.voteCount--;
+    }
+
     @Override
     public String toString() {
         return "Election{"

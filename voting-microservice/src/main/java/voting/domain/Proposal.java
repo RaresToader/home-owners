@@ -71,11 +71,10 @@ public class Proposal extends Election {
      */
     @Override
     public void removeVote(String memberId) throws ThereIsNoVote {
-        if (this.votes.containsKey(memberId)) {
+        if (this.votes.containsKey(memberId) && getStatus().equals("ongoing")) {
             this.votes.remove(memberId);
-        } else {
-            throw new ThereIsNoVote("This person has not voted yet");
-        }
+            this.decrementVoteCount();
+        } else throw new ThereIsNoVote("This person has not voted yet");
     }
 
     /**

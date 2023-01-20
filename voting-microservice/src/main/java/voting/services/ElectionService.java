@@ -132,7 +132,7 @@ public class ElectionService {
      * @param model VotingModel that contains electionId, memberID, and voting choice
      * @throws ElectionDoesNotExist If election does not exist with provided id
      */
-    public void vote(VotingModel model, LocalDateTime currTime) throws ElectionDoesNotExist, CannotProceedVote {
+    public int vote(VotingModel model, LocalDateTime currTime) throws ElectionDoesNotExist, CannotProceedVote {
         if (!model.isValid())
             throw new ElectionDoesNotExist("Ids not valid");
         Optional<Election> election = this.electionRepository.findByElectionId(model.electionId);
@@ -142,7 +142,8 @@ public class ElectionService {
         checkElectionVote(election.get(), model.choice);
         election.get().setStatus("ongoing");
         election.get().vote(model.memberId, model.choice);
-        this.electionRepository.save(election.get());
+        Election e = this.electionRepository.save(election.get());
+        return e.getVoteCount();
     }
 
     /**
@@ -153,7 +154,7 @@ public class ElectionService {
      * @throws ThereIsNoVote If the member has not voted yet
      * @throws CannotProceedVote If the request has been made before the beginning or after the end of the voting process
      */
-    public void removeVote(RemoveVoteModel model, LocalDateTime currTime)
+    public int removeVote(RemoveVoteModel model, LocalDateTime currTime)
                             throws ElectionDoesNotExist, ThereIsNoVote, CannotProceedVote {
         if (!model.isValid())
             throw new ElectionDoesNotExist("Ids not valid");
@@ -162,7 +163,8 @@ public class ElectionService {
             throw new ElectionDoesNotExist("Election not found");
         checkElectionTime(election.get(), currTime);
         election.get().removeVote(model.memberId);
-        this.electionRepository.save(election.get());
+        Election e = this.electionRepository.save(election.get());
+        return e.getVoteCount();
     }
 
     /**
