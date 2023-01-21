@@ -7,6 +7,7 @@ import nl.tudelft.sem.template.hoa.exception.RequirementAlreadyPresent;
 import nl.tudelft.sem.template.hoa.exception.RequirementDoesNotExist;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -114,6 +115,16 @@ public class RequirementServiceTest {
         Mockito.when(requirementRepo.findById(1L)).thenReturn(Optional.of(requirement));
         setUp();
         Assertions.assertEquals(requirement, requirementService.removeHoaRequirement(1L));
+    }
+
+    @Test
+    void removeHoaRequirementActuallyPersisted() throws RequirementDoesNotExist {
+        requirementRepo = Mockito.mock(RequirementRepo.class);
+        Requirement requirement = new Requirement("Prompt", 1L);
+        Mockito.when(requirementRepo.findById(1L)).thenReturn(Optional.of(requirement));
+        requirementService = new RequirementService(requirementRepo);
+        Assertions.assertEquals(requirement, requirementService.removeHoaRequirement(1L));
+        Mockito.verify(requirementRepo, Mockito.times(1)).delete(requirement);
     }
 
 }
