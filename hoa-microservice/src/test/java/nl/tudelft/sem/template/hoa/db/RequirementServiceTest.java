@@ -7,7 +7,6 @@ import nl.tudelft.sem.template.hoa.exception.RequirementAlreadyPresent;
 import nl.tudelft.sem.template.hoa.exception.RequirementDoesNotExist;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;

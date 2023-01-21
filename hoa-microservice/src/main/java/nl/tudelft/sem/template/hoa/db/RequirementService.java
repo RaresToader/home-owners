@@ -81,7 +81,7 @@ public class RequirementService {
     public Requirement removeHoaRequirement(long reqId) throws RequirementDoesNotExist {
         Optional<Requirement> optReq = requirementRepo.findById(reqId);
         if (optReq.isEmpty()) throw new RequirementDoesNotExist("Requirement with provided id does not exist");
-        //requirementRepo.delete(optReq.get());
+        requirementRepo.delete(optReq.get());
         return optReq.get();
     }
 }
