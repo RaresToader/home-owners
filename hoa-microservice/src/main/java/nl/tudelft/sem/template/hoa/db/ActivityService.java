@@ -180,8 +180,8 @@ public class ActivityService {
         if (!rightFormatTitle(name) || !rightFormatDescription(description)) {
             return false;
         }
-        //LocalDateTime startTime = model.getActivityTime();
-        return true; //now.isBefore(startTime);
+        LocalDateTime startTime = model.getActivityTime();
+        return now.isBefore(startTime);
     }
 
     /**
