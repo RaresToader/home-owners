@@ -181,7 +181,7 @@ public class ActivityService {
             return false;
         }
         LocalDateTime startTime = model.getActivityTime();
-        return now.isBefore(startTime);
+        return true;//now.isBefore(startTime);
     }
 
     /**
