@@ -327,6 +327,13 @@ class ActivityServiceTest {
         assertTrue(activityService.validateActivity(model, LocalDateTime.now()));
     }
 
+    @Test
+    void validateActivityThatStartsInThePast() {
+        LocalDateTime now = LocalDateTime.now();
+        ActivityRequestModel model = new ActivityRequestModel(
+                test, test, 1L, now.minusDays(1L), LocalTime.of(2, 10));
+        assertFalse(activityService.validateActivity(model, now));
+    }
 
     @Test
     public void testNullInput() {
