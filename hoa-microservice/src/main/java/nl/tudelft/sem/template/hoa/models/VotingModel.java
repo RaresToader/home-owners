@@ -18,7 +18,7 @@ public class VotingModel {
      * @return Boolean to represent the model's validity
      */
     public boolean isValid() {
-        return electionId > 0;
+        return electionId >= 0;
     }
 
 }
