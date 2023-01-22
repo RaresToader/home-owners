@@ -12,7 +12,7 @@ class VotingModelTest {
 
     @ParameterizedTest
     @CsvSource({"-1, test, false, false, Invalid electionId", "1, test, false, true, Valid",
-            "1, test, tested, true, Valid"})
+            "1, test, tested, true, Valid", "0, test, tested, true, Valid"})
     void isValidTest(int electionID, String memberID, String voteChoice, boolean expected, String testdesc) {
         VotingModel sut = new VotingModel(electionID, memberID, voteChoice);
         assertEquals(expected, sut.isValid(), testdesc);
