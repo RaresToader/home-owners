@@ -89,11 +89,10 @@ public class BoardElection extends Election {
      */
     @Override
     public void removeVote(String memberId) throws ThereIsNoVote {
-        if (this.votes.containsKey(memberId)) {
+        if (getStatus().equals("ongoing") && this.votes.containsKey(memberId)) {
             this.votes.remove(memberId);
-        } else {
-            throw new ThereIsNoVote("This person has not voted yet");
-        }
+            this.decrementVoteCount();
+        } else throw new ThereIsNoVote("This person has not voted yet");
     }
 
     /**

@@ -1,5 +1,6 @@
 package nl.tudelft.sem.template.hoa.domain;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,6 +121,7 @@ public class Hoa {
      * @param rulesChange the rule change that will be contained in the notification
      */
     public void notify(String memberId, String rulesChange) {
+        if (!notifications.containsKey(memberId)) notifications.put(memberId, new ArrayList<>());
         notifications.get(memberId).add(rulesChange);
     }
 
@@ -130,7 +132,8 @@ public class Hoa {
      * @return Cleared notifications
      */
     public List<String> resetNotifications(String memberId) {
-        List<String> res = notifications.get(memberId);
+        if (!notifications.containsKey(memberId)) return new ArrayList<>();
+        List<String> res = new ArrayList<>(notifications.get(memberId));
         notifications.get(memberId).clear();
         return res;
     }

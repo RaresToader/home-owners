@@ -26,7 +26,7 @@ import voting.models.BoardElectionModel;
 import voting.models.ProposalModel;
 
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAmount;
+import java.time.Period;
 
 @RestController
 @RequestMapping("/voting")
@@ -63,11 +63,11 @@ public class ElectionController {
      * @return ResponseEntity containing new Proposal if creation was successful,
      * Bad request otherwise
      */
-    @PostMapping("/specifiedProposal")
+    @PostMapping("/specifiedProposal/{startAfterDays}")
     public ResponseEntity<Proposal> createProposal(@RequestBody ProposalModel model,
-                                                   @RequestBody TemporalAmount startAfter) {
+                                                   @PathVariable int startAfterDays) {
         try {
-            Proposal proposal = electionService.createProposal(model, startAfter);
+            Proposal proposal = electionService.createProposal(model, Period.ofDays(startAfterDays));
             return ResponseEntity.ok(proposal);
         } catch (ProposalAlreadyCreated | ElectionCannotBeCreated e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
@@ -98,10 +98,9 @@ public class ElectionController {
      * @return Response entity to note whether the voting was successful
      */
     @PostMapping("/vote")
-    public ResponseEntity<HttpStatus> vote(@RequestBody VotingModel model) {
+    public ResponseEntity<Integer> vote(@RequestBody VotingModel model) {
         try {
-            electionService.vote(model, LocalDateTime.now());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(electionService.vote(model, LocalDateTime.now()));
         } catch (ElectionDoesNotExist e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Election does not exist", e);
         } catch (CannotProceedVote e) {
@@ -116,10 +115,9 @@ public class ElectionController {
      * @return Response entity to note whether the removing of the vote was successful
      */
     @PostMapping("/removeVote")
-    public ResponseEntity<HttpStatus> removeVote(@RequestBody RemoveVoteModel model) {
+    public ResponseEntity<Integer> removeVote(@RequestBody RemoveVoteModel model) {
         try {
-            electionService.removeVote(model, LocalDateTime.now());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(electionService.removeVote(model, LocalDateTime.now()));
         } catch (ElectionDoesNotExist | ThereIsNoVote | CannotProceedVote e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }

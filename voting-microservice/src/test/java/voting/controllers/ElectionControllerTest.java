@@ -22,6 +22,7 @@ import voting.models.RemoveVoteModel;
 import voting.models.TimeModel;
 import voting.models.VotingModel;
 import voting.util.JsonUtil;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -30,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -110,6 +112,51 @@ class ElectionControllerTest {
         response.andExpect(status().isBadRequest());
     }
 
+    @Test
+    void createProposalScheduledSuccessTest() throws Exception {
+        ProposalModel reqModel = new ProposalModel("Test Proposal", "This is a test proposal",
+                1, validTimeModel);
+
+        Election expected = new Proposal(reqModel.name, reqModel.description, reqModel.hoaId,
+                reqModel.scheduledFor.createDate().plusDays(42));
+        expected.setElectionId(1);
+
+        // Perform a POST request
+        ResultActions response = mockMvc.perform(post("/voting/specifiedProposal/42")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(reqModel)));
+
+        // Assert that the response has a 200 OK status
+        response.andExpect(status().isOk());
+
+        Election returned = JsonUtil.deserialize(response.andReturn()
+                .getResponse().getContentAsString(), Proposal.class);
+        Election res = electionRepo.findByElectionId(1).orElse(null);
+        assertEquals(expected, res, "Check that db entry is equivalent to expected proposal");
+        assertEquals(expected, returned, "Check that response is equivalent to expected proposal");
+    }
+
+    @Test
+    void createProposalScheduledFailTest() throws Exception {
+        ProposalModel reqModel = new ProposalModel("Test Proposal", "This is a test proposal",
+                -1, validTimeModel);
+        // Perform a POST request
+        ResultActions response = mockMvc.perform(post("/voting/specifiedProposal/42")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(reqModel)));
+        // Assert that the response has a 400 BadRequest status
+        response.andExpect(status().isBadRequest());
+
+        reqModel = new ProposalModel("Test Proposal", "This is a test proposal", 1,
+                validTimeModel);
+        // Perform a POST request
+        response = mockMvc.perform(post("/voting/specifiedProposal/a")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(reqModel)));
+        // Assert that the response has a 400 BadRequest status
+        response.andExpect(status().isBadRequest());
+    }
+
 
     @Test
     void createBoardElectionSuccessTest() throws Exception {
@@ -166,6 +213,7 @@ class ElectionControllerTest {
 
         // Assert that the response has a 200 OK status
         response.andExpect(status().isOk());
+        assertEquals(1, Integer.parseInt(response.andReturn().getResponse().getContentAsString()));
 
         Proposal fetchedP = (Proposal) electionRepo.findByElectionId(1).orElse(null);
         assertNotNull(fetchedP, "Make sure entry is persisted");
@@ -179,12 +227,18 @@ class ElectionControllerTest {
                 1, List.of());
         electionRepo.save(p);
         VotingModel reqModel = new VotingModel(1, "chad", "aaaa");
-
         // Perform a POST request
         ResultActions response = mockMvc.perform(post("/voting/vote")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.serialize(reqModel)));
+        // Assert that the response has a 400 BadRequest status
+        response.andExpect(status().isBadRequest());
 
+        reqModel = new VotingModel(2, "chad", "aaaa");
+        // Perform a POST request
+        response = mockMvc.perform(post("/voting/vote")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(reqModel)));
         // Assert that the response has a 400 BadRequest status
         response.andExpect(status().isBadRequest());
 
@@ -208,8 +262,9 @@ class ElectionControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonUtil.serialize(reqModel)));
 
-        // Assert that the response has a 200 OK status
+        // Assert that the response has     a 200 OK status
         response.andExpect(status().isOk());
+        assertEquals(0, Integer.parseInt(response.andReturn().getResponse().getContentAsString()));
 
         BoardElection fetchedP = (BoardElection) electionRepo.findByElectionId(1).orElse(null);
         assertNotNull(fetchedP, "Make sure entry is persisted");
@@ -218,19 +273,33 @@ class ElectionControllerTest {
 
     @Test
     void removeVoteFailTest() throws Exception {
+        // Cannot remove non-existing vote
         Election p = new Proposal(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate());
+        p.setStatus("ongoing");
         electionRepo.save(p);
         RemoveVoteModel reqModel = new RemoveVoteModel(1, "1");
-
         // Perform a POST request
         ResultActions response = mockMvc.perform(post("/voting/removeVote")
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonUtil.serialize(reqModel)));
-
         // Assert that the response has a 400 BadRequest status
         response.andExpect(status().isBadRequest());
-
         Proposal fetchedP = (Proposal) electionRepo.findByElectionId(1).orElse(null);
+        assertNotNull(fetchedP, "Make sure entry is persisted");
+        assertTrue(fetchedP.getVotes().isEmpty(), "Make sure vote is persisted");
+
+        // Election has finished
+        p = new Proposal(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate());
+        p.setStatus("finished");
+        electionRepo.save(p);
+        reqModel = new RemoveVoteModel(1, "1");
+        // Perform a POST request
+        response = mockMvc.perform(post("/voting/removeVote")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.serialize(reqModel)));
+        // Assert that the response has a 400 BadRequest status
+        response.andExpect(status().isBadRequest());
+        fetchedP = (Proposal) electionRepo.findByElectionId(1).orElse(null);
         assertNotNull(fetchedP, "Make sure entry is persisted");
         assertTrue(fetchedP.getVotes().isEmpty(), "Make sure vote is persisted");
     }
@@ -297,6 +366,78 @@ class ElectionControllerTest {
         ResultActions response = mockMvc.perform(post("/voting/conclude/1")
                 .contentType(MediaType.APPLICATION_JSON));
         // Cannot conclude a non-existent election
+        response.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void joinElectionSuccessTest() throws Exception {
+        BoardElection be = new BoardElection(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate(),
+                1, List.of());
+        electionRepo.save(be);
+        // Perform a POST request
+        ResultActions response = mockMvc.perform(post("/voting/joinElection/testCandidate/" + 1)
+                .contentType(MediaType.APPLICATION_JSON));
+        // Check result
+        response.andExpect(status().isOk());
+        Boolean returned = JsonUtil.deserialize(response.andReturn()
+                .getResponse().getContentAsString(), Boolean.class);
+        assertTrue(returned, "Candidate join was successful");
+
+        // Second POST request
+        response = mockMvc.perform(post("/voting/joinElection/testCandidate/" + 1)
+                .contentType(MediaType.APPLICATION_JSON));
+        // Check result for idempotence (second join)
+        response.andExpect(status().isOk());
+        returned = JsonUtil.deserialize(response.andReturn()
+                .getResponse().getContentAsString(), Boolean.class);
+        assertFalse(returned, "Idempotence");
+    }
+
+    @Test
+    void joinElectionFailTest() throws Exception {
+        BoardElection be = new BoardElection(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate(),
+                1, List.of());
+        electionRepo.save(be);
+        // Perform a POST request
+        ResultActions response = mockMvc.perform(post("/voting/joinElection/testCandidate/" + 2)
+                .contentType(MediaType.APPLICATION_JSON));
+        // Check result
+        response.andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void leaveElectionSuccessTest() throws Exception {
+        BoardElection be = new BoardElection(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate(),
+                1, List.of("testCandidate"));
+        electionRepo.save(be);
+        // Perform POST request
+        ResultActions response = mockMvc.perform(post("/voting/leaveElection/testCandidate/" + 1)
+                .contentType(MediaType.APPLICATION_JSON));
+        // Check result
+        response.andExpect(status().isOk());
+        Boolean returned = JsonUtil.deserialize(response.andReturn()
+                .getResponse().getContentAsString(), Boolean.class);
+        assertTrue(returned, "First leave is successful");
+
+        // Second POST request
+        response = mockMvc.perform(post("/voting/leaveElection/testCandidate/" + 1)
+                .contentType(MediaType.APPLICATION_JSON));
+        // Check result for idempotence (second join)
+        response.andExpect(status().isOk());
+        returned = JsonUtil.deserialize(response.andReturn()
+                .getResponse().getContentAsString(), Boolean.class);
+        assertFalse(returned, "Idempotence");
+    }
+
+    @Test
+    void leaveElectionFailTest() throws Exception {
+        BoardElection be = new BoardElection(VALID_NAME, VALID_DESC, 1, validTimeModel.createDate(),
+                1, List.of());
+        electionRepo.save(be);
+        // Perform a POST request
+        ResultActions response = mockMvc.perform(post("/voting/leaveElection/testCandidate/" + 2)
+                .contentType(MediaType.APPLICATION_JSON));
+        // Check result
         response.andExpect(status().isBadRequest());
     }
 }

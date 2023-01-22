@@ -30,6 +30,7 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -67,6 +68,7 @@ class ElectionServiceTest {
 		beVoteModel = new VotingModel(0, "chad", "1");
 		removeVoteModel = new RemoveVoteModel(0, "chad");
 		repository = mock(ElectionRepository.class);
+		when(repository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 		electionService = new ElectionService(repository);
 	}
 

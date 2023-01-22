@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import nl.tudelft.sem.template.hoa.db.HoaService;
 import nl.tudelft.sem.template.hoa.domain.Hoa;
+import nl.tudelft.sem.template.hoa.exception.HoaDoesntExistException;
 import nl.tudelft.sem.template.hoa.models.BoardElectionRequestModel;
 import nl.tudelft.sem.template.hoa.models.HoaRequestModel;
 import nl.tudelft.sem.template.hoa.models.MembershipResponseModel;
@@ -105,17 +106,6 @@ public class HoaController {
         }
     }
 
-
-    /**
-     * Setter method used when HoaService needs to be mocked
-     *
-     * @param h - HoaService to be mocked
-     */
-    public void setHoaService(HoaService h) {
-        this.hoaService = h;
-    }
-
-
     /**
      * Endpoint for notifying users of accepted proposals (rule changes)
      *
@@ -129,14 +119,26 @@ public class HoaController {
                                                          @PathVariable long hoaId,
                                                          @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         try {
-            List<MembershipResponseModel> memberships =
-                    MembershipUtils.getActiveMembershipsForUser(memberId, token);
+            List<MembershipResponseModel> memberships = MembershipUtils.getActiveMembershipsForUser(memberId, token);
             if (memberships.stream().noneMatch(m -> m.getHoaId() == hoaId))
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access is not allowed");
-            return ResponseEntity.ok(hoaService.clearNotifications(hoaId, memberId));
-        } catch (ResponseStatusException e) {
+                throw new IllegalAccessException("Access is not allowed");
+            List<String> res = hoaService.clearNotifications(hoaId, memberId);
+            return ResponseEntity.ok(res);
+        } catch (HoaDoesntExistException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
         }
     }
+
+    /**
+     * Setter method used when HoaService needs to be mocked
+     *
+     * @param h - HoaService to be mocked
+     */
+    public void setHoaService(HoaService h) {
+        this.hoaService = h;
+    }
+
 }
 

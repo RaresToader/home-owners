@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProposalRequestModel {
-    public int hoaId;
+    public long hoaId;
     public String name;
     public String description;
     public TimeModel scheduledFor;

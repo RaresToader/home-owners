@@ -35,9 +35,10 @@ public class HoaController {
      * Instantiates a new MemberController.
      */
     @Autowired
-    public HoaController(HoaService hoaService, AuthManager authManager) {
+    public HoaController(HoaService hoaService, AuthManager authManager, MemberService memberService) {
         this.hoaService = hoaService;
         this.authManager = authManager;
+        this.memberService = memberService;
     }
 
     /**
@@ -65,9 +66,8 @@ public class HoaController {
      */
     @PostMapping("/leaveHOA")
     public ResponseEntity<Membership> leaveHoa(@RequestBody GetHoaModel model) {
-        validateExistence(model);
         try {
-            authManager.validateMember(model.getMemberId());
+            validateExistence(model);
             Membership membership = hoaService.leaveHoa(model);
             return ResponseEntity.ok(membership);
         } catch (IllegalAccessException e) {
@@ -80,14 +80,14 @@ public class HoaController {
     /**
      * Checks whether a user and HOA exist.
      */
-    public void validateExistence(HoaModel model) {
+    public void validateExistence(HoaModel model) throws IllegalAccessException, IllegalArgumentException {
         try {
             authManager.validateMember(model.getMemberId());
             memberService.getMember(model.getMemberId());
         } catch (IllegalAccessException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, unauthorizedMessage, e);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "HOA or member are not stored", e);
+            throw new IllegalAccessException(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

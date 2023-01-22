@@ -107,7 +107,7 @@ public abstract class Election {
         this.electionId = electionId;
     }
 
-    public void setHoaId(int hoaId) {
+    public void setHoaId(long hoaId) {
         this.hoaId = hoaId;
     }
 
@@ -148,6 +148,10 @@ public abstract class Election {
 
     public void incrementVoteCount() {
         this.voteCount++;
+    }
+
+    public void decrementVoteCount() {
+        this.voteCount--;
     }
 
     @Override

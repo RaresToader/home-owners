@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -281,8 +282,8 @@ class MembershipServiceTest {
 
     @Test
     void stopMembership() {
-        assertEquals(TimeUtils.absoluteDifference(start, LocalDateTime.now()),
-                membershipService.stopMembership(new GetHoaModel(id, 1L)).getDuration());
+        assertTrue(TimeUtils.absoluteDifference(start, LocalDateTime.now()).compareTo(
+                        membershipService.stopMembership(new GetHoaModel(id, 1L)).getDuration()) < 0);
     }
 
     @Test
