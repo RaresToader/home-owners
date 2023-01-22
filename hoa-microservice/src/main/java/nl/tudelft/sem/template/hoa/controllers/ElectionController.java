@@ -225,7 +225,8 @@ public class ElectionController {
             Validator handler = new TimeInCurrentHoaValidator();
             Validator otherBoardValidator = new NotInAnyOtherBoardValidator();
             Validator notForTooLongValidator = new NotBoardForTooLongValidator();
-            otherBoardValidator.setNext(notForTooLongValidator);
+//            Mutant indroduced - call removal
+//            otherBoardValidator.setNext(notForTooLongValidator);
             handler.setNext(otherBoardValidator);
             handler.handle(memberships, hoaID);
 
