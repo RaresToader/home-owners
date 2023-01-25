@@ -285,8 +285,9 @@ class MembershipServiceTest {
 
     @Test
     void stopMembership() {
-        assertEquals(0, TimeUtils.absoluteDifference(start, LocalDateTime.now()).compareTo(
-                        membershipService.stopMembership(new GetHoaModel(id, 1L)).getDuration()), 0.1);
+        assertTrue(TimeUtils.absoluteDifference(start, LocalDateTime.now()).compareTo(
+                        membershipService.stopMembership(new GetHoaModel(id, 1L)).getDuration()) <= 0);
+        Mockito.verify(membershipRepository).save(membership);
     }
 
     @Test
