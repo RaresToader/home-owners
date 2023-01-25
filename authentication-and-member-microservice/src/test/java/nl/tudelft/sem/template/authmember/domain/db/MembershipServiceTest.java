@@ -7,6 +7,7 @@ import nl.tudelft.sem.template.authmember.domain.exceptions.BadJoinHoaModelExcep
 import nl.tudelft.sem.template.authmember.domain.exceptions.MemberAlreadyInHoaException;
 import nl.tudelft.sem.template.authmember.models.GetHoaModel;
 import nl.tudelft.sem.template.authmember.models.JoinHoaModel;
+import nl.tudelft.sem.template.authmember.models.MembershipResponseModel;
 import nl.tudelft.sem.template.authmember.utils.TimeUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,10 +61,12 @@ class MembershipServiceTest {
 
         Mockito.when(this.membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull(id, 1L))
                 .thenReturn(java.util.Optional.ofNullable(membership));
+        Mockito.when(this.membershipRepository.findAllByDurationIsNull())
+            .thenReturn(List.of(membership, membership2));
         Mockito.when(this.membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull(m2, 1L))
                 .thenReturn(java.util.Optional.ofNullable(null));
         Mockito.when(this.membershipRepository.findByMembershipId(0L)).thenReturn(java.util.Optional.ofNullable(membership));
-        Mockito.when(this.membershipRepository.findAll()).thenReturn(new ArrayList<>());
+        Mockito.when(this.membershipRepository.findAll()).thenReturn(new ArrayList<>(List.of(membership)));
         List<Membership> list = new ArrayList<>();
         list.add(membership);
         list.add(membership2);
@@ -283,7 +286,7 @@ class MembershipServiceTest {
     @Test
     void stopMembership() {
         assertTrue(TimeUtils.absoluteDifference(start, LocalDateTime.now()).compareTo(
-                        membershipService.stopMembership(new GetHoaModel(id, 1L)).getDuration()) < 0);
+                        membershipService.stopMembership(new GetHoaModel(id, 1L)).getDuration()) == 0);
     }
 
     @Test
@@ -291,6 +294,13 @@ class MembershipServiceTest {
         List<Membership> list = new ArrayList<>();
         list.add(membership);
         assertEquals(list, membershipService.getMembershipsForMember(id));
+    }
+
+    @Test
+    void getActiveMembershipsForHoaId() {
+        List<Membership> list = new ArrayList<>();
+        list.add(membership);
+        assertEquals(list, membershipService.getActiveMembershipsByHoaId(1));
     }
 
     @Test
@@ -328,12 +338,19 @@ class MembershipServiceTest {
     }
 
     @Test
+    void changeBoardException() {
+        MembershipResponseModel model = new MembershipResponseModel(1, membership.getMemberId(),
+            membership.getHoaId(), null, null, true, null, null);
+        assertThrows(IllegalArgumentException.class, () -> membershipService.changeBoard(model, true));
+    }
+
+    @Test
     void getMembership() {
         assertEquals(membership, membershipService.getMembership(0L));
     }
 
     @Test
     void getAll() {
-        assertEquals(new ArrayList<>(), membershipService.getAll());
+        assertEquals(new ArrayList<>(List.of(membership)), membershipService.getAll());
     }
 }
