@@ -12,6 +12,7 @@ import nl.tudelft.sem.template.authmember.utils.TimeUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.times;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -81,6 +83,10 @@ class MembershipServiceTest {
         Mockito.when(this.memberRepository.findByMemberId(m2)).thenReturn(java.util.Optional.ofNullable(null));
         Mockito.when(this.memberRepository.findByMemberId(id)).thenReturn(java.util.Optional.ofNullable(new Member()));
         Mockito.when(this.memberRepository.findByMemberId(newId)).thenReturn(java.util.Optional.ofNullable(new Member()));
+
+        Mockito.when(this.memberRepository.findByMemberId("1")).thenReturn(java.util.Optional.ofNullable(new Member()));
+        Mockito.when(this.membershipRepository.findByMemberIdAndHoaIdAndDurationIsNull("1", 1))
+            .thenReturn(java.util.Optional.of(membership)).thenReturn(java.util.Optional.ofNullable(null));
     }
 
     @AfterEach
@@ -353,5 +359,24 @@ class MembershipServiceTest {
     @Test
     void getAll() {
         assertEquals(new ArrayList<>(List.of(membership)), membershipService.getAll());
+    }
+
+    @Test
+    void changeBoardTest() {
+        MembershipResponseModel m = new MembershipResponseModel(membership.getMembershipId(), "1", 1,
+            membership.getAddress().getCountry(), membership.getAddress().getCity(), false, null, null);
+
+        ArgumentCaptor<Membership> argument = ArgumentCaptor.forClass(Membership.class);
+        membershipService.changeBoard(m, true);
+
+        Mockito.verify(membershipRepository, times(2)).save(argument.capture());
+
+        List<Membership> values = argument.getAllValues();
+        //Verify that a new membership is saved with same values but a true boardMember variable
+        Membership toCheck = values.get(1);
+        assertEquals(toCheck.getMembershipId(), membership.getMembershipId());
+        assertEquals(toCheck.getHoaId(), membership.getHoaId());
+        assertEquals(toCheck.getAddress(), membership.getAddress());
+        assertTrue(toCheck.isInBoard());
     }
 }
