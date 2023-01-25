@@ -146,7 +146,7 @@ public class MembershipService {
             model.setMemberId(m.getMemberId());
             Membership old = stopMembership(model);
             JoinHoaModel jmodel = new JoinHoaModel();
-//            jmodel.setAddress(old.getAddress());
+            jmodel.setAddress(old.getAddress());
             jmodel.setMemberId(m.getMemberId());
             jmodel.setHoaId(m.getHoaId());
             saveMembership(jmodel, shouldPromote);
