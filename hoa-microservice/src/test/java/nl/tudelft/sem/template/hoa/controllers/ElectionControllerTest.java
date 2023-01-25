@@ -549,6 +549,25 @@ public class ElectionControllerTest {
     }
 
     @Test
+    void joinElectionBoardTooLong() throws Exception {
+        // Creates a member that has been part of HOA for 11 years
+        Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn(randomId);
+        List<MembershipResponseModel> list3 = new ArrayList<>();
+        MembershipResponseModel m3 = new MembershipResponseModel(0L, memberId,
+                1L, address.getCity(), address.getCountry(), true,
+                start.minusYears(11), null);
+        list3.add(m3);
+        when(MembershipUtils.getMembershipsForUser(randomId, tok))
+                .thenReturn(list3);
+
+        ResultActions resultActions = mockMvc.perform(post("/voting/joinElection/" + m3.getHoaId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, tok));
+
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @Test
     void joinElectionNoMemberships() throws Exception {
         Mockito.when(this.mockAuthenticationManager.getMemberId()).thenReturn(badId);
         ResultActions resultActions = mockMvc.perform(post("/voting/joinElection/" + 1L)
